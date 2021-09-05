@@ -1,0 +1,139 @@
+.button1, .button2{
+    /* width: 100%; */
+    width: 85px;
+    height: 30px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-transform: uppercase;
+    transition: .4s;
+    font-size: 12px;
+    border-radius: 10%;
+    box-shadow: 3px 4px 0px rgba(28, 28, 29, 0.42);
+  }
+
+  .button1{
+    background-color: #2778d4;
+  }
+
+  
+  .button1:hover{
+    background-color: #308efa;
+  }
+
+
+  .button2{
+    background-color: #e22b13;
+  }
+
+  .button2:hover{
+    background-color: #fd5640;
+  }
+
+  .dialog-container{
+      width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+  }
+
+  .inputDialog{
+      width: 90%;
+  }
+
+  .titleDialog{
+    color: #0e0e0e;
+    margin-bottom: -30px;
+  }
+
+  .search-container{
+    margin: 20px 20px 0;
+  }
+
+  .search-container input{
+    height: 30px;
+  }
+    /* pagination styling */
+
+  .pagination_section {
+    position: absolute;
+    top: 500px;
+    right: 150px;
+  }
+
+  
+  .maxPage{
+    right: 250px !important;
+  }
+  
+  .shift{
+    right: 200px;
+  }
+  
+  .pagination_section button:not(.active) {
+    color: #000;
+    padding: 10px 20px;
+    text-decoration: none;
+    border: 1px solid gray;
+  }
+  
+  .pagination_section .prevNext {
+    padding: 10px 15px !important;
+  }
+  /* pagination hover effect on non-active */
+  
+  .pagination_section button:hover:not(.active) {
+   background-color: #e22b13;
+    color: white;
+    transition: .3s;
+    border: 1px solid gray;
+  }
+  /* pagination hover effect on active*/
+  .pagination_section button:hover {
+    cursor: pointer;
+  }
+  
+  .pagination_section .dot{
+    cursor: auto;
+  }
+  
+  .active-pagination {
+    padding: 10px 20px;
+    background-color: green;
+    color: white;
+    text-decoration: none;
+    border: 1px solid green;
+  }
+  
+  button:nth-child(1) {
+    font-weight: bold;
+  }
+  
+  button:last-child {
+    font-weight: bold;
+  }
+  
+  .entries{
+    color: black;
+    font-family: 'Poppins',sans-serif;
+    margin-left: 50px;
+    margin-top: 20px;
+  }
+  
+  .entry{
+    margin: 0px 10px;
+  }
+  
+  .hide{
+   color: #37436b !important;
+   font-weight: bold;
+   padding: 10px 18px;
+  }
+
+  @media (max-width: 967px) {
+  .pagination_section {
+      position: absolute;
+      top: 170px;
+      right: 150px;
+    }
+
+  }

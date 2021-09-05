@@ -1,0 +1,12 @@
+/* .home-container{
+    position: fixed;
+    background: linear-gradient( rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6) ), url("https://www.centralparkjakarta.com/wp-content/uploads/2020/01/tribec-top.jpg");
+    width: 1500px;
+    height: 1000px;
+} */
+
+h1.welcome-home{
+    display: flex;
+    justify-content: center;
+  
+}

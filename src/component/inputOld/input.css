@@ -1,0 +1,194 @@
+
+
+.bgform{
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 15px;
+  padding: 0;
+  height: 600px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: white;
+  border:2px solid rgb(208, 209, 205); 
+  border-radius: 5%;
+  width: 600px;
+  box-shadow: 20px 20px 30px 0px rgb(116, 109, 109, 0.4);
+}
+
+.bgform h2{
+  font-size: 2.4rem;
+  text-transform: uppercase;
+  margin: -25px 0;
+  /* margin-top: -50px; */
+  color: #37436b;
+  font-family: 'Poppins', sans-serif;
+}
+
+  .radioInput:nth-child(2){
+    color: red;
+    margin-top: 22px;
+    margin-left: -150px;
+  }
+
+  .fileInput{
+    margin-top: 14px;
+    margin-left: -62px;
+  }
+
+  .bgform.login{
+    height: 300px;
+  }
+  
+  .bgform.edit{
+    height: 500px;
+  }
+  
+
+  .avatar{
+    width: 150px;
+  }
+  
+  .input-name{
+    position: relative;
+    width: 170px;
+    margin: 18px;
+    border: 2px solid #fff;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 18px;
+    font-family: 'Poppins',sans-serif;
+    padding: 10.5px 0px;
+    font-weight: 500;
+    /* background-color: red; */
+  }
+
+  .input-name.wide{
+    /* margin: 40px 0px; */
+    height: 100px;
+  }
+
+  .input-div{
+    position: relative;
+    display: grid;
+    width: 350px;
+    grid-template-columns: 7% 93%;
+    margin: 15px;
+    border: 2px solid #7b7b7ba3;
+    transition: .4s;
+  }
+  
+  .i{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgb(116, 109, 109);
+    transition: .3s;
+    font-size: 20px;
+    padding-top: 3px;
+    padding-left: 5px;
+  }
+  
+  
+  .input-div div{
+    position: relative;
+    height: 45px;
+  }
+  
+  .input-div div h5{
+    position: absolute;
+    left: 10px;
+    top: -20%;
+    transform:translateY(-50%);
+    color: rgb(116, 109, 109);
+    font-size: 18px;
+    transition: .3s;
+    font-weight: 300;
+    font-family: 'Poppins',sans-serif;
+  }
+
+  
+  .input{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: none;
+    outline: none;
+    background: none;
+    padding: 0rem 0.7rem;
+    font-size: 1.1rem;
+    font-family: 'Poppins',sans-serif;
+    columns: rgb(182, 177, 177);
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
+    /* width: 25px;
+    padding: 10px;
+    margin: 0px; */
+}
+
+  .focus div h5{
+    top: -28px;
+    font-size: 16px;
+    background-color: #fff;
+  }
+
+  .input-div:after, .input-div:before{
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    width: 0;
+    height: 3px;
+    background-color: #37436b;
+    transition: .4s;
+  }
+
+  .input-div.focus .i{
+    color: #37436b;
+  }
+
+  .input-div.focus:after, .input-div.focus:before{
+    width: 50%;
+  }
+
+  .input-div:after{
+    right: 50%;
+  }
+  
+  .input-div:before{
+    left: 50%;
+  } 
+  
+  .redAlert{
+    border: 2px solid red !important;
+  }
+
+  .selectOpt{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 5px;
+    left: -5px;
+    border: none;
+    outline: none;
+    background: none;
+    padding: 0.5rem 0.7rem;
+    font-size: 1.1rem;
+    font-family: 'Poppins',sans-serif;
+    columns: rgb(182, 177, 177);
+  }
+
+.textALert{
+  font-size: 13px;
+  position: absolute;
+  margin-top: -55px;
+  margin-left: 190px;
+  color: red;
+}
