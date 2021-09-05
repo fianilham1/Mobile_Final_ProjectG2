@@ -1,0 +1,16 @@
+import Splash from './splash'
+import Login from './login'
+import Register from './register'
+import OnBoard from './onBoard'
+import ProfileView from './profileView'
+import SendEmail from './forgotPass1-send-email'
+import VerifyEmail from './forgotPass2-verify-email'
+import ResetPassword from './forgotPass3-reset-password'
+import Home from './home'
+import Detail from './detail'
+import Find from './find'
+import Post from './post'
+import Contact from './contact'
+import Account from './account'
+
+export {Splash, Login, Register, OnBoard, ProfileView, SendEmail, VerifyEmail, ResetPassword, Home, Detail, Find, Post, Contact, Account }
