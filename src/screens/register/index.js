@@ -111,9 +111,9 @@ class Register extends Component{
                     username: this.state.username,
                     password: this.state.password,
                     name:this.state.name,
-                    role:'',
                     image:'',
-                    phone:''
+                    phone:'',
+                    points:0
                 })
             })
             let json = await res.json()

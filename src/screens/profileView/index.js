@@ -11,7 +11,7 @@ import {
  import Icon from 'react-native-vector-icons/MaterialIcons';
  import { COLOR } from '../../constant/color';
  import { connect } from 'react-redux';
- import { editUser, signIn } from '../../actions/auth';
+ import { editUser, signIn } from '../../reducers/actions/auth';
  import {Input} from 'react-native-elements';
  import * as ImagePicker from "react-native-image-picker";
  import Modal from "react-native-modal";

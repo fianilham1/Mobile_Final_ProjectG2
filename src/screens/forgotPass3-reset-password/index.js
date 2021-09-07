@@ -11,8 +11,7 @@ import {
     Image,
     BackHandler} from 'react-native';
 import {connect} from "react-redux";
-import {signIn} from '../../actions/auth';
-import {storeUserForgotPass} from '../../actions/auth';
+import {storeUserForgotPass} from '../../reducers/actions/auth';
 import {InputApp, ButtonApp} from '../../components';
 import { COLOR} from '../../constant/color';
 import { SQLiteContext } from '../../config/sqlite';

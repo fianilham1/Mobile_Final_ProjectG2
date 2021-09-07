@@ -13,11 +13,12 @@ import {
     StatusBar,
     ImageBackground,
     Image,
+    ActivityIndicator,
     TouchableOpacity} from 'react-native';
 import Animated, { EasingNode } from 'react-native-reanimated';
 
-const WIDTH= Dimensions.get('window').width;
-const HEIGHT =  Dimensions.get('window').height;
+const WIDTH = Dimensions.get('window').width;
+const HEIGHT = Dimensions.get('window').height;
 
 
 class AuthHeader extends Component {
@@ -117,27 +118,23 @@ class AuthHeader extends Component {
 
     renderScreen = (navigation,OnBoard) => {
         return <View
-        style={styles.box}>
-        <View style={styles.onBoardTextContainer}>
-            <Text style={{color: 'white', fontSize: 35, fontWeight: 'bold'}}>
-            YOUR LOGO
-            </Text>
-            <Text style={{color: 'white', lineHeight: 25, top:HEIGHT-330}}>
-            From Facebook
-            </Text>
-            <Image 
+        style={styles.onBoardBox}>
+        <View style={styles.onBoardTLogoContainer}>
+        <Image 
             style={{
-                width:WIDTH+30, 
-                height:WIDTH+45,
-                bottom:250,
-                opacity:0.4,
-                transform:[ {scale:0.7} ] }}
-            source ={require('../../assets/images/geo.png')}
-            />
+                width:130, 
+                height:145
+            }}
+            source ={require('../../assets/images/logoWhite.png')} />
+        <Text style={{color: 'white', fontSize:18, fontFamily:'serif',marginTop:20}}>Enjoy Your Life With Us</Text>
         </View>
-       {!OnBoard ? //Splash
-        null
-       : //OnBoard
+       {!OnBoard ?
+       //Loading ----------------------------------------- 
+        <View style={styles.onBoardButtonContainer}>
+            <ActivityIndicator size='large' color="#fff"/>
+        </View>
+       : 
+       //OnBoard ----------------------------------------
         <Animatable.View style={[styles.onBoardButtonContainer,styles.shadow]}
         animation="fadeInDown"
         duration={1000} > 
@@ -176,10 +173,9 @@ class AuthHeader extends Component {
             inputRange: [0, 1],
             outputRange: [0, -720]
         })
-        // const top =  onBoard ? params?.authStatus==='start' ? topAnimation : -720 : 0
+
         const top = splash || onBoard  ? 0 : params?.authStatus==='start' ? topAnimation : -720
            
-
         const left = Animated.interpolateNode(this.state.animationAuthHeaderLeft,{
             inputRange: [0, 1],
             outputRange: params?.firstScreen==='Login' ? [0, WIDTH] : [WIDTH,0]
@@ -211,7 +207,7 @@ class AuthHeader extends Component {
                 {/* BackGround Rectangle  */}
                 <LinearGradient 
                         colors={[COLOR.lightmain2, COLOR.lightmain ,COLOR.main]}
-                        locations={[0.2,0.35,0.7]}
+                        locations={[0.1,0.35,0.7]}
                         style={styles.box1}>
                 </LinearGradient>
                 {/* BackGround Triangle below Rectangle  */}
@@ -222,21 +218,28 @@ class AuthHeader extends Component {
                         <TriangleDown style={{...styles.box2,
                             color:COLOR.main}}/>
                 </Animated.View>
-                {/* <Image 
-                style={styles.box1}
-                source={require('../../assets/images/splash-project.png')}
-                /> */}
             </Animated.View>
 
-            {this.props.splash ? //if splash -> render Component Below*
-                this.renderScreen(this.props.navigation, this.props.onBoard)
+            {this.props.splash ? //if splash ? -> render Component Below* >>>>>>>>>>>>>>>>>>>>>
+                this.renderScreen(this.props.navigation,null)
             :
-                this.props.onBoard ?  //if onBoard -> render Component Below*
-                    // Render Text of OnBoard -> Logo and button sign in&sign up
+                this.props.onBoard ?  //if onBoard ? -> render Component Below* >>>>>>>>>>>>>>>
+                // Render Text of OnBoard -> Logo and button sign in&sign up
                     this.renderScreen(this.props.navigation, this.props.onBoard)
                     :
-                    // Render Header Sign In & Sign Up with rotate animation button and triangle
-                    <>
+                // if auth ? >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                // Render Header Sign In & Sign Up with rotate animation button and triangle
+                    <>  
+                    <Animated.View style={[styles.logobox,{left:leftIcon}]}>
+                    <Image 
+                        resizeMode='cover'
+                        style={{
+                            width:55, 
+                            height:63,
+                        }}
+                        source ={require('../../assets/images/logoWhite.png')} />
+                    </Animated.View>
+                    
                     <Animated.View
                     style={[
                         styles.iconbox,
@@ -275,10 +278,10 @@ class AuthHeader extends Component {
                     <Animatable.View
                     animation={this.state.eventScreen ? "fadeInLeft" : 'fadeInRight'}
                     duration={1000}
-                    style={styles.textContainer}
+                    style={[styles.textContainer,{left:this.state.eventScreen ? '10%' :'50%'}]}
                     >
-                        {/* <Text style={styles.text}>{title}</Text> */}
-                        {/* <Text style={styles.text2}>{subtitle}</Text> */}
+                        <Text style={styles.text}> Welcome</Text>
+                        <Text style={styles.text2}>{this.state.eventScreen ? '' : 'Back'}</Text>
                     </Animatable.View>
                     </>
             }
@@ -297,15 +300,24 @@ const styles = StyleSheet.create({
         marginBottom:10,
         // position:'absolute'
     },
-    box: {
+    onBoardBox: {
         flex:1,
         width:WIDTH,
+        height:HEIGHT,
         position:'absolute',
-        top:HEIGHT*0.35,
+        top:30,
+        // top:HEIGHT*0.35,
         left:'50%',
         marginLeft:-WIDTH/2,
         zIndex:3,
+        flexDirection:'column',
+        justifyContent:'space-between'
       },
+    onBoardTLogoContainer:{
+        justifyContent: 'center',
+        alignItems:'center',
+        top:100
+    },
     onBoardTextContainer:{
         justifyContent: 'center',
         alignItems:'center',
@@ -315,7 +327,7 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         justifyContent:'center',
         alignItems:'center',
-        bottom:HEIGHT*0.3
+        bottom:150
       },
       onBoardButton: {
         height: 50,
@@ -328,18 +340,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexDirection:'row',
       },
-
-    textContainer:{
+    logobox:{
         flex:1,
         position:'absolute',
-        top:165,
-        left:'50%',
-        marginLeft:-100,
-        justifyContent:'center',
-        alignItems:'center',
-        width:200,
+        top:40,
+        width:WIDTH,
         height:60,
-        backgroundColor:COLOR.main2,
+        zIndex:5,
     },
     iconbox:{
         flex:1,
@@ -353,14 +360,24 @@ const styles = StyleSheet.create({
         alignItems:'center',
         zIndex:1,
     },
+    textContainer:{
+        flex:1,
+        position:'absolute',
+        top:100,
+        marginLeft:0,
+        justifyContent:'center',
+        alignItems:'flex-start',
+        height:100,
+    },
     text:{
-      color:"#ffffff",
+      color:COLOR.main,
       fontSize:30,
       fontWeight:'bold',
     },
     text2:{
-        color:"#ffffff",
+        color:COLOR.main,
         fontSize:25,
+        left:10
       },
     box1:{
         left:-10,
@@ -398,9 +415,3 @@ const styles = StyleSheet.create({
       }
 })
 
-{/* <View style={{
-    //darken image
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    borderRadius:WIDTH*1.6,
-}}></View> */}

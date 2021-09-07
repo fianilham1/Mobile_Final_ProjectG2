@@ -14,9 +14,13 @@ import {
   ResetPassword,
   Home,
   Detail,
-  Find,
-  Post,
-  Contact,
+  FlightsSearch,
+  AirportsSearch,
+  FlightsList,
+  FlightsDetail,
+  BookSummary,
+  Book1FillDetails,
+  BookingList,
   Account} from '../screens';
 import {
   View,
@@ -28,9 +32,9 @@ import {
   ImageBackground,
   StatusBar} from 'react-native';
 import {connect} from "react-redux";
-import {signIn} from '../actions/auth';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import {Header, ForgotPassHeader, ForgotPassPagination, AuthHeader} from '../components';
+import {signIn} from '../reducers/actions/auth';
+import FontawesomeIcon from 'react-native-vector-icons/FontAwesome5';
+import {ForgotPassHeader, ForgotPassPagination, AuthHeader} from '../components';
 import { SQLiteContext } from '../config/sqlite';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -45,7 +49,8 @@ const WIDTH= Dimensions.get('window').width;
 const RootStack = createNativeStackNavigator();
 const AuthStack = createNativeStackNavigator();
 const AuthForgetPassStack = createNativeStackNavigator();
-const BottomTab = createBottomTabNavigator()
+const BottomTab = createBottomTabNavigator();
+const FlightsStack = createNativeStackNavigator();
 // const Tab = createMaterialTopTabNavigator();
 
 class AuthForgetPassStackScreen extends Component {
@@ -153,6 +158,46 @@ class AuthStackScreen extends Component {
   }
 }
 
+class FlightsStackScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {  }
+  }
+  render() { 
+    return ( 
+      <SafeAreaView style={{flex:1}}>
+      <StatusBar translucent barStyle="light-content" backgroundColor={COLOR.main} />
+      <FlightsStack.Navigator 
+      initialRouteName="FlightsSearch"
+      screenOptions={{
+        headerShown: false,
+      }}>
+        <FlightsStack.Screen 
+          name="FlightsSearch" 
+          children={(props) => <FlightsSearch {...props} />}
+        />
+        <FlightsStack.Screen 
+          name="FlightsList" 
+          children={(props) => <FlightsList {...props} />}
+          options={{
+            animation:'slide_from_right'
+          }}
+        />
+        <FlightsStack.Screen 
+          name="BookSummary" 
+          children={(props) => <BookSummary {...props} />}
+          options={{
+            animation:'slide_from_right'
+          }}
+        />
+
+      </FlightsStack.Navigator>
+      </SafeAreaView>
+     );
+  }
+}
+
+
 class BottomTabScreen extends Component {
   constructor(props) {
     super(props);
@@ -171,7 +216,7 @@ class BottomTabScreen extends Component {
           backgroundColor:'#fff',
           borderTopLeftRadius:25,
           borderTopRightRadius:25,
-          height:70,
+          height:55,
         }
       }}>
 
@@ -189,7 +234,7 @@ class BottomTabScreen extends Component {
             tabBarIcon: ({focused}) => {
               return <View
               style={styles.buttonBar}>
-              <Icon
+              <FontawesomeIcon
                 name='home'
                 size={focused ? 27 : 23}
                 color={focused ? '#e32f45' : '#748c94'}
@@ -216,14 +261,14 @@ class BottomTabScreen extends Component {
             }
           }}/>
          <BottomTab.Screen 
-          name="Find" 
-          component={Find} 
+          name="BookingList" 
+          component={BookingList} 
           options={{
             tabBarIcon: ({focused}) => {
               return <View
               style={styles.buttonBar}>
-              <Icon
-                name='search'
+               <FontawesomeIcon
+                name='clipboard-list'
                 size={focused ? 27 : 23}
                 color={focused ? '#e32f45' : '#748c94'}
               />
@@ -235,62 +280,7 @@ class BottomTabScreen extends Component {
                   position:'absolute',
                   bottom:-15
                 }}
-                >Search</Text>
-              :
-                null
-              }
-              </View>
-            },
-            tabBarButton: (props) => {
-              return <TouchableOpacity 
-              underlayColor="#0EA5A2"
-              {...props} 
-              />
-            }
-          }}/>
-         <BottomTab.Screen 
-          name="Post" 
-          component={Post} 
-          options={{
-            tabBarIcon: () => {
-              return <ImageBackground
-              source={require('../assets/images/bottomMidOval.png')}  
-              style={styles.buttonMidBox}>
-              <View
-              style={styles.buttonMid}>
-              <Icon
-                name='list'
-                size={24}
-                color='#ffffff'
-              />
-              </View>
-              </ImageBackground>  
-            },
-            tabBarButton: (props) => {
-              return <TouchableOpacity {...props} />
-            }
-          }}/>
-         <BottomTab.Screen 
-          name="Contact" 
-          component={Contact} 
-          options={{
-            tabBarIcon: ({focused}) => {
-              return <View
-              style={styles.buttonBar}>
-               <Icon
-                name='address-book'
-                size={focused ? 27 : 23}
-                color={focused ? '#e32f45' : '#748c94'}
-              />
-              {focused ? 
-                <Text
-                style={{
-                  color: focused ? '#e32f45' : '#748c94',
-                  fontSize: 12,
-                  position:'absolute',
-                  bottom:-15
-                }}
-                >Contact</Text>
+                >My Booking</Text>
               :
                 null
               }
@@ -310,7 +300,7 @@ class BottomTabScreen extends Component {
             tabBarIcon: ({focused}) => {
               return <View
               style={styles.buttonBar}>
-              <Icon
+              <FontawesomeIcon
                 name='user'
                 size={focused ? 27 : 23}
                 color={focused ? '#e32f45' : '#748c94'}
@@ -340,193 +330,6 @@ class BottomTabScreen extends Component {
       </BottomTab.Navigator>
       </SafeAreaView>
      );
-  }
-}
-
-// Main Component WHATSAPP.......................................................
-class HomeSql extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      Contacts: [],
-      Chats: [],
-      Calls: [],
-      Status: [],
-      ProfileStatus: {
-        name:'My Status',
-        image: this.props.loggedUserProfile.image
-      }
-    };
-  }
-
-  getUserApi = () => {
-    if (this.props.loggedUserProfile.role === 'admin') {
-      this.props.sqlite.getAllUsers('SELECT * FROM chats_user1').then((Chats) => {
-        this.setState({
-          Chats
-        })
-      }).catch((err) => {
-        console.log('error get ALL chat: ',err);
-      })
-
-      this.props.sqlite.getAllUsers('SELECT * FROM calls_user1').then((Calls) => {
-        this.setState({
-          Calls
-        })
-      }).catch((err) => {
-        console.log('error get ALL call: ',err);
-      })
-
-      this.props.sqlite.getAllUsers('SELECT * FROM status_user1').then((Status) => {
-        this.setState({
-          Status
-        })
-      }).catch((err) => {
-        console.log('error get ALL status: ',err);
-      })
-    
-    }else{  //end if for role user1 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-      this.props.sqlite.getAllUsers('SELECT * FROM chats_user2').then((Chats) => {
-        this.setState({
-          Chats
-        })
-      }).catch((err) => {
-        console.log('error get ALL chat: ',err);
-      })
-
-    this.props.sqlite.getAllUsers('SELECT * FROM calls_user2').then((Calls) => {
-        this.setState({
-          Calls
-        })
-      }).catch((err) => {
-        console.log('error get ALL call: ',err);
-      })
-
-    this.props.sqlite.getAllUsers('SELECT * FROM status_user2').then((Status) => {
-        this.setState({
-          Status
-        })
-      }).catch((err) => {
-        console.log('error get ALL status: ',err);
-      })
-
-    } 
-   
-  }
-
-  componentDidMount(){
-      this.getUserApi()
-  }
-
-  render() {
-    return (
-      <View style={{ flex: 1 }}>
-      <Header {...this.props}/>
-      <Tab.Navigator
-       screenOptions={{
-        tabBarLabelStyle: { 
-          fontSize: 16,
-           color:'white',
-          },
-        tabBarStyle: { 
-          backgroundColor: '#075e54',
-        },
-        tabBarIndicatorStyle:{
-          borderBottomColor:'white',
-          borderBottomWidth: 2.5,
-        },
-        tabBarPressColor:'#83B0AA',
-        tabBarItemStyle:{width:'auto'}
-      }}
-      style={{backgroundColor:'red'}}
-      timingConfig={{duration:200}}
-      initialLayout={{width: Dimensions.get('window').width}}
-      initialRouteName='Chats'
-      >
-         <Tab.Screen 
-          name="Camera" 
-          children={(props) => <Camera {...props}/>}
-          options={{
-            tabBarShowLabel:false,
-            tabBarIcon: () => {
-             return <View style={styles.topBar}>
-                <Icon
-                name="camera"
-                color="#fff"
-                size={20}
-            />
-             </View>
-            },
-            tabBarIconStyle:{
-              width:WIDTH*0.06,
-            }
-          }}/>
-        <Tab.Screen 
-          name="Chats" 
-          children={(props) => <ChatsTab {...props} 
-          ChatsData={this.state.Chats}/>}
-          options={{
-            tabBarShowLabel:false,
-            tabBarIcon: () => {
-             return <View style={styles.topBar}>
-               <Text style={styles.topBarText}>CHATS</Text>
-             </View>
-            },
-            tabBarIconStyle:{
-              width:WIDTH*0.225,
-            }
-          }}/>
-        <Tab.Screen 
-          name="Status" 
-          children={(props) => <StatusTab {...props} 
-          StatusData={this.state.Status} 
-          ProfileData={this.state.ProfileStatus}
-          />}
-          options={{
-            tabBarShowLabel:false,
-            tabBarIcon: () => {
-             return <View style={styles.topBar}>
-               <Text style={styles.topBarText}>STATUS</Text>
-             </View>
-            },
-            tabBarIconStyle:{
-              width:WIDTH*0.225,
-            }
-          }}/>
-        <Tab.Screen 
-          name="Calls" 
-          children={(props) => <CallsTab {...props}  
-          CallsData={this.state.Calls}/>}
-          options={{
-            tabBarShowLabel:false,
-            tabBarIcon: () => {
-             return <View style={styles.topBar}>
-               <Text style={styles.topBarText}>CALLS</Text>
-             </View>
-            },
-            tabBarIconStyle:{
-              width:WIDTH*0.225,
-            }
-          }}/>
-      </Tab.Navigator>
-      </View>
-    );
-  }
-}
-
-class HomeTopTab extends Component {
-  constructor(props) {
-      super(props);
-      this.state = {  }
-  }
-  render() { 
-      return ( 
-          <SQLiteContext.Consumer>
-          {
-              sqlite => <HomeSql {...this.props} sqlite={sqlite} />
-          }
-          </SQLiteContext.Consumer>
-       );
   }
 }
 
@@ -650,7 +453,41 @@ class RootStackScreen extends Component {
             animation:'none'
           }}>
 
-          { this.state.loading ?
+            <RootStack.Screen 
+              name="BottomTabScreen" 
+              children={(props) => <BottomTabScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
+            <RootStack.Screen 
+              name="FlightsStackScreen"
+              options={{
+                animation:'flip'
+              }} 
+              children={(props) => <FlightsStackScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
+            <RootStack.Screen 
+              name="AirportsSearch"
+              options={{
+                animation:'slide_from_bottom'
+              }} 
+              children={(props) => <AirportsSearch {...props} />}/>
+            <RootStack.Screen 
+              name="FlightsDetail"
+              options={{
+                animation:'slide_from_bottom'
+              }} 
+              children={(props) => <FlightsDetail {...props} />}/>
+             <RootStack.Screen 
+              name="Book1FillDetails"
+              options={{
+                animation:'slide_from_bottom'
+              }} 
+              children={(props) => <Book1FillDetails {...props} />}/>
+            <RootStack.Screen 
+              name="Detail" 
+              options={{
+                animation:'slide_from_right'
+              }}
+              children={(props) => <Detail {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
+
+          {/* { this.state.loading ?
               <RootStack.Screen 
               name="Splash" 
               component={Splash} />
@@ -683,7 +520,7 @@ class RootStackScreen extends Component {
               }}
               children={(props) => <Detail {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
             </>
-          }       
+          }        */}
         
           </RootStack.Navigator>
         </NavigationContainer>
@@ -716,7 +553,7 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     top:-5,
     height:30,
-    width:50
+    width:70
   },
   shadow:{
     shadowColor: '#000000',

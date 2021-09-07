@@ -30,7 +30,6 @@ class ForgotPassHeader extends Component {
 
     render() { 
         return ( 
-            // <View style={{flex:0.35, backgroundColor:'white'}}>
             <View style={styles.header}>
                 <View style={styles.left} >
                 <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
@@ -48,9 +47,7 @@ class ForgotPassHeader extends Component {
                     <Icon name="search" color="#fff" size={23} style={{ padding: 5 }} />
                     <Icon name="more-vert" color="#fff" size={23} style={{ paddingVertical: 5, paddingHorizontal: 13 }} />
                 </View> */}
-            </View>
-            // </View>
-           
+            </View>           
          );
     }
 }

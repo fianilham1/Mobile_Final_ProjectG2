@@ -17,16 +17,23 @@ import {
   import {connect} from "react-redux";
   import Icon from 'react-native-vector-icons/MaterialIcons';
   import { COLOR } from '../../constant/color';
-  import { PLACES } from '../../constant/places';
+  import { FLIGHTNOTE } from '../../constant/flightsNote';
 
 
-  const {width} = Dimensions.get('screen');
+  const WIDTH = Dimensions.get('window').width;
 
   const categoryIcons = [
-    <Icon name="flight" size={25} color={COLOR.main} />,
-    <Icon name="beach-access" size={25} color={COLOR.main} />,
-    <Icon name="near-me" size={25} color={COLOR.main} />,
-    <Icon name="place" size={25} color={COLOR.main} />,
+    <Icon 
+      name="flight" 
+      size={40} 
+      color={COLOR.lightblue}
+      style={{
+        transform:[ {rotate:'45deg'} ]
+      }} />
+    ,
+    <Icon name="beach-access" size={30} color={COLOR.main} />,
+    <Icon name="near-me" size={30} color={COLOR.main} />,
+    <Icon name="place" size={30} color={COLOR.main} />,
   ]
 
   class RecommendedCard extends Component {
@@ -84,9 +91,11 @@ class ListCategories extends Component {
         return ( 
             <View style={styles.categoryContainer}>
             {categoryIcons.map((icon, index) => (
-              <View key={index} style={styles.iconContainer}>
+              <TouchableOpacity 
+              onPress={() => this.props.navigation.navigate('FlightsStackScreen')}
+              key={index} style={styles.iconContainer}>
                 {icon}
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
          );
@@ -122,7 +131,7 @@ class Card extends Component {
                   flexDirection: 'row',
                   alignItems: 'flex-end',
                 }}>
-                <View style={{flexDirection: 'row'}}>
+                {/* <View style={{flexDirection: 'row'}}>
                   <Icon name="place" size={20} color='white' />
                   <Text style={{marginLeft: 5, color: 'white'}}>
                     {place.location}
@@ -131,7 +140,7 @@ class Card extends Component {
                 <View style={{flexDirection: 'row'}}>
                   <Icon name="star" size={20} color='white' />
                   <Text style={{marginLeft: 5, color:'white'}}>5.0</Text>
-                </View>
+                </View> */}
               </View>
             </ImageBackground>
           </TouchableOpacity>
@@ -157,8 +166,8 @@ class Home extends Component {
               <Icon name="notifications-none" size={28} color={COLOR.main} />
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <ImageBackground
-               source={require('../../assets/images/header-image.png')}
+              <View
+              //  source={require('../../assets/images/header-image.png')}
                 style={styles.headerHome}
                 imageStyle={styles.headerImage}>
                 <View style={{flex: 1}}>
@@ -167,23 +176,31 @@ class Home extends Component {
                   <View style={styles.inputContainer}>
                     <Icon name="search" size={28} />
                     <TextInput
-                      placeholder="Search place"
+                      placeholder="Search Flights"
                       style={{color: COLOR.gray}}
                     />
                   </View>
                 </View>
-              </ImageBackground>
-              <ListCategories />
-              <Text style={styles.sectionTitle}>Places</Text>
+              </View>
+              {/* <ListCategories {...this.props}/> */}
+              <View style={styles.categoryContainer}>
+                <TouchableOpacity 
+                  onPress={() => this.props.navigation.navigate('FlightsStackScreen')}
+                  style={styles.iconContainer}>
+                  {categoryIcons[0]}
+                  <Text  style={styles.iconText}>Click Me to Search Best Flights Now !</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.sectionTitle}>Ongoing Promos</Text>
               <View>
                 <FlatList
                   contentContainerStyle={{paddingLeft: 20}}
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  data={PLACES}
+                  data={FLIGHTNOTE}
                   renderItem={({item}) => <Card navigation={navigation} place={item} />}
                 />
-                <Text style={styles.sectionTitle}>Recommended</Text>
+                {/* <Text style={styles.sectionTitle}>Important Notice</Text>
                 <FlatList
                   snapToInterval={width - 20}
                   contentContainerStyle={{paddingLeft: 20, paddingBottom: 100}}
@@ -191,7 +208,7 @@ class Home extends Component {
                   horizontal
                   data={PLACES}
                   renderItem={({item}) => <RecommendedCard place={item} />}
-                />
+                /> */}
               </View>
             </ScrollView>
           </SafeAreaView>
@@ -218,6 +235,9 @@ const styles = StyleSheet.create({
       height: 140,
       paddingHorizontal: 20,
       paddingTop:20,
+      backgroundColor:COLOR.main,
+      borderTopLeftRadius:15,
+      borderTopRightRadius:15,
     },
     headerImage:{
       resizeMode: 'cover',
@@ -243,16 +263,21 @@ const styles = StyleSheet.create({
     },
     categoryContainer: {
       marginTop: 60,
-      marginHorizontal: 20,
+      marginHorizontal: 10,
       flexDirection: 'row',
       justifyContent: 'space-between',
     },
     iconContainer: {
       height: 60,
-      width: 60,
+      width: WIDTH,
+      flexDirection:'row',
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 10,
+    },
+    iconText:{
+      fontSize:16,
+      color:COLOR.lightblue,
     },
     sectionTitle: {
       marginHorizontal: 20,
@@ -261,15 +286,15 @@ const styles = StyleSheet.create({
       fontSize: 20,
     },
     cardImage: {
-      height: 220,
-      width: width / 2,
+      height: 250,
+      width: WIDTH / 2,
       marginRight: 20,
       padding: 10,
       overflow: 'hidden',
       borderRadius: 10,
     },
     rmCardImage: {
-      width: width - 40,
+      width: WIDTH - 40,
       height: 200,
       marginRight: 20,
       borderRadius: 10,

@@ -13,7 +13,7 @@ import {
 import {connect} from "react-redux";
 // import {signIn} from '../../actions/auth';
 import { ButtonApp} from '../../components';
-import {storeUserForgotPass} from '../../actions/auth';
+import {storeUserForgotPass} from '../../reducers/actions/auth';
 import { COLOR} from '../../constant/color';
 import { SQLiteContext } from '../../config/sqlite';
 import CodeInput from 'react-native-confirmation-code-input';

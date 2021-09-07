@@ -404,20 +404,7 @@ class Login extends Component{
                 >
                    SIGN IN
                 </Text>
-                <Text
-                style={{
-                    fontFamily:"SemiBold",
-                    fontSize:16,
-                    marginHorizontal:55,
-                    textAlign:'center',
-                    marginTop:10,
-                    opacity:0.3,
-                    fontWeight:'bold'
-                }}
-                >
-                    Welcome. The Hero of Earth
-                </Text>
-
+               
                 <InputApp 
                     state={this.state}
                     label="Username"
@@ -521,22 +508,6 @@ class Login extends Component{
         )
     }
 }
-
-// class Login extends Component {
-//     constructor(props) {
-//         super(props);
-//         this.state = {  }
-//     }
-//     render() { 
-//         return ( 
-//             <SQLiteContext.Consumer>
-//             {
-//                 sqlite => <LoginSql {...this.props} sqlite={sqlite} />
-//             }
-//             </SQLiteContext.Consumer>
-//          );
-//     }
-// }
 
 const mapStateToProps = state => ({
     loginStatus: state.auth.loginStatus,

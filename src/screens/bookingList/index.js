@@ -5,8 +5,9 @@ import {
   View,
   TouchableHighlight,
 StatusBar} from 'react-native';
+import { COLOR } from '../../constant/color';
 
-class Contact extends Component {
+class BookingList extends Component {
   constructor(props) {
     super(props);
     this.state = {  }
@@ -14,11 +15,11 @@ class Contact extends Component {
   render() { 
     return ( 
       <View>
-           <StatusBar translucent  barStyle="dark-content" backgroundColor='#fff' />
+           <StatusBar translucent  barStyle="light-content" backgroundColor={COLOR.main} />
         <Text>Contact</Text>
       </View>
      );
   }
 }
  
-export default Contact;
+export default BookingList;

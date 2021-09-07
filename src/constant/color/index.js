@@ -16,7 +16,9 @@ export const COLOR = {
 
     backgray:"#E9EBEC",
     gray:'#CBCBCB',
+    lightgray:'#F0F0F0',
     orange:'#f5a623',
-    red:'red'
+    red:'red',
+    lightblue:"#2B9FDC"
 }
 //00716F

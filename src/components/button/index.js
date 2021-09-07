@@ -19,14 +19,17 @@ class ButtonApp extends Component {
          }
     }
     render() { 
-        const {label, handler, successStatus, animation, color } = this.props
-        const width = animation ? animation.width :  WIDTH-65
+        const {label, handler, successStatus, animation, color, style } = this.props
+        const width = animation ? 
+        animation.width : style?.width ? 
+            style?.width : WIDTH-65
         const borderRadius = animation ? animation.borderRadius :  5
+        const marginTop = style?.marginTop ? style?.marginTop : 30
         return ( 
             <TouchableOpacity
                  onPress={handler}
                  activeOpacity={0.8}
-                 style={styles.buttonBox}>
+                 style={[styles.buttonBox,{marginTop}]}>
                 {animation ? 
                 <Animated.View style={[styles.button,{
                     width, borderRadius, backgroundColor:color,
@@ -52,7 +55,8 @@ class ButtonApp extends Component {
 
                 </Animated.View>
                 :
-                <View style={[styles.button,{
+                <View style={[
+                    styles.button,{
                     width, borderRadius, backgroundColor:color,
                 }]}>
                 <Text 
@@ -73,8 +77,6 @@ const styles = StyleSheet.create({
     buttonBox:{
         alignItems:"center",
         justifyContent:"center",
-        // marginHorizontal:45,
-        marginTop:30,
         paddingVertical:10,
         height:45,
     },
