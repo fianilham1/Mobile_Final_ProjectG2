@@ -45,7 +45,7 @@ class FlightsDetail extends Component {
                 numberTransit} = airlineDetail
         const transitType = numberTransit===0 ? 'Direct' : `${numberTransit} Stop`
         return (
-          <SafeAreaView style={{flex:1,backgroundColor:'white'}}>
+          <SafeAreaView style={{flex:1, backgroundColor:'#fff'}}>
              <View style={styles.header}>
                 <View style={styles.left} >
                     <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
@@ -175,9 +175,6 @@ class FlightsDetail extends Component {
 
                 </View>
             </View>
-              
-             
-
             </ScrollView>
             </SafeAreaView>
         );

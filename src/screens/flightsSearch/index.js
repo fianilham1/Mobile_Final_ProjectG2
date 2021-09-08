@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import * as Animatable from 'react-native-animatable';
-import { CheckBox } from 'react-native-elements'
 
 import {
     Text,
@@ -19,7 +18,7 @@ import Animated, { EasingNode } from 'react-native-reanimated';
 import Modal from "react-native-modal";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import InputSpinner from "react-native-input-spinner";
-import { ListItem } from 'react-native-elements';
+import { ListItem, CheckBox } from 'react-native-elements';
 import {connect} from "react-redux";
 import {flightSearchInfo} from '../../reducers/actions/flight';
 

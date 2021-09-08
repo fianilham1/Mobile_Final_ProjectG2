@@ -19,6 +19,7 @@ export const COLOR = {
     lightgray:'#F0F0F0',
     orange:'#f5a623',
     red:'red',
-    lightblue:"#2B9FDC"
+    lightblue:"#2B9FDC",
+    green:'#00B140'
 }
 //00716F

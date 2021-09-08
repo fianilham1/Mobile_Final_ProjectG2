@@ -15,6 +15,9 @@ import FlightsList from './flightsList'
 import FlightsDetail from './flightsDetail'
 import BookSummary from './bookSummary'
 import Book1FillDetails from './book1-fillDetails'
+import Book2FillDetails2 from './book2-fillDetails2'
+import TravelerDetail from './travelerDetail'
+import BookSeatReservation from './bookSeatReservation'
 import BookingList from './bookingList'
 import Account from './account'
 
@@ -35,5 +38,8 @@ export {Splash,
     FlightsDetail, 
     BookSummary,
     Book1FillDetails,
+    Book2FillDetails2,
+    TravelerDetail,
+    BookSeatReservation,
     BookingList, 
     Account }

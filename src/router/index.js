@@ -20,6 +20,9 @@ import {
   FlightsDetail,
   BookSummary,
   Book1FillDetails,
+  Book2FillDetails2,
+  TravelerDetail,
+  BookSeatReservation,
   BookingList,
   Account} from '../screens';
 import {
@@ -471,7 +474,7 @@ class RootStackScreen extends Component {
             <RootStack.Screen 
               name="FlightsDetail"
               options={{
-                animation:'slide_from_bottom'
+                animation:'fade_from_bottom'
               }} 
               children={(props) => <FlightsDetail {...props} />}/>
              <RootStack.Screen 
@@ -481,11 +484,23 @@ class RootStackScreen extends Component {
               }} 
               children={(props) => <Book1FillDetails {...props} />}/>
             <RootStack.Screen 
-              name="Detail" 
+              name="TravelerDetail"
               options={{
-                animation:'slide_from_right'
-              }}
-              children={(props) => <Detail {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
+                animation:'fade_from_bottom'
+              }} 
+              children={(props) => <TravelerDetail {...props} />}/>
+             <RootStack.Screen 
+              name="Book2FillDetails2"
+              options={{
+                animation:'slide_from_bottom'
+              }} 
+              children={(props) => <Book2FillDetails2 {...props} />}/>
+              <RootStack.Screen 
+              name="BookSeatReservation"
+              options={{
+                animation:'slide_from_bottom'
+              }} 
+              children={(props) => <BookSeatReservation {...props} />}/>
 
           {/* { this.state.loading ?
               <RootStack.Screen 

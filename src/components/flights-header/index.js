@@ -75,22 +75,42 @@ class FlightsHeader extends Component {
           return <Text style={[styles.screenTitle,{marginLeft:-60}]}>Book Summary</Text>
         }
 
-        if(header==='Book1-FillDetails'){
+        if(header==='Book1FillDetails' || header==='Book2FillDetails2'){
           return <Text style={[styles.screenTitle,{marginLeft:-60}]}>Fills In Details</Text>
         }
+
+        if(header==='TravelerDetail'){
+          return <Text style={[styles.screenTitle,{marginLeft:-60}]}>Traveler Detail</Text>
+        }
       
+        if(header==='BookSeatReservation'){
+          return <Text style={[styles.screenTitle,{marginLeft:-60}]}>Seat Reservation</Text>
+        }
+
         return  <Text style={[styles.screenTitle,{marginLeft:-90}]}>Flights</Text>
     }
 
     render() { 
+      const {leftIcon, rightIcon, rightIconHandler} = this.props
         return ( 
             <View style={styles.header}>
                 <View style={styles.left} >
                 <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+                  {
+                    leftIcon?
+                      leftIcon==='empty'?
+                      null
+                      :
+                      <MaterialIcon
+                        name={leftIcon} color="#fff" size={27}
+                        style={{ paddingLeft: 10 }}
+                      />
+                    :
                     <MaterialIcon
-                    name="arrow-back" color="#fff" size={27}
-                    style={{ paddingLeft: 10 }}
+                      name="arrow-back" color="#fff" size={27}
+                      style={{ paddingLeft: 10 }}
                     />
+                  }
                 </TouchableOpacity>
                 </View>
                 <View style={styles.screenHeader}>
@@ -98,7 +118,24 @@ class FlightsHeader extends Component {
                 </View>
           
                 <View style={styles.right} >
-                    <MaterialIcon name="more-vert" color="#fff" size={23} style={{ paddingVertical: 5, paddingHorizontal: 13 }} />
+                <TouchableOpacity onPress={rightIconHandler}>
+                {
+                    rightIcon?         
+                      <MaterialIcon 
+                        name={rightIcon}
+                        color="#fff" 
+                        size={23} 
+                        style={{ paddingVertical: 5, paddingHorizontal: 13 }} 
+                      />
+                    :
+                      <MaterialIcon 
+                        name="more-vert" 
+                        color="#fff" 
+                        size={23} 
+                        style={{ paddingVertical: 5, paddingHorizontal: 13 }} 
+                      />
+                  }
+                  </TouchableOpacity>
                 </View>
             </View>           
          );

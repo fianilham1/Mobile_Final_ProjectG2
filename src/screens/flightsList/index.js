@@ -6,12 +6,14 @@ import {
     StyleSheet,
     TouchableOpacity,
     Dimensions,
-    FlatList} from 'react-native';
+    FlatList,
+    TouchableNativeFeedback} from 'react-native';
 import { COLOR } from '../../constant/color';
 import {connect} from "react-redux";
 import { FlightsHeader } from '../../components';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { ListItem } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
@@ -227,20 +229,31 @@ class FlightsList extends Component {
                     transform: [ {rotate:'45deg'} ]
                 }}
                 />
-                <TouchableOpacity
-                    onPress={() => this.props.navigation.navigate('FlightsDetail',{
-                        airlineDetail:item
-                    })} 
-                    activeOpacity={0.8}
-                    style={styles.buttonBox}>
-                    <Text style={styles.detailText}>Detail Flight</Text>
-                    <MaterialIcon 
+                 <Button
+                    title="Detail Flight"
+                    titleStyle={{fontSize:15}}
+                    containerStyle={{
+                       width:120,
+                       left:140
+                    }}
+                    buttonStyle={{
+                        backgroundColor:COLOR.main,
+                        height:40
+                    }}
+                    icon={
+                        <MaterialIcon 
                             name='chevron-right'
                             size={27}
                             color='#fff'
                             style={{marginRight:-10}}
                         />
-                </TouchableOpacity>
+                    }
+                    iconRight
+                    onPress={() => this.props.navigation.navigate('FlightsDetail',{
+                        airlineDetail:item
+                    })} 
+                    background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
+                /> 
            </View>
 
          </View>
