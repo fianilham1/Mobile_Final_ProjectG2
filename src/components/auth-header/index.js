@@ -126,7 +126,7 @@ class AuthHeader extends Component {
                 height:145
             }}
             source ={require('../../assets/images/logoWhite.png')} />
-        <Text style={{color: 'white', fontSize:18, fontFamily:'serif',marginTop:20}}>Enjoy Your Life With Us</Text>
+        <Text style={{color: 'white', fontSize:22,marginTop:20}}>Your Trusted Travel App</Text>
         </View>
        {!OnBoard ?
        //Loading ----------------------------------------- 
@@ -147,15 +147,15 @@ class AuthHeader extends Component {
                     name='chevron-left'
                     size={20}
                 />
-                <Text style={{fontSize:17,fontWeight: 'bold',color:COLOR.main}}>Sign Up</Text>
+                <Text style={{fontSize:18,fontWeight: 'bold',color:COLOR.main}}>Sign Up</Text>
             </TouchableOpacity>
             <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => navigation.navigate('Auth',{authStatus:'start',screen:'Login',firstScreen:'Login'})}
                 style={styles.onBoardButton}>
-            <Text style={{fontSize:17,fontWeight: 'bold',color:COLOR.secondary}}>Sign In</Text>
+            <Text style={{fontSize:18,fontWeight: 'bold',color:COLOR.main}}>Sign In</Text>
                 <FontAwesomeIcon
-                    style={{color:COLOR.secondary,marginLeft:10}}
+                    style={{color:COLOR.main,marginLeft:10}}
                     name='chevron-right'
                     size={20}
                 />
@@ -196,6 +196,13 @@ class AuthHeader extends Component {
             inputRange: [0, 1],
             outputRange: params?.firstScreen==='Login' ? [30, WIDTH-90] : [WIDTH-90,30]
         })
+
+        let positionWelcome = ['10%','50%']
+        let titleWelcome = ['New Member','Back']
+        if( params?.firstScreen==='Register'){
+            positionWelcome=['50%','10%']
+            titleWelcome = ['Back','New Member']
+        }
        
         return ( 
             <View style={styles.container} >
@@ -278,10 +285,10 @@ class AuthHeader extends Component {
                     <Animatable.View
                     animation={this.state.eventScreen ? "fadeInLeft" : 'fadeInRight'}
                     duration={1000}
-                    style={[styles.textContainer,{left:this.state.eventScreen ? '10%' :'50%'}]}
+                    style={[styles.textContainer,{left:this.state.eventScreen ? positionWelcome[0] : positionWelcome[1]}]}
                     >
                         <Text style={styles.text}> Welcome</Text>
-                        <Text style={styles.text2}>{this.state.eventScreen ? '' : 'Back'}</Text>
+                        <Text style={styles.text2}>{this.state.eventScreen ? titleWelcome[0] : titleWelcome[1]}</Text>
                     </Animatable.View>
                     </>
             }
@@ -330,8 +337,8 @@ const styles = StyleSheet.create({
         bottom:150
       },
       onBoardButton: {
-        height: 50,
-        width: 130,
+        height: 55,
+        width: 150,
         marginHorizontal:10,
         backgroundColor: 'white',
         marginTop: 20,

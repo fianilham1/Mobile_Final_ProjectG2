@@ -7,13 +7,18 @@ import {
     TouchableOpacity,
     Dimensions,
     FlatList,
+    Image,
     TouchableNativeFeedback} from 'react-native';
 import { COLOR } from '../../constant/color';
 import {connect} from "react-redux";
+import flightsApi from '../../api/flights';
 import { FlightsHeader } from '../../components';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { ListItem } from 'react-native-elements';
 import { Button } from 'react-native-elements';
+import Spinner from 'react-native-loading-spinner-overlay';
+import { AIRPORT_LITS } from '../../constant/airport';
+
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
@@ -23,66 +28,71 @@ class FlightsList extends Component {
     constructor(props) {
         super(props);
         this.state = { 
-          flightsList:[
-              {
-                airlineName:'Garada',
-                code:'AAA',
-                aircraftType:'Boeing 700',
-                departureDate:['Tue','7 Sept','2021'],
-                arrivalDate:['Wed','8 Sept','2021'],
-                departureTime:'04:00',
-                arrivalTime:'05:30',
-                fromAirportCity:'Surabaya',
-                toAirportCity:'Jakarta',
-                fromAirportCode:'SUB',
-                toAirportCode:'JKTA',
-                fromAirportName:'Juanda',
-                toAirportName:'Soekarno Hatta',
-                duration:'1h 30m',
-                price:565000,
-                numberTransit:0
-              },
-              {
-                airlineName:'Citilank',
-                code:'BBB',
-                aircraftType:'Boeing 700',
-                departureDate:['Tue','7 Sept','2021'],
-                arrivalDate:['Wed','8 Sept','2021'],
-                departureTime:'08:00',
-                arrivalTime:'10:30',
-                fromAirportCity:'Surabaya',
-                toAirportCity:'Jakarta',
-                fromAirportCode:'SUB',
-                toAirportCode:'JKTA',
-                fromAirportName:'Juanda',
-                toAirportName:'Soekarno Hatta',
-                duration:'1h 30m',
-                price:350000,
-                numberTransit:1 
-              },
-              {
-                airlineName:'Srijaya',
-                code:'CCC',
-                aircraftType:'Boeing 700',
-                departureDate:['Tue','7 Sept','2021'],
-                arrivalDate:['Wed','8 Sept','2021'],
-                departureTime:'15:20',
-                arrivalTime:'16:50',
-                fromAirportCity:'Surabaya',
-                toAirportCity:'Jakarta',
-                fromAirportCode:'SUB',
-                toAirportCode:'JKTA',
-                fromAirportName:'Juanda',
-                toAirportName:'Soekarno Hatta',
-                duration:'1h 30m',
-                price:400000,
-                numberTransit:1 
-              }
-          ],
+          departureFlightList:[],
+          returnFlightList:[],
           flightChosen:[],
-          isRoundTrip:false
+          isRoundTrip:false,
+          apiLoading:false,
+          finishGetApiResponse:false,
+          isFlightsAvailable:false
         }
         this.baseState = this.state
+    }
+
+    // {
+        // "fromAirport":"Surabaya(SUB)",
+        // "toAirport":"Balikpapan(BPN)",
+        // "departureDate":"2021-07-06",
+        // "returnDate":"2021-07-17",
+        // "passengers":{
+        //     "adult":1,
+        //     "child":1,
+        //     "infant":0
+        // },
+        // "seatClass":"Economy",
+        // "includeFlexibleTicket":true,
+        // "sortBy":"EarliestDeparture"
+    // }
+
+    getAirportName = (airport) => {
+        const code = this.getAirportCode(airport)
+        const index = AIRPORT_LITS.findIndex(item => item.code === code);
+        return AIRPORT_LITS[index].name
+    }
+
+    getAirportCity = (airport) => {
+        return airport.split(' - ')[0]
+    }
+
+    getAirportCode = (airport) => {
+        return airport.split(' - ')[1]
+    }
+
+    getFlightsDateFormatArr = (dataTime) => { //split day date month_shortname year to array
+        const dateTimeArr = dataTime.split(' ') //split date and time
+        const dateArr = dateTimeArr[0].split('-') //split year month date
+        const date = new Date(parseInt(dateArr[0]),parseInt(dateArr[1])-1,parseInt(dateArr[2])) //to display name of day, name of month
+        const dateStr = date.toDateString().split(' ')
+        return [dateStr[0],dateStr[1]+' '+dateStr[2],dateStr[3]] //[DAYNAME, MONTHNAME, YEAR] 
+                                                                 // -> ex : ['Wed','5 Sep','2021]
+    }
+
+    getFlightsTimeFormatHHMM = (dataTime) => { //display hour and minutes
+        const dateTimeArr = dataTime.split(' ') //split date and time
+        const timeArr = dateTimeArr[1].split(':') //split hours minutes second
+        return timeArr[0]+':'+timeArr[1] //HOURS:MINUTES -> ex : 08:00
+    }
+
+    getDateFormat = (dateInput) => {
+        let month = dateInput.getMonth()+1
+        let date = dateInput.getDate()
+        if (month<10){
+            month = '0'+month
+        }
+        if (date<10){
+            date = '0'+date
+        }
+        return dateInput.getFullYear()+'-'+month+'-'+date
     }
 
     componentDidMount(){
@@ -92,7 +102,90 @@ class FlightsList extends Component {
                 isRoundTrip:true
             })
         }
-        //fetch
+        const flightsRequest = {
+            fromAirport:flightsSearchInfo.fromAirport,
+            toAirport:flightsSearchInfo.toAirport,
+            departureDate:this.getDateFormat(flightsSearchInfo.departureDate),
+            returnDate:flightsSearchInfo.returnDate ? this.getDateFormat(flightsSearchInfo.returnDate) : '',
+            passengers:flightsSearchInfo.passengers,
+            seatClass:flightsSearchInfo.seatClass,
+            includeFlexibleTicket:flightsSearchInfo.includeFlexibleTicket,
+            sortBy:"EarliestDeparture",
+        }
+        //fetch api of find flights list
+        console.log('cek ',flightsRequest)
+        this.getFlightsListBasedRequest(flightsRequest)
+    }
+
+    getFlightsListBasedRequest = async (flightsRequest) => {
+        this.setState({
+            apiLoading:true
+        })
+        try{
+            let res = await fetch(flightsApi+'/find',{
+                method: 'POST',
+                mode:'no-cors',
+                headers:{
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: this.props.token
+                },
+                body: JSON.stringify(flightsRequest)
+            })
+            let json = await res.json()
+            if(json){
+                this.setState({
+                    apiLoading:false,
+                    finishGetApiResponse:true,
+                })
+    
+                if(json.errorMessage==='No Flights Available'){
+                    return this.setState({
+                                isFlightsAvailable:false
+                            })
+                }
+    
+                //GET FLIGHTS SUCCESS AS REQUEST SEARCH -------------------------------->>>>>>>>>>>>
+                this.setState({
+                    isFlightsAvailable:true,
+                    departureFlightList:json.departureflight.map((flight, index) => {
+                        return {
+                            ...flight,
+                            departureDate:this.getFlightsDateFormatArr(flight.departureDateTime),
+                            arrivalDate:this.getFlightsDateFormatArr(flight.arrivalDateTime),
+                            departureTime:this.getFlightsTimeFormatHHMM(flight.departureDateTime),
+                            arrivalTime:this.getFlightsTimeFormatHHMM(flight.arrivalDateTime),
+                            fromAirportCity:this.getAirportCity(flight.fromAirport),
+                            toAirportCity:this.getAirportCity(flight.toAirport),
+                            fromAirportCode:this.getAirportCode(flight.fromAirport),
+                            toAirportCode:this.getAirportCode(flight.toAirport),
+                            fromAirportName:this.getAirportName(flight.fromAirport),
+                            toAirportName:this.getAirportName(flight.toAirport),
+                            departureDateApi:flight.departureDate //store orginal format
+                        }
+                    }),
+                    returnFlightList:json.returnflight.map((flight, index) => {
+                        return {
+                            ...flight,
+                            departureDate:this.getFlightsDateFormatArr(flight.departureDateTime),
+                            arrivalDate:this.getFlightsDateFormatArr(flight.arrivalDateTime),
+                            departureTime:this.getFlightsTimeFormatHHMM(flight.departureDateTime),
+                            arrivalTime:this.getFlightsTimeFormatHHMM(flight.arrivalDateTime),
+                            fromAirportCity:this.getAirportCity(flight.fromAirport),
+                            toAirportCity:this.getAirportCity(flight.toAirport),
+                            fromAirportCode:this.getAirportCode(flight.fromAirport),
+                            toAirportCode:this.getAirportCode(flight.toAirport),
+                            fromAirportName:this.getAirportName(flight.fromAirport),
+                            toAirportName:this.getAirportName(flight.toAirport),
+                            departureDateApi:flight.departureDate //store orginal format
+                        }
+                    })
+                })
+                console.log('success response: ',json)
+            }
+        }catch(error){
+            console.log('error: ',error)
+        }
     }
 
     resetState = () => {
@@ -131,8 +224,8 @@ class FlightsList extends Component {
 
     renderChosenFlight = () => {
         const { flightChosen } = this.state
-        if(flightChosen.length===1) return flightChosen.map((flight, index) => {
-            return (
+        if(flightChosen.length>=1) return flightChosen.map((flight, index) => {
+            if(index===0) return (
             <View key={index} style={styles.chosenFlightBox}>
                 <View style={styles.chosenFlightColumn}>
                     <MaterialIcon 
@@ -184,7 +277,7 @@ class FlightsList extends Component {
                    </View> 
                </View>
                <View style={styles.infoTimeColumn}>
-                   <Text style={styles.arrowTextUpper}>{item.duration}</Text>
+                   <Text style={styles.arrowTextUpper}>{item.durationFlight}</Text>
                    <View>
                        <View style={styles.arrowLine}>
                            <MaterialIcon 
@@ -220,7 +313,7 @@ class FlightsList extends Component {
              </View>
            </View>
 
-           <View style={{flexDirection:'row',top:10}}>
+           <View style={{flexDirection:'row',alignItems:'center',top:10}}>
             <MaterialIcon 
                 name='flight'
                 size={35}
@@ -229,12 +322,13 @@ class FlightsList extends Component {
                     transform: [ {rotate:'45deg'} ]
                 }}
                 />
+            <Text>{item.airlineName}</Text>
                  <Button
                     title="Detail Flight"
                     titleStyle={{fontSize:15}}
                     containerStyle={{
                        width:120,
-                       left:140
+                       left:90
                     }}
                     buttonStyle={{
                         backgroundColor:COLOR.main,
@@ -263,6 +357,10 @@ class FlightsList extends Component {
 
     renderMultipleFlights = (screen) => {
         const { flightsSearchInfo } = this.props
+        let type = 'departureFlightList'
+        if(screen>1){
+            type = 'returnFlightList'
+        }
         //screen === 1 -> choose departureflight
         //screen === 2 -> choose returnFlight
         return (
@@ -272,7 +370,7 @@ class FlightsList extends Component {
             <View style={styles.flightListContainer}>
                <FlatList 
                showsVerticalScrollIndicator={false}
-               data={this.state.flightsList}
+               data={this.state[type]}
                keyExtractor = {(item,index) => {
                    return index;
                }}
@@ -285,7 +383,30 @@ class FlightsList extends Component {
 
     render() { 
         const { flightsSearchInfo } = this.props
-        const { isRoundTrip, flightChosen } = this.state
+        const { isRoundTrip, flightChosen, isFlightsAvailable, finishGetApiResponse } = this.state
+
+        if(finishGetApiResponse && !isFlightsAvailable) {
+            return (
+                <>
+                <FlightsHeader screenChooseFlight={1} flightsSearchInfo={flightsSearchInfo} header='FlightsList' {...this.props}/>
+                <View style={styles.noFoundContainer}>
+                    <Image 
+                    style={{
+                        width:250,
+                        height:250
+                    }}
+                    source={require('../../assets/images/noAvailable_icon.png')}
+                    />
+                    <Text style={{
+                        fontSize:22,
+                        fontWeight:'bold'
+                    }}>Oops</Text>
+                    <Text style={{fontSize:17}}>No Flights Available</Text>
+                    <Text style={{color:'gray'}}>Try to change date or airport</Text>
+                </View>
+                </>
+            )
+        }
 
         if(isRoundTrip) {
             return this.renderMultipleFlights(flightChosen.length+1)
@@ -294,10 +415,15 @@ class FlightsList extends Component {
         return (
             <>
              <FlightsHeader screenChooseFlight={1} flightsSearchInfo={flightsSearchInfo} header='FlightsList' {...this.props}/>
+             <Spinner //LOADING GET/POST API 
+                visible={this.state.apiLoading}
+                textContent={'Loading...'}
+                textStyle={{color:'#fff'}}
+            />
              <View style={styles.flightListContainer}>
                 <FlatList 
                 showsVerticalScrollIndicator={false}
-                data={this.state.flightsList}
+                data={this.state.departureFlightList}
                 keyExtractor = {(item,index) => {
                     return index;
                 }}
@@ -310,12 +436,20 @@ class FlightsList extends Component {
 }
 
 const mapStateToProps = state => ({
-    flightsSearchInfo: state.flights
+    flightsSearchInfo: state.flightsSearch,
+    token:state.auth.token
 })
  
 export default connect(mapStateToProps, null)(FlightsList);
 
 const styles = StyleSheet.create({
+  noFoundContainer:{
+      width:'100%',
+      flex:1,
+      justifyContent:'center',
+      alignItems:'center'
+
+  },
   flightListContainer:{
     justifyContent:'center',
     alignItems:'center',
@@ -428,3 +562,117 @@ const styles = StyleSheet.create({
   }
 
 })
+
+
+//backup hardcode
+// flightsList:{
+//     departureFlight:[
+//         {
+//           airlineName:'Garada',
+//           code:'AAA',
+//           aircraftType:'Boeing 700',
+//           departureDate:['Tue','7 Sept','2021'],
+//           arrivalDate:['Wed','8 Sept','2021'],
+//           departureTime:'04:00',
+//           arrivalTime:'05:30',
+//           fromAirportCity:'Surabaya',
+//           toAirportCity:'Jakarta',
+//           fromAirportCode:'SUB',
+//           toAirportCode:'JKTA',
+//           fromAirportName:'Juanda',
+//           toAirportName:'Soekarno Hatta',
+//           duration:'1h 30m',
+//           price:565000,
+//           numberTransit:0,
+//           regularZone : ['A-1','A-2','B-1','C-2'],
+//           greenZone : ['B-2','C-1'],
+//           sold : ['D-1','D-2']
+//         },
+//         {
+//           airlineName:'Citilank',
+//           code:'BBB',
+//           aircraftType:'Boeing 700',
+//           departureDate:['Tue','7 Sept','2021'],
+//           arrivalDate:['Wed','8 Sept','2021'],
+//           departureTime:'08:00',
+//           arrivalTime:'10:30',
+//           fromAirportCity:'Surabaya',
+//           toAirportCity:'Jakarta',
+//           fromAirportCode:'SUB',
+//           toAirportCode:'JKTA',
+//           fromAirportName:'Juanda',
+//           toAirportName:'Soekarno Hatta',
+//           duration:'1h 30m',
+//           price:350000,
+//           numberTransit:1,
+//           regularZone : ['A-1','A-2','B-1','C-2'],
+//           greenZone : ['B-2','C-1'],
+//           sold : ['D-1','D-2']
+//         },
+//         {
+//           airlineName:'Srijaya',
+//           code:'CCC',
+//           aircraftType:'Boeing 700',
+//           departureDate:['Tue','7 Sept','2021'],
+//           arrivalDate:['Wed','8 Sept','2021'],
+//           departureTime:'15:20',
+//           arrivalTime:'16:50',
+//           fromAirportCity:'Surabaya',
+//           toAirportCity:'Jakarta',
+//           fromAirportCode:'SUB',
+//           toAirportCode:'JKTA',
+//           fromAirportName:'Juanda',
+//           toAirportName:'Soekarno Hatta',
+//           duration:'1h 30m',
+//           price:400000,
+//           numberTransit:1,
+//           regularZone : ['A-1','A-2','B-1','C-2'],
+//           greenZone : ['B-2','C-1'],
+//           sold : ['D-1','D-2']
+//         }
+//     ],
+//     returnFlight:[
+//         {
+//           airlineName:'Srijaya',
+//           code:'AAA',
+//           aircraftType:'Boeing 700',
+//           departureDate:['Wed','8 Sept','2021'],
+//           arrivalDate:['Thu','9 Sept','2021'],
+//           departureTime:'04:00',
+//           arrivalTime:'05:30',
+//           fromAirportCity:'Surabaya',
+//           toAirportCity:'Jakarta',
+//           fromAirportCode:'SUB',
+//           toAirportCode:'JKTA',
+//           fromAirportName:'Juanda',
+//           toAirportName:'Soekarno Hatta',
+//           duration:'1h 30m',
+//           price:565000,
+//           numberTransit:0,
+//           regularZone : ['A-1','A-2','B-1','C-2'],
+//           greenZone : ['B-2','C-1'],
+//           sold : ['D-1','D-2']
+//         },
+//         {
+//           airlineName:'Garada',
+//           code:'BBB',
+//           aircraftType:'Boeing 700',
+//           departureDate:['Wed','8 Sept','2021'],
+//           arrivalDate:['Thu','9 Sept','2021'],
+//           departureTime:'08:00',
+//           arrivalTime:'10:30',
+//           fromAirportCity:'Surabaya',
+//           toAirportCity:'Jakarta',
+//           fromAirportCode:'SUB',
+//           toAirportCode:'JKTA',
+//           fromAirportName:'Juanda',
+//           toAirportName:'Soekarno Hatta',
+//           duration:'1h 30m',
+//           price:350000,
+//           numberTransit:1,
+//           regularZone : ['A-1','A-2','B-1','C-2'],
+//           greenZone : ['B-2','C-1'],
+//           sold : ['D-1','D-2']
+//         },
+//     ]
+// },

@@ -1,4 +1,4 @@
-import { FLIGHTS_SEARCH_INFO } from "./types";
+import { FLIGHTS_SEARCH_INFO, FLIGHTS_CHOSEN } from "./types";
 
 
 export const flightSearchInfo = (info) => (
@@ -8,3 +8,9 @@ export const flightSearchInfo = (info) => (
     }
 );
 
+export const flightChosen = (flight) => (
+    {
+        type:FLIGHTS_CHOSEN,
+        data:flight
+    }
+);

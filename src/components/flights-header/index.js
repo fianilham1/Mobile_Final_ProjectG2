@@ -30,11 +30,12 @@ class FlightsHeader extends Component {
     }
 
     renderHeader = () => {
-      const {header, flightsSearchInfo, screenChooseFlight} = this.props
+      const {header} = this.props
       //screen 1 -> departure
       //screen 2 -> return
      
         if(header==='FlightsList') {
+          const { flightsSearchInfo, screenChooseFlight } = this.props
           const {departureDate,returnDate,airportCityFlight,airportCodeFlight} = flightsSearchInfo
           let displayCityFrom = ''
           let displayCityTo = ''
@@ -79,12 +80,24 @@ class FlightsHeader extends Component {
           return <Text style={[styles.screenTitle,{marginLeft:-60}]}>Fills In Details</Text>
         }
 
+        if(header==='Book3Pay'){
+          return <Text style={[styles.screenTitle,{marginLeft:-20}]}>Payment Confirmation</Text>
+        }
+
         if(header==='TravelerDetail'){
           return <Text style={[styles.screenTitle,{marginLeft:-60}]}>Traveler Detail</Text>
         }
       
         if(header==='BookSeatReservation'){
           return <Text style={[styles.screenTitle,{marginLeft:-60}]}>Seat Reservation</Text>
+        }
+
+        if(header==='BookSeatReservation'){
+          return <Text style={[styles.screenTitle,{marginLeft:-60}]}>Seat Reservation</Text>
+        }
+
+        if(header==='SelectPayment'){
+          return <Text style={[styles.screenTitle,{marginLeft:20}]}>Choose Payment Method</Text>
         }
 
         return  <Text style={[styles.screenTitle,{marginLeft:-90}]}>Flights</Text>

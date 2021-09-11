@@ -109,7 +109,6 @@ class Card extends Component {
     }
     render() { 
         const {place, navigation} = this.props
-        console.log('image place',place.image)
         return ( 
             <TouchableOpacity
             activeOpacity={0.8}

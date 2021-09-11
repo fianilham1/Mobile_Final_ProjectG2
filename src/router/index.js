@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React, { Component } from 'react';
+import userApi from '../api/user';
 import {
   Splash, 
   OnBoard,
@@ -23,6 +24,8 @@ import {
   Book2FillDetails2,
   TravelerDetail,
   BookSeatReservation,
+  Book3Pay,
+  SelectPayment,
   BookingList,
   Account} from '../screens';
 import {
@@ -341,17 +344,13 @@ class RootStackScreen extends Component {
     constructor(props) {
         super(props);
         this.state = { 
-          loading:true
+          loading:true,
+          userLoginTemp:{}
          }
     }
 
     async componentDidMount(){
       await this.getToken()
-      setTimeout(() => {
-        this.setState({
-          loading:false
-        })
-        },3000)
     }
 
     getToken = async () => {
@@ -395,27 +394,75 @@ class RootStackScreen extends Component {
       //check Username, Password sign in STATUS
       try {
         const jsonValue = await AsyncStorage.getItem('@token')
-        token = jsonValue != null ? JSON.parse(jsonValue) : null;
-        if(token){
-          console.log('token UP in router:', token) 
-            return this.props.doSignIn(
-              {
-                loggedUserProfile:'getFromAPBackend',
-                token,
-                tokenType:'username-password'
-              }
-          )
+        userToken = jsonValue != null ? JSON.parse(jsonValue) : null;
+        if(userToken){ //if token exist
+          console.log('token UP in router:', userToken.token) 
+            this.getCurrentProfile(userToken)
+        }else{ //if token doesnt exist -> redirect to sign in/sign up
+          setTimeout(() => {
+            this.setState({
+              loading:false
+            })
+          },3000)
         }
       } catch(e) {
         console.log('error reading data async ')
       }
       
-     
   }
 
   //GET user profile BackEnd
-  getCurrentProfileApi = () => {
-   //from backend
+  getCurrentProfile = async (userToken) => {
+    try{
+        let res = await fetch(userApi+'/get/'+userToken.username,{
+            method: 'GET',
+            mode:'no-cors',
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                Authorization: userToken.token
+            },
+        })
+        if(res.status===403){ //token exp -> forbidden : redirect to sign in/sign up
+          this.storeData('@token',null)
+          return this.setState({
+            loading:false 
+          })
+        }
+        let json = await res.json()
+        if(json){
+          this.setState({
+            loading:false
+          })
+          const userLogin = {
+            name:json.name,
+            username:json.username,
+            password:json.password,
+            role:json.role,
+            image:json.image,
+            phone:json.phone,
+            travelsayPay:json.travelsayPay
+            }
+            this.props.doSignIn(
+              {
+                loggedUserProfile:userLogin,
+                token:userToken.token,
+                tokenType:'username-password'
+              }
+            )
+        }
+    }catch(error){
+        console.log('error: ',error)
+    }
+  }
+
+  storeData = async (key,value) => {
+    try {
+      const jsonValue = JSON.stringify(value)
+      await AsyncStorage.setItem(key, jsonValue)
+    } catch (e) {
+        console.log('error storing value async storage')
+    }
   }
 
   //GET user profile Facebook
@@ -455,54 +502,8 @@ class RootStackScreen extends Component {
             headerShown: false,
             animation:'none'
           }}>
-
-            <RootStack.Screen 
-              name="BottomTabScreen" 
-              children={(props) => <BottomTabScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
-            <RootStack.Screen 
-              name="FlightsStackScreen"
-              options={{
-                animation:'flip'
-              }} 
-              children={(props) => <FlightsStackScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
-            <RootStack.Screen 
-              name="AirportsSearch"
-              options={{
-                animation:'slide_from_bottom'
-              }} 
-              children={(props) => <AirportsSearch {...props} />}/>
-            <RootStack.Screen 
-              name="FlightsDetail"
-              options={{
-                animation:'fade_from_bottom'
-              }} 
-              children={(props) => <FlightsDetail {...props} />}/>
-             <RootStack.Screen 
-              name="Book1FillDetails"
-              options={{
-                animation:'slide_from_bottom'
-              }} 
-              children={(props) => <Book1FillDetails {...props} />}/>
-            <RootStack.Screen 
-              name="TravelerDetail"
-              options={{
-                animation:'fade_from_bottom'
-              }} 
-              children={(props) => <TravelerDetail {...props} />}/>
-             <RootStack.Screen 
-              name="Book2FillDetails2"
-              options={{
-                animation:'slide_from_bottom'
-              }} 
-              children={(props) => <Book2FillDetails2 {...props} />}/>
-              <RootStack.Screen 
-              name="BookSeatReservation"
-              options={{
-                animation:'slide_from_bottom'
-              }} 
-              children={(props) => <BookSeatReservation {...props} />}/>
-
-          {/* { this.state.loading ?
+  
+          { this.state.loading ?
               <RootStack.Screen 
               name="Splash" 
               component={Splash} />
@@ -525,7 +526,7 @@ class RootStackScreen extends Component {
             </>
           :
             <>
-            <RootStack.Screen 
+           <RootStack.Screen 
               name="BottomTabScreen" 
               children={(props) => <BottomTabScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
             <RootStack.Screen 
@@ -534,8 +535,65 @@ class RootStackScreen extends Component {
                 animation:'slide_from_right'
               }}
               children={(props) => <Detail {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
+            <RootStack.Screen 
+              name="FlightsStackScreen"
+              options={{
+                animation:'flip'
+              }} 
+              children={(props) => <FlightsStackScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
+            <RootStack.Screen 
+              name="AirportsSearch"
+              options={{
+                animation:'slide_from_bottom'
+              }} 
+              children={(props) => <AirportsSearch {...props} />}/>
+            <RootStack.Screen 
+              name="FlightsDetail"
+              options={{
+                animation:'fade_from_bottom'
+              }} 
+              children={(props) => <FlightsDetail {...props} />}/>
+            <RootStack.Screen 
+              name="Book1FillDetails"
+              options={{
+                animation:'slide_from_bottom'
+              }} 
+              children={(props) => <Book1FillDetails {...props} />}/>
+            <RootStack.Screen 
+              name="Book2FillDetails2"
+              options={{
+                animation:'slide_from_bottom'
+              }} 
+              children={(props) => <Book2FillDetails2 {...props} />}/>
+               <RootStack.Screen 
+              name="Book3Pay"
+              options={{
+                animation:'slide_from_bottom'
+              }} 
+              children={(props) => <Book3Pay {...props} />}/>
+            <RootStack.Screen 
+              name="TravelerDetail"
+              options={{
+                animation:'fade_from_bottom'
+              }} 
+              children={(props) => <TravelerDetail {...props} />}/>
+             
+              <RootStack.Screen 
+              name="BookSeatReservation"
+              options={{
+                animation:'slide_from_bottom'
+              }} 
+              children={(props) => <BookSeatReservation {...props} />}/>
+
+              <RootStack.Screen 
+              name="SelectPayment"
+              options={{
+                animation:'slide_from_bottom'
+              }} 
+              children={(props) => <SelectPayment {...props} />}/>
+          
             </>
-          }        */}
+          }       
         
           </RootStack.Navigator>
         </NavigationContainer>

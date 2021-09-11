@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLOR } from '../../constant/color';
 import {connect} from "react-redux";
+import { travelerDetail } from '../../reducers/actions/traveler';
 import { FlightsHeader } from '../../components';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { ListItem, Button } from 'react-native-elements';
@@ -28,98 +29,87 @@ const BASE_TRAVELERDETAIL = {
   nationality:'Indonesia',
   personClass:'',
   birthDate:'',
-  departureflight:{
+  departureFlight:{
     baggage:0,
     seatNumber:'',
-    seatNumberType:''
+    seatNumberType:'',
+    price:''
   },
-  returnflight:{
+  returnFlight:{
     baggage:0,
     seatNumber:'',
-    seatNumberType:''
+    seatNumberType:'',
+    price:''
   }
 }
 
+// {
+//   "departureflight":{
+//       "airlineName": "Garada",
+//       "code": "GA305"
+//   },
+//   "returnflight":{
+//       "airlineName": "Srijaya",
+//       "code": "SJ555"
+//   }
+// }
 
 class FillDetails extends Component {
     constructor(props) {
         super(props);
         this.state = { 
-            travelerDetailList:[],
-            adult:0,
-            child:0,
-            infant:0,
-            flightChosen:[]
         }
     }
 
-    componentDidMount(){
-        const { flightsSearchInfo } = this.props
-        const { passengers } = flightsSearchInfo
-        const { flightChosen } = this.props.route.params
-        this.setState({
-          flightChosen
-        })
-        // let adult = passengers.adult
-        // let child = passengers.child
-        // let infant = passengers.infant
-         let adult = 1
-        let child = 0
-        let infant = 1
-        const travelerDetailList = []
+    getPriceBasedPersonClass = (price,personClass) => {
+      if (personClass==='adult') return price
+      if (personClass==='child') return price*0.8
+      if (personClass==='infant') return price*0.1
+    }
 
-        adult!==0 && new Array(adult).fill().map((data,index) => {
+    componentDidMount(){
+        const { flightsSearchInfo, flightsChosen } = this.props
+        const { passengers } = flightsSearchInfo
+        const personClassList = []
+        const travelerDetailList = []
+        const priceFlightsChosen = []
+        
+        flightsChosen.map((data,index) => {
+          priceFlightsChosen.push(data.price) //store price flight chosen temporary
+        })
+
+        Object.keys(passengers).map((key,index) => {
+          if(passengers[key]!==0){
+            new Array(passengers[key]).fill().map(() => {
+              personClassList.push(key)
+            }) 
+          }
+        })
+
+        //DECLARE TRAVELER DETAIL >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> xxxxxxxxxxxxxxxxxxxxx >>>>>>>>>>>
+        personClassList.map((personClass,index) => {
           travelerDetailList.push({
                 ...BASE_TRAVELERDETAIL,
                 id:index+1,
-                personClass:'adult'
+                personClass,
+                departureFlight:{
+                  ...BASE_TRAVELERDETAIL.departureFlight,
+                  price:this.getPriceBasedPersonClass(priceFlightsChosen[0],personClass)
+                },
+                returnFlight:{
+                  ...BASE_TRAVELERDETAIL.returnFlight,
+                  price:priceFlightsChosen[1] ? this.getPriceBasedPersonClass(priceFlightsChosen[1],personClass) : 0 //if return flight exist
+                }
             })
         })
 
-        child!==0 && new Array(child).fill().map((data,index) => {
-          travelerDetailList.push({
-                ...BASE_TRAVELERDETAIL,
-                id:index+1+adult,
-                personClass:'child'
-            })
-        })
-
-        infant!==0 && new Array(infant).fill().map((data,index) => {
-          travelerDetailList.push({
-                ...BASE_TRAVELERDETAIL,
-                id:index+1+adult+child,
-                personClass:'infant'
-            })
-        })
+        this.props.storeTravelerDetail(travelerDetailList) //store to REDUX
 
         setTimeout(() => {
             this.setState({
               travelerDetailList
             })
         },100)
-
-    }
-
-    componentDidUpdate(){
-      const travelerDetailList = this.state.travelerDetailList
-      const travelerDetailEdit = this.props.route.params?.travelerDetailEdit
-      console.log('update EDIT',travelerDetailEdit)
-
-      if(travelerDetailEdit){
-        const idTravelerEdit = travelerDetailEdit?.id
-        
-        const index = travelerDetailList.findIndex(item => item.id === idTravelerEdit);
-        travelerDetailList.splice(index, 1, travelerDetailEdit);
-      
-        this.setState({
-          travelerDetailList
-        })
-        this.props.navigation.setParams({
-          travelerDetailEdit:null
-        })
-      }
-
-      // console.log('idx',idx)
 
     }
 
@@ -132,6 +122,7 @@ class FillDetails extends Component {
                   style={{
                   flexDirection:'column',
                   marginVertical:10, 
+                  marginHorizontal:5,
                   borderRadius:8}}
                   containerStyle={styles.flightListBox}>
               <View style={{flexDirection:'column',flex:1}}>
@@ -148,7 +139,7 @@ class FillDetails extends Component {
                         </View> 
                     </View>
                     <View style={styles.infoTimeColumn}>
-                        <Text style={styles.arrowTextUpper}>{item.duration}</Text>
+                        <Text style={styles.arrowTextUpper}>{item.durationFlight}</Text>
                         <View>
                             <View style={styles.arrowLine}>
                                 <MaterialIcon 
@@ -183,7 +174,7 @@ class FillDetails extends Component {
                   </View>
                 </View>
 
-                <View style={{flexDirection:'row',marginBottom:-25, bottom:20}}>
+                <View style={{flexDirection:'row',alignItems:'center',marginBottom:-25, bottom:20}}>
                   <MaterialIcon 
                       name='flight'
                       size={35}
@@ -192,6 +183,7 @@ class FillDetails extends Component {
                           transform: [ {rotate:'45deg'} ]
                       }}
                       />
+                      <Text>{item.airlineName}</Text>
                   </View>
               
               </View>
@@ -200,20 +192,18 @@ class FillDetails extends Component {
       }
 
     render() { 
-        const { travelerDetailList, flightChosen} = this.state
-        const { flightsSearchInfo, loggedUserProfile } = this.props
-       
+        const { travelerDetailList, loggedUserProfile, flightsChosen, tokenType } = this.props
 
         return (
             <SafeAreaView style={{flex: 1}}>
-            <FlightsHeader flightsSearchInfo={flightsSearchInfo} header='Book1FillDetails' {...this.props}/>
+            <FlightsHeader header='Book1FillDetails' {...this.props}/>
             <View style={styles.background}></View>
             <View style={styles.flightListContainer}>
                 <Text style={{color:'#fff'}}>Tab to See The Product's Detail</Text>
                 <FlatList 
                 showsHorizontalScrollIndicator={false}
                 horizontal
-                data={flightChosen}
+                data={flightsChosen}
                 keyExtractor = {(item,index) => {
                     return index;
                 }}
@@ -232,7 +222,7 @@ class FillDetails extends Component {
                     />
                     <View>
                         <Text style={styles.text}>{'Logged In As '+loggedUserProfile?.name} </Text>
-                        <Text style={styles.miniText}>{'via '+loggedUserProfile?.tokenType}</Text>
+                        <Text style={styles.miniText}>{'via '+tokenType}</Text>
                     </View>
                     
                 </View>
@@ -262,7 +252,7 @@ class FillDetails extends Component {
                             color='gray'
                             style={{marginRight:15}}
                             />
-                            <Text>{data?.name? data?.name : '1 '+data?.personClass+'*'}</Text>
+                            <Text>{data?.name ? data?.title+' '+data?.name : '1 '+data?.personClass+'*'}</Text>
                         </TouchableOpacity>
                         )
                     })
@@ -287,11 +277,7 @@ class FillDetails extends Component {
                         }
                       })
                       if(checkEmptyData>0) return Alert.alert('Alert!','Fill All Travelers Data')
-
-                        this.props.navigation.navigate('Book2FillDetails2',{
-                          travelerDetailList,
-                          flightChosen
-                        })
+                        this.props.navigation.navigate('Book2FillDetails2')
                     }}
                     background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
                 /> 
@@ -302,12 +288,19 @@ class FillDetails extends Component {
 }
 
 const mapStateToProps = state => ({
-    flightsSearchInfo: state.flights,
-    loggedUserProfile: state.auth.loggedUserProfile
+    flightsSearchInfo: state.flightsSearch,
+    loggedUserProfile: state.auth.loggedUserProfile,
+    flightsChosen: state.flightsChosen,
+    travelerDetailList: state.traveler,
+    tokenType:  state.auth.tokenType,
+    
+})
 
+const mapDispatchToProps = dispatch => ({
+  storeTravelerDetail: data => dispatch(travelerDetail(data)),
 })
  
-export default connect(mapStateToProps, null)(FillDetails);
+export default connect(mapStateToProps, mapDispatchToProps)(FillDetails);
 
 const styles = StyleSheet.create({
     background:{
@@ -330,7 +323,6 @@ const styles = StyleSheet.create({
     backgroundColor:'#fff',
     borderRadius:7,
     elevation:5,
-    marginHorizontal:5
   },
   flightInfoLeft:{
     marginRight:20,

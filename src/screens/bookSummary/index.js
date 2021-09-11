@@ -11,6 +11,7 @@ import {
 import { COLOR } from '../../constant/color';
 import { ButtonApp } from '../../components';
 import {connect} from "react-redux";
+import { flightChosen } from '../../reducers/actions/flight';
 import { FlightsHeader } from '../../components';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { ListItem, Button } from 'react-native-elements';
@@ -26,6 +27,17 @@ class BookSummary extends Component {
             
         }
     }
+
+  //   {
+  //     "departureflight":{
+  //         "airlineName": "Garada",
+  //         "code": "GA305"
+  //     },
+  //     "returnflight":{
+  //         "airlineName": "Srijaya",
+  //         "code": "SJ555"
+  //     }
+  // }
 
     componentDidMount(){
         //fetch
@@ -53,7 +65,7 @@ class BookSummary extends Component {
                         </View> 
                     </View>
                     <View style={styles.infoTimeColumn}>
-                        <Text style={styles.arrowTextUpper}>{item.duration}</Text>
+                        <Text style={styles.arrowTextUpper}>{item.durationFlight}</Text>
                         <View>
                             <View style={styles.arrowLine}>
                                 <MaterialIcon 
@@ -88,7 +100,7 @@ class BookSummary extends Component {
                   </View>
                 </View>
 
-                <View style={{flexDirection:'row',top:5}}>
+                <View style={{flexDirection:'row',alignItems:'center',top:10}}>
                   <MaterialIcon 
                       name='flight'
                       size={35}
@@ -97,12 +109,13 @@ class BookSummary extends Component {
                           transform: [ {rotate:'45deg'} ]
                       }}
                       />
+                      <Text>{item.airlineName}</Text>
                      <Button
                       title="Detail Flight"
                       titleStyle={{fontSize:15}}
                       containerStyle={{
                         width:120,
-                        left:140
+                        left:90
                       }}
                       buttonStyle={{
                           backgroundColor:COLOR.main,
@@ -156,9 +169,10 @@ class BookSummary extends Component {
                </View>
                <View style={styles.priceSelectColumn}>
                <TouchableOpacity
-                onPress={() => this.props.navigation.navigate('Book1FillDetails',{
-                  flightChosen
-                })}  
+                onPress={() => {
+                  this.props.navigation.navigate('Book1FillDetails')
+                  this.props.storeFlightChosen(flightChosen) //** STORE FLIGHT CHOSEN
+                }}  
                 activeOpacity={0.5}
                 style={styles.selectButtonBox}>
                   <Text style={styles.detailText}>Select</Text>
@@ -178,10 +192,15 @@ class BookSummary extends Component {
 }
 
 const mapStateToProps = state => ({
-    flightsSearchInfo: state.flights
+    flightsSearchInfo: state.flightsSearch
+})
+
+const mapDispatchToProps = dispatch => ({
+  storeFlightChosen: data => dispatch(flightChosen(data))
 })
  
-export default connect(mapStateToProps, null)(BookSummary);
+ 
+export default connect(mapStateToProps, mapDispatchToProps)(BookSummary);
 
 const styles = StyleSheet.create({
   flightListContainer:{

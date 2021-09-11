@@ -41,8 +41,15 @@ class FlightsDetail extends Component {
                 airlineName,
                 code,
                 aircraftType,
-                duration,
-                numberTransit} = airlineDetail
+                durationFlight,
+                numberTransit,
+                baggageData,
+                meals,
+                entertainment,
+                wifi,
+                powerOrUSBPort,
+                seatPitch,
+                seatLayout} = airlineDetail
         const transitType = numberTransit===0 ? 'Direct' : `${numberTransit} Stop`
         return (
           <SafeAreaView style={{flex:1, backgroundColor:'#fff'}}>
@@ -62,7 +69,7 @@ class FlightsDetail extends Component {
                         </View>
                         <View  style={{flexDirection:'row'}}>
                             <Text style={styles.screenSubtitle}>{fromAirportCode+' - '+
-                            toAirportCode+' - '+duration+' - '+
+                            toAirportCode+' - '+durationFlight+' - '+
                             transitType}</Text>
                         </View>
                     </View>
@@ -83,7 +90,7 @@ class FlightsDetail extends Component {
                         name="schedule" size={20}
                         style={{ paddingHorizontal: 10}}
                     />
-                    <Text style={styles.durationTitle}>{duration}</Text>
+                    <Text style={styles.durationTitle}>{durationFlight}</Text>
                 </View>
             </View>
             <View style={styles.detailContainer}>
@@ -93,7 +100,7 @@ class FlightsDetail extends Component {
                         <Text>{departureDate[1]}</Text>
                     </View>
                     <View style={styles.detailMid}>
-                        <Text>{duration}</Text>
+                        <Text>{durationFlight}</Text>
                     </View>
                     <View style={styles.detailLower}>
                         <Text>{arrivalTime}</Text>
@@ -102,7 +109,29 @@ class FlightsDetail extends Component {
 
                 </View>
                 <View style={styles.detailColumnArrow}>
-
+                </View>
+                <View style={{
+                    width:12,
+                    height:12,
+                    borderRadius:6,
+                    backgroundColor:COLOR.lightblue,
+                    position:'absolute',
+                    left:88.75,
+                    top:30
+                }}>  
+                </View>
+                <View style={{
+                    width:12,
+                    height:12,
+                    borderRadius:6,
+                    borderWidth:2,
+                    backgroundColor:'#fff',
+                    borderColor:COLOR.lightblue,
+                    position:'absolute',
+                    left:88.75,
+                    bottom:70
+                }}>
+                    
                 </View>
                 <View style={styles.detailColumnRight}>
                     <View style={styles.detailUpper}>
@@ -120,8 +149,23 @@ class FlightsDetail extends Component {
                                 />
                                 <View>
                                     <Text>Baggage</Text>
-                                    <Text>20 kg</Text>
-                                    <Text>40 kg</Text>
+                                    {
+                                        baggageData.map((data,index) => {
+                                            return (
+                                                <Text key={index}>{data+' kg'}</Text>
+                                            )
+                                        })
+                                    }
+                                </View>
+                            </View>
+                            <View style={styles.detailBox}>
+                                <MaterialIcon
+                                    name="restaurant" size={20}
+                                    style={{ paddingHorizontal: 10}}
+                                />
+                                <View>
+                                    <Text>Meals</Text>
+                                    <Text>{meals? 'Available' : 'Not Available'}</Text>
                                 </View>
                             </View>
                             <View style={styles.detailBox}>
@@ -131,7 +175,7 @@ class FlightsDetail extends Component {
                                 />
                                 <View>
                                     <Text>In-flight Entertainment</Text>
-                                    <Text>Avalaible</Text>
+                                    <Text>{entertainment? 'Available' : 'Not Available'}</Text>
                                 </View>
                             </View>
                             <View style={styles.detailBox}>
@@ -141,7 +185,7 @@ class FlightsDetail extends Component {
                                 />
                                 <View>
                                     <Text>Wifi</Text>
-                                    <Text>Avalaible</Text>
+                                    <Text>{wifi? 'Available' : 'Not Available'}</Text>
                                 </View>
                             </View>
                             <View style={styles.detailBox}>
@@ -151,7 +195,7 @@ class FlightsDetail extends Component {
                                 />
                                  <View>
                                     <Text>Power/Usb Port</Text>
-                                    <Text>Avalaible</Text>
+                                    <Text>{powerOrUSBPort? 'Available' : 'Not Available'}</Text>
                                  </View>
                             </View>
                             <View style={styles.detailBox}>
@@ -161,8 +205,8 @@ class FlightsDetail extends Component {
                                 />
                                 <View>
                                     <Text>{aircraftType}</Text>
-                                    <Text>seat-layout</Text>
-                                    <Text>seat-pitch</Text>
+                                    <Text>{seatLayout}</Text>
+                                    <Text>{seatPitch}</Text>
                                 </View>
                             </View>
                         </View>
@@ -242,7 +286,7 @@ const styles = StyleSheet.create({
       },
       detailColumnLeft:{
           flex:1,
-          height:500,
+          height:600,
           marginHorizontal:10,
           alignItems:'flex-end',
           paddingVertical:15
@@ -251,13 +295,13 @@ const styles = StyleSheet.create({
         backgroundColor:COLOR.lightblue,
         marginHorizontal:5,
         flex:.042,
-        height:410,
+        height:490,
         bottom:15
       },
       detailColumnRight:{
           marginHorizontal:10,
           flex:3.5,
-          height:500,
+          height:600,
           paddingVertical:15
       },
       detailUpper:{
@@ -276,7 +320,7 @@ const styles = StyleSheet.create({
           paddingHorizontal:15,
           paddingVertical:10,
           borderRadius:10,
-          bottom:15
+          bottom:20
         //   width:'95%',
       },
       detailText:{

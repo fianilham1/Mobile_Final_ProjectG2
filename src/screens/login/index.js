@@ -68,7 +68,7 @@ class Login extends Component{
             animationWidth:new Animated.Value(0),
             animationBorderRadius:new Animated.Value(0),
             loginStatus:this.props.loginStatus,
-            loginLoading:false,
+            apiLoading:false,
             //>>> Google Sign In :
             userInfo:{},
          }
@@ -262,7 +262,7 @@ class Login extends Component{
         return Alert.alert('Alert','Please Input Username And Password')
     }
     this.setState({
-        loginLoading:true
+        apiLoading:true
     })
     try{
         let res = await fetch(userApi+'/signIn',{
@@ -280,7 +280,7 @@ class Login extends Component{
         let json = await res.json()
         if(json){
             this.setState({
-                loginLoading:false
+                apiLoading:false
             })
 
             if(json.errorMessage==='Username Is Not Found'){
@@ -291,8 +291,6 @@ class Login extends Component{
                 return this.setState({
                             validPassword:false
                         })
-            }else if(json.message==='Please Try Again, request is under process'){
-                return console.log('Please Try Again, request is under process')
             }
 
             //SIGN IN SUCCESS
@@ -304,8 +302,12 @@ class Login extends Component{
                         role:json.role,
                         image:json.image,
                         phone:json.phone,
+                        travelsayPay:json.travelsayPay
                         }
-                    this.storeData('@token',json.token)
+                    this.storeData('@token',{
+                        username:json.username,
+                        token:json.token
+                    })
                     this.props.doSignIn(
                         {
                           loggedUserProfile:userLogin,
@@ -364,7 +366,7 @@ class Login extends Component{
     }
 
     render(){
-        console.log('loadingLOGIN? ',this.state.loginLoading)
+        console.log('loadingLOGIN? ',this.state.apiLoading)
         const {navigation} = this.props
         const width = Animated.interpolateNode(this.state.animationWidth,{
             inputRange: [0, 1],
@@ -377,7 +379,7 @@ class Login extends Component{
         return(
             <SafeAreaView style={{flex:1}}>
             <Spinner //LOADING LOGIN API 
-                visible={this.state.loginLoading}
+                visible={this.state.apiLoading}
                 textContent={'Loading...'}
                 textStyle={{color:'#fff'}}
             />

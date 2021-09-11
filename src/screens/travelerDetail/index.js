@@ -9,6 +9,8 @@ import {
     Dimensions,
     ScrollView} from 'react-native';
 import { COLOR } from '../../constant/color';
+import {connect} from "react-redux";
+import { updateTraveler } from '../../reducers/actions/traveler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { Input, Button } from 'react-native-elements';
@@ -36,13 +38,16 @@ class TravelerDetail extends Component {
           personClass:'',
 
           allCountryName:[],
-          errorMessage:'',
+          errorMessageTitle:'',
+          errorMessageName:'',
+          errorMessageBirth:'',
           dateVisible:false
         }
     }
 
     componentDidMount(){
         const { travelerDetail } = this.props.route.params
+        console.log(travelerDetail)
         this.setState({
             id:travelerDetail.id,
             title:travelerDetail.title,
@@ -56,7 +61,8 @@ class TravelerDetail extends Component {
    setValue = (nameParams, val) => {
        this.setState({
            [nameParams]:val,
-           errorMessage:''
+           errorMessageName:'',
+           errorMessageTitle:''
        })
    }
 
@@ -64,9 +70,12 @@ class TravelerDetail extends Component {
         if(event.type==='set'){
            this.setState({
                birthDate:selectedDate,
-               dateVisible:false
            })
         }
+        this.setState({
+            dateVisible:false,
+            errorMessageBirth:''
+        })
    }
    getDateFormat = (date) => {
     if(Object.prototype.toString.call(date) !== '[object Date]') return date
@@ -109,7 +118,7 @@ class TravelerDetail extends Component {
 
     render() { 
         const {
-            allCountryName, errorMessage, 
+            allCountryName, errorMessageName, errorMessageBirth, errorMessageTitle,
             id, 
             title, 
             name, 
@@ -132,10 +141,12 @@ class TravelerDetail extends Component {
                             this.setValue('title',itemValue)
                         }
                         mode='dropdown'>
+                        <Picker.Item label="" value="" />
                         <Picker.Item label="Mr. " value="Mr. " />
                         <Picker.Item label="Mrs. " value="Mrs. " />
                         <Picker.Item label="Ms. " value="Ms. " />
                     </Picker>
+                    <Text style={{color:'red', fontSize:12,position:'absolute',top:75}}>{errorMessageTitle}</Text>
                 </View>
                 <Input
                     placeholder={'Fullname of '+personClass}
@@ -143,7 +154,7 @@ class TravelerDetail extends Component {
                     value={this.state.name}
                     onChangeText={value => this.setValue('name',value)}
                     containerStyle={styles.input}
-                    errorMessage={errorMessage}
+                    errorMessage={errorMessageName}
                 />
                 {
                     personClass!=='adult'?
@@ -160,7 +171,9 @@ class TravelerDetail extends Component {
                             size={25}
                         />
                     </TouchableOpacity>
+                    <Text style={{color:'red', fontSize:12,position:'absolute',top:70}}>{errorMessageBirth}</Text>
                     </View>
+                   
                     {this.renderDatePicker()}
                     </>
                     :
@@ -193,20 +206,22 @@ class TravelerDetail extends Component {
                     }}
                     onPress={() => {
                         if(personClass!=='adult'){
-                            if(!name || !birthDate) return this.setState({ errorMessage:'Name Must Be Filled' })
+                            if(!title) this.setState({ errorMessageTitle:'Title Must Be Filled' })
+                            if(!name) this.setState({ errorMessageName:'Name Must Be Filled' })
+                            if(!birthDate) return this.setState({ errorMessageBirth:'BirthDate Must Be Filled' })
                         }else{
-                            if(!name) return this.setState({ errorMessage:'Name Must Be Filled' })
+                            if(!title) this.setState({ errorMessageTitle:'Title Must Be Filled' })
+                            if(!name) return this.setState({ errorMessageName:'Name Must Be Filled' })
                         }
-
-                        this.props.navigation.navigate('Book1FillDetails',{
-                            travelerDetailEdit:{
-                                id,
-                                title,
-                                name,
-                                birthDate:this.getDateFormat(birthDate),
-                                nationality
-                            }
-                        })
+                        const newDataTraveler = {
+                            id,
+                            title,
+                            name,
+                            birthDate:this.getDateFormat(birthDate),
+                            nationality
+                        }
+                        this.props.doUpdateTraveler(newDataTraveler)
+                        this.props.navigation.goBack()
                     }}
                     background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
                 /> 
@@ -216,8 +231,12 @@ class TravelerDetail extends Component {
         );
     }
 }
+
+const mapDispatchToProps = dispatch => ({
+    doUpdateTraveler: data => dispatch(updateTraveler(data))
+  })
  
-export default TravelerDetail;
+export default connect(null, mapDispatchToProps)(TravelerDetail);
 
 const styles = StyleSheet.create({
       TravelerDetailContainer:{

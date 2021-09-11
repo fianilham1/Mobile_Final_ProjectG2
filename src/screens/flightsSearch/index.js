@@ -46,8 +46,8 @@ class FlightsSearch extends Component {
           isFlexibleTicket:false,
           translateYDetail:new Animated.Value(0),
           //Airport Search
-          departureAirport:`Surabaya - SUB`,
-          arrivalAirport:'Jakarta - JKTA',
+          fromAirport:`Surabaya - SUB`,
+          toAirport:'Balikpapan - BPN',
           //Date Search
           departureDateVisible:false,
           returnDateVisible:false,
@@ -102,6 +102,16 @@ class FlightsSearch extends Component {
           [typeFlight]:selectedDate,
           [`${typeFlight}Visible`]:false
         })
+        if(typeFlight==='departureDate'){
+          const { returnDate } = this.state
+          if(returnDate.getFullYear() < selectedDate.getFullYear() ||
+          returnDate.getMonth() < selectedDate.getMonth() ||
+          returnDate.getDate() < selectedDate.getDate()){
+            return this.setState({
+              returnDate:new Date(selectedDate.getFullYear(),selectedDate.getMonth(),selectedDate.getDate()+1)
+            })
+          }
+        }
       }
     }
 
@@ -129,6 +139,7 @@ class FlightsSearch extends Component {
           <DateTimePicker
             testID="dateTimePicker"
             value={returnDate}
+            minimumDate={returnDate}
             mode='date'
             is24Hour={true}
             display="default"
@@ -184,12 +195,12 @@ class FlightsSearch extends Component {
                 min={item.label==='Adult' ? 1 : 0}
                 step={1}
                 colorMax={"#f04048"}
-                colorMin={"#40c5f4"}
+                // colorMin={"#40c5f4"}
                 value={this.state.passengers[index].amount}
                 onChange={(num) => {
                   this.spinnerHandler(num,index)
                 }}
-                skin='round'
+                skin='square'
                 style={styles.inputSpinner}
               />
             </View>
@@ -325,7 +336,7 @@ class FlightsSearch extends Component {
                       <Text style={styles.flightRowTitle}>From</Text>
                       <TouchableOpacity
                         activeOpacity={0.8}
-                        onPress={() =>this.props.navigation.navigate('AirportsSearch',{type:'departureAirport'})}
+                        onPress={() =>this.props.navigation.navigate('AirportsSearch',{type:'fromAirport'})}
                         style={styles.flightSubRow}>
                         <View style={{height:17,marginRight:-10}}>
                             <FontawesomeIcon
@@ -338,14 +349,14 @@ class FlightsSearch extends Component {
                               borderBottomWidth:2.5, 
                               marginTop:5}}></View>
                           </View>
-                          <Text style={styles.flightRowText}>{this.state.departureAirport}</Text>
+                          <Text style={styles.flightRowText}>{this.state.fromAirport}</Text>
                       </TouchableOpacity>
                   </View>
                   <View style={styles.flightRow}>
                       <Text  style={styles.flightRowTitle}>To</Text>
                       <TouchableOpacity  
                        activeOpacity={0.8}
-                       onPress={() => this.props.navigation.navigate('AirportsSearch',{type:'arrivalAirport'})} 
+                       onPress={() => this.props.navigation.navigate('AirportsSearch',{type:'toAirport'})} 
                         style={styles.flightSubRow}>
                         <View style={{height:17,marginRight:-10}}>
                           <FontawesomeIcon
@@ -358,7 +369,7 @@ class FlightsSearch extends Component {
                             borderBottomWidth:2.5, 
                             marginTop:5}}></View>
                         </View>
-                        <Text style={styles.flightRowText}>{this.state.arrivalAirport} </Text>
+                        <Text style={styles.flightRowText}>{this.state.toAirport} </Text>
                       </TouchableOpacity>
                   </View>
                   <View style={styles.flightRow}>
@@ -403,7 +414,7 @@ class FlightsSearch extends Component {
                           color={COLOR.gray}
                         />
                           <FontawesomeIcon
-                          name='arrow-right'
+                          name='arrow-left'
                           size={17}
                           color={COLOR.lightblue}
                           style={{position:'absolute',top:3,left:13}}
@@ -477,7 +488,7 @@ class FlightsSearch extends Component {
                   label="Search"
                   color={COLOR.secondary}
                   handler={() => {
-                    const {departureAirport, arrivalAirport, departureDate, returnDate, passengers, seatClass, isFlexibleTicket} = this.state
+                    const {fromAirport, toAirport, departureDate, returnDate, passengers, seatClass, isFlexibleTicket} = this.state
                     let passengersObj = {
                       adult:passengers[0].amount,
                       child:passengers[1].amount,
@@ -490,17 +501,17 @@ class FlightsSearch extends Component {
                       }
                     })
                     let airportCityFlight = {
-                      from: departureAirport.split(' - ')[0],
-                      to: arrivalAirport.split(' - ')[0]
+                      from: fromAirport.split(' - ')[0],
+                      to: toAirport.split(' - ')[0]
                     }
                     let airportCodeFlight = {
-                      from: departureAirport.split(' - ')[1],
-                      to: arrivalAirport.split(' - ')[1]
+                      from: fromAirport.split(' - ')[1],
+                      to: toAirport.split(' - ')[1]
                     }
 
                     const flightInfo = {
-                      departureAirport,
-                      arrivalAirport,
+                      fromAirport,
+                      toAirport,
                       airportCityFlight,
                       airportCodeFlight,
                       passengers:passengersObj,
@@ -512,7 +523,6 @@ class FlightsSearch extends Component {
                     }
                     this.props.storeFlightSearchInfo(flightInfo)
                     this.props.navigation.navigate('FlightsList')
-                    //send req to api flights
                   }}
                   style={{
                     marginTop:-5

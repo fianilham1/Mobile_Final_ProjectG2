@@ -2,8 +2,8 @@ import { FLIGHTS_SEARCH_INFO } from "./actions/types";
 
 
 const initialState = {
-   departureAirport:'',
-   arrivalAirport:'',
+   fromAirport:'',
+   toAirport:'',
    airportCityFlight:{},
    airportCodeFlight:{},
    passengers:{},
@@ -11,7 +11,8 @@ const initialState = {
    seatClass:'',
    departureDate:'',
    returnDate:'',
-   includeFlexibleTicket:false
+   includeFlexibleTicket:false,
+   sortBy:'EarliestDeparture'
 }
 
 const flightsReducer = (state = initialState,action) => {
@@ -19,8 +20,8 @@ const flightsReducer = (state = initialState,action) => {
         case FLIGHTS_SEARCH_INFO:
             return {
                 ...state,
-                departureAirport:action?.data?.departureAirport,
-                arrivalAirport:action?.data?.arrivalAirport,
+                fromAirport:action?.data?.fromAirport,
+                toAirport:action?.data?.toAirport,
                 airportCityFlight:action?.data?.airportCityFlight,
                 airportCodeFlight:action?.data?.airportCodeFlight,
                 passengers:action?.data?.passengers,

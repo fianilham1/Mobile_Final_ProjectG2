@@ -1,5 +1,14 @@
 import { SIGN_IN_OK, SIGN_OUT, UPDATE_TOKEN, STORE_USER_FORGOTPASS } from "./actions/types";
 
+// loggedUserProfile : {
+//     name:json.name,
+//     username:json.username,
+//     password:json.password,
+//     role:json.role,
+//     image:json.image,
+//     phone:json.phone,
+//     travelsayPay:json.travelsayPay
+//     }
 
 const initialState = {
     loggedUserProfile:null,

@@ -18,8 +18,11 @@ import Book1FillDetails from './book1-fillDetails'
 import Book2FillDetails2 from './book2-fillDetails2'
 import TravelerDetail from './travelerDetail'
 import BookSeatReservation from './bookSeatReservation'
+import Book3Pay from './book3-pay'
+import SelectPayment from './selectPayment'
 import BookingList from './bookingList'
 import Account from './account'
+
 
 export {Splash, 
     Login, 
@@ -41,5 +44,7 @@ export {Splash,
     Book2FillDetails2,
     TravelerDetail,
     BookSeatReservation,
+    Book3Pay,
+    SelectPayment,
     BookingList, 
     Account }

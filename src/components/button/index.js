@@ -23,7 +23,7 @@ class ButtonApp extends Component {
         const width = animation ? 
         animation.width : style?.width ? 
             style?.width : WIDTH-65
-        const borderRadius = animation ? animation.borderRadius :  5
+        const borderRadius = animation ? animation.borderRadius :  20
         const marginTop = style?.marginTop ? style?.marginTop : 30
         return ( 
             <TouchableOpacity

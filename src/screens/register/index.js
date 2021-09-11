@@ -42,7 +42,7 @@ class Register extends Component{
             animationWidth:new Animated.Value(0),
             animationBorderRadius:new Animated.Value(0),
             successRegister:this.props.loginStatus,
-            registerLoading:false,
+            apiLoading:false,
             errorMessagePassword:''
          }
     }
@@ -97,7 +97,7 @@ class Register extends Component{
         }
       
         this.setState({
-            registerLoading:true
+            apiLoading:true
         })     
         try{
             let res = await fetch(userApi+'/signUp',{
@@ -113,13 +113,14 @@ class Register extends Component{
                     name:this.state.name,
                     image:'',
                     phone:'',
-                    points:0
+                    points:0,
+                    travelsayPay:50000
                 })
             })
             let json = await res.json()
             if(json){
                 this.setState({
-                    loginLoading:false
+                    apiLoading:false
                 })
     
                 if(json.errorMessage==='Username Is Already Exist'){
@@ -130,7 +131,7 @@ class Register extends Component{
 
                 //SIGN UP SUCCESS
                     this.setState({
-                        registerLoading:false
+                        apiLoading:false
                     })
                     Alert.alert('Success','Sign Up Is Successful')
                     console.log('success response: ',json)
@@ -170,7 +171,7 @@ class Register extends Component{
         return(
             <SafeAreaView style={{flex:1}}>
                 <Spinner //REGISTER REGISTER API 
-                    visible={this.state.registerLoading}
+                    visible={this.state.apiLoading}
                     textContent={'Loading...'}
                     textStyle={{color:'#fff'}}
                 />

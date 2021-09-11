@@ -13,40 +13,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import {ListItem} from 'react-native-elements';
 import { FlatList } from 'react-native-gesture-handler';
+import { AIRPORT_LITS } from '../../constant/airport';
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
 
-const airportList = [
-  {
-    id:1,
-    city:'Jakarta',
-    country:'Indonesia',
-    name:'Juanda',
-    code:'JKTA'
-  },
-  {
-    id:2,
-    city:'Balikpapan',
-    country:'Indonesia',
-    name:'Sepinggan',
-    code:'BPN'
-  },
-  {
-    id:3,
-    city:'Bali',
-    country:'Indonesia',
-    name:'Ngurah Rai International Airport',
-    code:'DPS'
-  },
-  {
-    id:4,
-    city:'Surabaya',
-    country:'Indonesia',
-    name:'Juanda',
-    code:'SUB'
-  }
-]
+
 
 class AirportsSearch extends Component {
     constructor(props) {
@@ -120,7 +92,7 @@ class AirportsSearch extends Component {
                 </TouchableOpacity>
             </View>     
             <FlatList 
-            data={airportList}
+            data={AIRPORT_LITS}
             keyExtractor = {(item) => {
                 return item.id;
             }}
