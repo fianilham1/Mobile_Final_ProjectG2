@@ -53,6 +53,7 @@ class FlightsSearch extends Component {
           returnDateVisible:false,
           departureDate:TODAY,
           returnDate:new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()+1),
+          minimumReturnDate:new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()+1),
           //detail Flight -> passengers & seat class
           modalVisible:false,
           detail:'',
@@ -103,12 +104,15 @@ class FlightsSearch extends Component {
           [`${typeFlight}Visible`]:false
         })
         if(typeFlight==='departureDate'){
-          const { returnDate } = this.state
-          if(returnDate.getFullYear() < selectedDate.getFullYear() ||
-          returnDate.getMonth() < selectedDate.getMonth() ||
-          returnDate.getDate() < selectedDate.getDate()){
+          const { minimumReturnDate } = this.state
+          if(minimumReturnDate.getFullYear() <= selectedDate.getFullYear() ||
+          minimumReturnDate.getMonth() <= selectedDate.getMonth() ||
+          minimumReturnDate.getDate() <= selectedDate.getDate()){
+            console.log('change return date')
+            const newDate = new Date(selectedDate.getFullYear(),selectedDate.getMonth(),selectedDate.getDate()+1)
             return this.setState({
-              returnDate:new Date(selectedDate.getFullYear(),selectedDate.getMonth(),selectedDate.getDate()+1)
+              minimumReturnDate:newDate,
+              returnDate:newDate
             })
           }
         }
@@ -122,7 +126,7 @@ class FlightsSearch extends Component {
     }
 
     renderDatePicker = () => {
-      const { departureDateVisible, departureDate, returnDateVisible, returnDate } = this.state
+      const { departureDateVisible, departureDate, returnDateVisible, returnDate, minimumReturnDate } = this.state
       if (departureDateVisible) {
         return (
           <DateTimePicker
@@ -139,7 +143,7 @@ class FlightsSearch extends Component {
           <DateTimePicker
             testID="dateTimePicker"
             value={returnDate}
-            minimumDate={returnDate}
+            minimumDate={minimumReturnDate}
             mode='date'
             is24Hour={true}
             display="default"
@@ -327,8 +331,8 @@ class FlightsSearch extends Component {
                 <TouchableOpacity style={styles.button} activeOpacity={0.8}>
                   <Text>One-Way / Round-Trip</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button} activeOpacity={0.8}>
-                  <Text>MultiTrip</Text>
+                <TouchableOpacity style={[styles.button,{backgroundColor:COLOR.main}]} activeOpacity={0.8}>
+                  <Text style={{color:'#fff'}}>MultiTrip</Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.flightsContainer}>

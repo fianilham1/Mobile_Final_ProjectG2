@@ -174,6 +174,7 @@ class FillDetails2 extends Component {
     }
 
     sendFlightsDetails = async (purchaseDetail) => {
+        const { price } = this.props  
         this.setState({
             apiLoading:true
         })
@@ -197,8 +198,14 @@ class FillDetails2 extends Component {
     
                 //SEND FLIGHTS DETAILS SUCCESS  -------------------------------->>>>>>>>>>>>
                 //NEXT is Proceed to payment >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+                this.props.storePaymentMethodList({
+                    purchaseId:json.purchaseId,
+                    thirdPartyPaymentList:json.thirdPartyPaymentList,
+                    totalPrice:price.totalPrice
+                })
                 console.log('success response: ',json)
+                this.props.navigation.navigate('Book3Pay')
+                
             }
         }catch(error){
             console.log('error: ',error)
@@ -265,7 +272,7 @@ class FillDetails2 extends Component {
             <Spinner //LOADING GET/POST API 
                 visible={this.state.apiLoading}
                 textContent={'Please Wait... We Are Processing Your Booking'}
-                textStyle={{color:'#fff'}}
+                textStyle={{color:'#fff',fontSize:15}}
             />
             
             <ScrollView 

@@ -39,21 +39,6 @@ class FlightsList extends Component {
         this.baseState = this.state
     }
 
-    // {
-        // "fromAirport":"Surabaya(SUB)",
-        // "toAirport":"Balikpapan(BPN)",
-        // "departureDate":"2021-07-06",
-        // "returnDate":"2021-07-17",
-        // "passengers":{
-        //     "adult":1,
-        //     "child":1,
-        //     "infant":0
-        // },
-        // "seatClass":"Economy",
-        // "includeFlexibleTicket":true,
-        // "sortBy":"EarliestDeparture"
-    // }
-
     getAirportName = (airport) => {
         const code = this.getAirportCode(airport)
         const index = AIRPORT_LITS.findIndex(item => item.code === code);

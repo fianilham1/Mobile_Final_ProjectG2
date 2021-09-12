@@ -58,7 +58,7 @@ const BANK = [
     },
 ]
 
-const TRAVELSAT_PAY = {
+const TRAVELSAY_PAY = {
     name:'Travelsay-Pay',
     image:require('../../assets/images/travelsaypay_logo.png'),
     style:{
@@ -117,14 +117,14 @@ class SelectPayment extends Component {
                         activeOpacity={0.7} 
                         style={styles.payment}
                         onPress={() => {
-                            this.props.selectPaymentMethod(TRAVELSAT_PAY) 
+                            this.props.selectPaymentMethod(TRAVELSAY_PAY) 
                             this.props.navigation.goBack()
                             }}>
                         <Image 
-                            style={TRAVELSAT_PAY.style}
-                            source={TRAVELSAT_PAY.image}
+                            style={TRAVELSAY_PAY.style}
+                            source={TRAVELSAY_PAY.image}
                         />
-                        <Text style={styles.text}>{TRAVELSAT_PAY.name}</Text>
+                        <Text style={styles.text}>{TRAVELSAY_PAY.name}</Text>
                         <Text style={styles.text}>{'Rp'+loggedUserProfile.travelsayPay}</Text>
                     </TouchableOpacity>
                 </View>

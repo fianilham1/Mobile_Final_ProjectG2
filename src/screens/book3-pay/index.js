@@ -18,7 +18,7 @@ import { FlightsHeader } from '../../components';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
 import { ListItem, Button } from 'react-native-elements';
-import Spinner from 'react-native-loading-spinner-overlay';
+import CountDown from 'react-native-countdown-component'
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
@@ -42,8 +42,6 @@ class Book3Pay extends Component {
         super(props);
         this.state = { 
             expand:false,
-            apiLoading:false,
-            finishGetApiResponse:false
         }
     }
 
@@ -133,53 +131,6 @@ class Book3Pay extends Component {
             </ListItem>
         );
       }
-
-    clickPayHandler = () => {
-    const { flightsSearchInfo, loggedUserProfile, travelerDetailList, flightsChosen, price } = this.props    
-   
-    // this.sendFlightsDetail(detailSent)
-
-    }
-
-    sendFlightsDetail = async (detailSent) => {
-        this.setState({
-            apiLoading:true
-        })
-        try{
-            let res = await fetch(flightsApi+'/find',{
-                method: 'POST',
-                mode:'no-cors',
-                headers:{
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    Authorization: this.props.token
-                },
-                body: JSON.stringify(detailSent)
-            })
-            let json = await res.json()
-            if(json){
-                this.setState({
-                    apiLoading:false,
-                    finishGetApiResponse:true,
-                })
-    
-                // if(json.errorMessage==='No Flights Available'){
-                //     return this.setState({
-                //                 isFlightsAvailable:false
-                //             })
-                // }
-    
-                //GET SUCCESS RESPONSE -------------------------------->>>>>>>>>>>>
-                // this.setState({
-                //     isFlightsAvailable:true
-                // })
-                console.log('success response: ',json)
-            }
-        }catch(error){
-            console.log('error: ',error)
-        }
-    }
-
     
     getPriceBasedPersonClass = (indexFlight, travelerDetailList, personClass, amount) => {
         let price = 0
@@ -204,17 +155,14 @@ class Book3Pay extends Component {
     }
 
     render() {
-        const { flightsSearchInfo, loggedUserProfile, travelerDetailList, flightsChosen, price } = this.props     
+        const { flightsSearchInfo, loggedUserProfile, travelerDetailList, flightsChosen, price, thirdPartyPaymentList } = this.props     
         const { passengers } = flightsSearchInfo
+        const index = thirdPartyPaymentList.findIndex(item => item.name === price.paymentMethod.name);
+        const va = thirdPartyPaymentList[index]?.virtualAccountNumber ? thirdPartyPaymentList[index]?.virtualAccountNumber : '123456789' 
 
         return (
             <SafeAreaView style={{flex: 1}}>
             <FlightsHeader header='Book3Pay' {...this.props}/>
-            <Spinner //LOADING GET/POST API 
-                visible={this.state.apiLoading}
-                textContent={'Please Wait... We Are Processing Your Booking'}
-                textStyle={{color:'#fff'}}
-            />
             <View style={styles.background}></View>
             <View style={styles.flightListContainer}>
                 <Text style={{color:'#fff'}}>Tab to See The Product's Detail</Text>
@@ -233,6 +181,18 @@ class Book3Pay extends Component {
                 style={{
                     flex:1}}
                 showsVerticalScrollIndicator={false}>
+                <View style={styles.timerContainer}>
+                <Text style={styles.headerTitle}>Please Pay Within Time Limit</Text>
+                <CountDown 
+                    until={60*4}
+                    onFinish={() => {}}
+                    size={20}
+                    style={{
+                        marginTop:15
+                    }}
+                />
+                </View>
+              
                 <View style={styles.paymentContainer}>
                     <Text style={styles.headerTitle}>Payment Method</Text>
                     <View style={styles.payment}>
@@ -263,6 +223,14 @@ class Book3Pay extends Component {
                                 }}>Choose</Text>
                         </TouchableOpacity>
                     </View>
+                    {
+                        price.paymentMethod ?
+                        <View style={styles.payment}>
+                            <Text>{'Virtual Account Number : '+va}</Text>
+                        </View>
+                        :
+                        null
+                    }
                 </View>
                 <View style={styles.addtionalContainer}>
                     <Text style={styles.headerTitle}>Additional Options </Text>
@@ -349,7 +317,7 @@ class Book3Pay extends Component {
                                     if(price.insurances[key]) return (
                                         <View key={index} 
                                         style={styles.priceSubDetail}>
-                                             <Text>{INSURANCE_LAVEL[key]}</Text>
+                                             <Text>{INSURANCE_LABEL[key]}</Text>
                                              <Text>{'Rp '+INSURANCE_PRICE[key]}</Text>
                                         </View>
                                     )
@@ -358,8 +326,8 @@ class Book3Pay extends Component {
                             <Text></Text>
                         </View>
                 </View>
-                <Button
-                    title="Confirm To Pay"
+                {/* <Button
+                    title="Go To Booking List"
                     containerStyle={{
                         marginHorizontal:50,
                         marginTop:10,
@@ -370,10 +338,10 @@ class Book3Pay extends Component {
                         height:50
                     }}
                     onPress={() => {
-                        this.clickPayHandler()
+                        this.props.navigation.navigate('BookingList')
                     }}
                     background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
-                /> 
+                />  */}
             </ScrollView>   
             </SafeAreaView>
         );
@@ -385,7 +353,8 @@ const mapStateToProps = state => ({
     loggedUserProfile: state.auth.loggedUserProfile,
     flightsChosen: state.flightsChosen,
     travelerDetailList: state.traveler,
-    price: state.price
+    price: state.price,
+    thirdPartyPaymentList: state.payment.thirdPartyPaymentList
 })
 
  
@@ -517,6 +486,10 @@ const styles = StyleSheet.create({
     justifyContent:'flex-start',
     alignContent:'flex-start',
     marginTop:25
+  },
+  timerContainer:{
+    justifyContent:'center',
+    alignContent:'center',
   },
   payment:{
       backgroundColor:'#fff',

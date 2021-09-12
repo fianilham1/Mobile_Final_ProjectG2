@@ -58,7 +58,7 @@ class AuthHeader extends Component {
                 Animated.timing(
                     this.state.animationAuthHeaderLeft,{
                         toValue:params?.firstScreen==='Login' ? 1 : 0,
-                        duration:800,
+                        duration:500,
                         easing: EasingNode.bezier(0.23, 0.67, 0.75, 0.94)
                     }
                 ).start()
@@ -87,7 +87,7 @@ class AuthHeader extends Component {
                 Animated.timing(
                     this.state.animationAuthHeaderLeft,{
                         toValue:params?.firstScreen==='Login' ? 0 : 1,
-                        duration:800,
+                        duration:500,
                         easing: EasingNode.bezier(0.23, 0.67, 0.75, 0.94)
                     }
                 ).start()

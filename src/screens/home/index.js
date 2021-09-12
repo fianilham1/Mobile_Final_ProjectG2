@@ -12,6 +12,7 @@ import {
     FlatList,
     Dimensions,
     TouchableOpacity,
+    Image
   } from 'react-native';
 
   import {connect} from "react-redux";
@@ -130,16 +131,7 @@ class Card extends Component {
                   flexDirection: 'row',
                   alignItems: 'flex-end',
                 }}>
-                {/* <View style={{flexDirection: 'row'}}>
-                  <Icon name="place" size={20} color='white' />
-                  <Text style={{marginLeft: 5, color: 'white'}}>
-                    {place.location}
-                  </Text>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Icon name="star" size={20} color='white' />
-                  <Text style={{marginLeft: 5, color:'white'}}>5.0</Text>
-                </View> */}
+              
               </View>
             </ImageBackground>
           </TouchableOpacity>
@@ -154,14 +146,17 @@ class Home extends Component {
     }
 
     render() { 
-        const { navigation, token } = this.props
+        const { navigation, token, loggedUserProfile } = this.props
         console.log('token in home: ',token)
         return (  
             <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
             <StatusBar translucent barStyle="dark-content" backgroundColor='#fff' />
             <View
             style={styles.header}>
-              <Icon name="sort" size={28} color={COLOR.main} />
+                <Image 
+                    source={{uri:loggedUserProfile?.image }}
+                    style={styles.userImage}
+                />
               <Icon name="notifications-none" size={28} color={COLOR.main} />
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -170,15 +165,8 @@ class Home extends Component {
                 style={styles.headerHome}
                 imageStyle={styles.headerImage}>
                 <View style={{flex: 1}}>
-                  <Text style={styles.headerTitle}>Explore the</Text>
-                  <Text style={styles.headerTitle}>beautiful places</Text>
-                  <View style={styles.inputContainer}>
-                    <Icon name="search" size={28} />
-                    <TextInput
-                      placeholder="Search Flights"
-                      style={{color: COLOR.gray}}
-                    />
-                  </View>
+                  <Text style={styles.headerTitle}>Travelsay Pay</Text>
+                  <Text style={styles.payText}>{'Rp '+loggedUserProfile.travelsayPay}</Text>
                 </View>
               </View>
               {/* <ListCategories {...this.props}/> */}
@@ -187,7 +175,7 @@ class Home extends Component {
                   onPress={() => this.props.navigation.navigate('FlightsStackScreen')}
                   style={styles.iconContainer}>
                   {categoryIcons[0]}
-                  <Text  style={styles.iconText}>Click Me to Search Best Flights Now !</Text>
+                  <Text  style={styles.iconText}>Booking Flights Now !</Text>
                 </TouchableOpacity>
               </View>
               <Text style={styles.sectionTitle}>Ongoing Promos</Text>
@@ -199,15 +187,7 @@ class Home extends Component {
                   data={FLIGHTNOTE}
                   renderItem={({item}) => <Card navigation={navigation} place={item} />}
                 />
-                {/* <Text style={styles.sectionTitle}>Important Notice</Text>
-                <FlatList
-                  snapToInterval={width - 20}
-                  contentContainerStyle={{paddingLeft: 20, paddingBottom: 100}}
-                  showsHorizontalScrollIndicator={false}
-                  horizontal
-                  data={PLACES}
-                  renderItem={({item}) => <RecommendedCard place={item} />}
-                /> */}
+               
               </View>
             </ScrollView>
           </SafeAreaView>
@@ -218,6 +198,7 @@ class Home extends Component {
  
 const mapStateToProps = state => ({
   token: state.auth.token,
+  loggedUserProfile: state.auth.loggedUserProfile,
 })
 
 export default connect(mapStateToProps)(Home);
@@ -246,7 +227,11 @@ const styles = StyleSheet.create({
     headerTitle: {
       color: 'white',
       fontWeight: 'bold',
-      fontSize: 23,
+      fontSize: 20,
+    },
+    payText:{
+      color: 'white',
+      fontSize: 18,
     },
     inputContainer: {
       height: 60,
@@ -261,7 +246,7 @@ const styles = StyleSheet.create({
       elevation: 12,
     },
     categoryContainer: {
-      marginTop: 60,
+      marginTop: 20,
       marginHorizontal: 10,
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -300,4 +285,11 @@ const styles = StyleSheet.create({
       overflow: 'hidden',
       padding: 10,
     },
+    userImage:{
+      width:40,
+      height:40,
+      borderRadius:20,
+      backgroundColor:COLOR.gray,
+      marginRight:15
+  },
   });

@@ -201,6 +201,7 @@ class FillDetails extends Component {
             <View style={styles.flightListContainer}>
                 <Text style={{color:'#fff'}}>Tab to See The Product's Detail</Text>
                 <FlatList 
+                 contentContainerStyle={{paddingRight: 20}}
                 showsHorizontalScrollIndicator={false}
                 horizontal
                 data={flightsChosen}

@@ -45,7 +45,7 @@ class BookSeatReservation extends Component {
 
     componentDidMount(){
         const { flightsChosen, travelerDetailList } = this.props
-        const { screenFlight } = this.state
+        console.log('flightsChosen in seat',flightsChosen)
         let totalPassengersForFacilities = 0
         travelerDetailList.map((data,index) => {
             if(data.personClass !== 'infant'){
@@ -54,9 +54,9 @@ class BookSeatReservation extends Component {
         })
         this.setState({
             totalPassengersForFacilities,
-            greenZone : flightsChosen[screenFlight-1].seatGreenZone,
-            regularZone : flightsChosen[screenFlight-1].seatRegularZone,
-            sold : flightsChosen[screenFlight-1].seatSold
+            greenZone : flightsChosen[0].seatGreenZone,
+            regularZone : flightsChosen[0].seatRegularZone,
+            sold : flightsChosen[0].seatSold
         })
         if (flightsChosen.length>1){ //round trip
             this.setState({
@@ -187,9 +187,9 @@ class BookSeatReservation extends Component {
             }else if(isRoundTrip && screenPassengers===totalPassengersForFacilities){
                 this.setState({
                     screenPassengers:1,
-                    greenZone : flightsChosen[screenFlight].greenZone,
-                    regularZone : flightsChosen[screenFlight].regularZone,
-                    sold : flightsChosen[screenFlight].sold
+                    greenZone : flightsChosen[1].seatGreenZone,
+                    regularZone : flightsChosen[1].seatRegularZone,
+                    sold : flightsChosen[1].seatSold
                 })
                 setTimeout(() => {
                     this.setState({
