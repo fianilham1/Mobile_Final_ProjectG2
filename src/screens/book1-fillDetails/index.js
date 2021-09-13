@@ -294,7 +294,6 @@ const mapStateToProps = state => ({
     flightsChosen: state.flightsChosen,
     travelerDetailList: state.traveler,
     tokenType:  state.auth.tokenType,
-    
 })
 
 const mapDispatchToProps = dispatch => ({

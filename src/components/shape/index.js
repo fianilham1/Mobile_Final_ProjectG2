@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Animated, { EasingNode } from 'react-native-reanimated';
 
 import {
     View,
@@ -105,7 +104,7 @@ export class TriangleCorner extends Component {
                 borderRightWidth: WIDTH,
                 borderTopWidth: 100,
                 borderRightColor: 'transparent',
-                // borderTopColor: color,
+                borderTopColor: this.props.style.color,
                 ...this.props.style
             }} />
         );
@@ -144,8 +143,8 @@ export class Rectangle extends Component {
     render() { 
         return ( 
             <View style={[{
-                width: 100 * 2,
-                height: 100,
+                width: WIDTH,
+                height: 60,
                 backgroundColor: this.props.style.color
             }, this.props.style]} />
          );

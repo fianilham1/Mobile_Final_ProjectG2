@@ -13,14 +13,14 @@ import {
     Alert} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLOR } from '../../constant/color';
-import {connect} from "react-redux";
+import { connect } from "react-redux";
+import { loadingApi } from '../../reducers/actions/loading';
 import flightsApi from '../../api/flights';
 import { paymentMethodList } from '../../reducers/actions/payment';
 import { priceBooking, addInsurances } from '../../reducers/actions/price';
 import { FlightsHeader } from '../../components';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { CheckBox, Button } from 'react-native-elements';
-import Spinner from 'react-native-loading-spinner-overlay';
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
@@ -48,9 +48,7 @@ class FillDetails2 extends Component {
             flightDelayInsurance:false,
             baggageLossProtection:false,
             expand:false,
-            isRoundTrip:false,
-            apiLoading:false,
-            finishGetApiResponse:false
+            isRoundTrip:false
         }
     }
 
@@ -175,8 +173,10 @@ class FillDetails2 extends Component {
 
     sendFlightsDetails = async (purchaseDetail) => {
         const { price } = this.props  
-        this.setState({
-            apiLoading:true
+        this.props.loadingApi({
+            status:true, 
+            text:'Please Wait... We Are Processing Your Booking',
+            textStyle:{color:'#fff',fontSize:15}
         })
         try{
             let res = await fetch(flightsApi+'/details',{
@@ -191,11 +191,8 @@ class FillDetails2 extends Component {
             })
             let json = await res.json()
             if(json){
-                this.setState({
-                    apiLoading:false,
-                    finishGetApiResponse:true,
-                })
-    
+                this.props.loadingApi({status:false})
+
                 //SEND FLIGHTS DETAILS SUCCESS  -------------------------------->>>>>>>>>>>>
                 //NEXT is Proceed to payment >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                 this.props.storePaymentMethodList({
@@ -269,11 +266,6 @@ class FillDetails2 extends Component {
         return (
             <SafeAreaView style={{flex: 1}}>
             <FlightsHeader header='Book2FillDetails2' {...this.props}/>
-            <Spinner //LOADING GET/POST API 
-                visible={this.state.apiLoading}
-                textContent={'Please Wait... We Are Processing Your Booking'}
-                textStyle={{color:'#fff',fontSize:15}}
-            />
             
             <ScrollView 
                 style={{
@@ -513,7 +505,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     storePriceBooking: data => dispatch(priceBooking(data)),
     addInsurances: data => dispatch(addInsurances(data)),
-    storePaymentMethodList : data => dispatch(paymentMethodList(data))
+    storePaymentMethodList : data => dispatch(paymentMethodList(data)),
+    loadingApi: data => dispatch(loadingApi(data)),
   })
  
 export default connect(mapStateToProps, mapDispatchToProps)(FillDetails2);

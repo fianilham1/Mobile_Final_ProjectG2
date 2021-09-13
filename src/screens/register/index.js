@@ -9,12 +9,13 @@ import {
     TouchableOpacity,
     Dimensions,
     StyleSheet} from 'react-native';
-import {connect} from "react-redux";
-import {InputApp, ButtonApp} from '../../components';
+import { connect } from "react-redux";
+import { loadingApi } from '../../reducers/actions/loading';
+import { InputApp, ButtonApp } from '../../components';
 import { COLOR } from '../../constant/color';
+import { Rectangle, TriangleCorner } from '../../components/shape';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { EasingNode } from 'react-native-reanimated';
-import Spinner from 'react-native-loading-spinner-overlay';
 import userApi from '../../api/user';
 import {ValidateRegexEmail, ValidateRegexPassword} from '../../util/method/regex'
 
@@ -42,7 +43,6 @@ class Register extends Component{
             animationWidth:new Animated.Value(0),
             animationBorderRadius:new Animated.Value(0),
             successRegister:this.props.loginStatus,
-            apiLoading:false,
             errorMessagePassword:''
          }
     }
@@ -96,9 +96,7 @@ class Register extends Component{
             })
         }
       
-        this.setState({
-            apiLoading:true
-        })     
+        this.props.loadingApi({status:true})   
         try{
             let res = await fetch(userApi+'/signUp',{
                 method: 'POST',
@@ -119,9 +117,7 @@ class Register extends Component{
             })
             let json = await res.json()
             if(json){
-                this.setState({
-                    apiLoading:false
-                })
+                this.props.loadingApi({status:false})   
     
                 if(json.errorMessage==='Username Is Already Exist'){
                     return this.setState({
@@ -130,9 +126,6 @@ class Register extends Component{
                 }
 
                 //SIGN UP SUCCESS
-                    this.setState({
-                        apiLoading:false
-                    })
                     Alert.alert('Success','Sign Up Is Successful')
                     console.log('success response: ',json)
             }
@@ -169,13 +162,27 @@ class Register extends Component{
             outputRange: [5, 25]
         })
         return(
-            <SafeAreaView style={{flex:1}}>
-                <Spinner //REGISTER REGISTER API 
-                    visible={this.state.apiLoading}
-                    textContent={'Loading...'}
-                    textStyle={{color:'#fff'}}
-                />
-                 <ScrollView  showsVerticalScrollIndicator={false} style={{bottom:20}}>
+            <View style={{flex:1}}>
+                <View>
+                    <Rectangle 
+                    style={{
+                        color:COLOR.main
+                        }}/>
+                    <TriangleCorner 
+                    style={{
+                        color:COLOR.main,
+                        transform:[ {rotateY:'180deg'} ]
+                        }}/>
+                </View>
+                <Animatable.View
+                    animation='fadeInLeft'
+                    duration={2000}
+                    style={styles.textContainer}
+                    >
+                        <Text style={styles.text}>Welcome</Text>
+                        <Text style={styles.text2}>New Member</Text>
+                </Animatable.View>
+                <ScrollView  showsVerticalScrollIndicator={false} style={{ marginTop:70 }}>
                 <View style={{
                  backgroundColor:"#fff",
                  flex:1,
@@ -289,12 +296,14 @@ class Register extends Component{
                 <Text>  </Text>
                 <TouchableOpacity
                 onPress={()=>{
-                    this.props.changeScreen()
-                    this.props.navigation.setParams({
-                        authStatus:'auth',
-                        screen:'Login'
+                    this.props.doExit('exitRegister')
+                    this.props.navigationRoot.setParams({
+                        screen:null
                     })
-                    navigation.replace('Login')
+                    setTimeout(() => {
+                        this.props.changeScreen('Login')
+                        navigation.replace('Login')
+                    },1000)
                 }}>
                     <Text 
                     style={{
@@ -309,22 +318,38 @@ class Register extends Component{
                     Now
                 </Text>
             </ScrollView> 
-            </SafeAreaView>
+            </View>
         )
     }
 }
 
-// const mapStateToProps = state => ({
-//     isLogin: state.auth.statusLogin,
-// })
 
 const mapDispatchToProps = dispatch => ({
-    // doLogin: data => dispatch(signIn(data))
+    loadingApi: data => dispatch(loadingApi(data)),
 })
 
 export default connect(null, mapDispatchToProps)(Register);
 
 const styles = StyleSheet.create({
+    textContainer:{
+        flex:1,
+        position:'absolute',
+        top:120,
+        left:40,
+        marginLeft:0,
+        justifyContent:'center',
+        alignItems:'flex-start',
+        height:100,
+    },
+    text:{
+        color:COLOR.main,
+        fontSize:30,
+        fontWeight:'bold',
+      },
+     text2:{
+        color:COLOR.main,
+        fontSize:25,
+    },
     shadow:{
         shadowColor: "#000",
         shadowOffset: {

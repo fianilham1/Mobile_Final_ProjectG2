@@ -10,14 +10,12 @@ import {
     Animated,
     Dimensions,
     Image} from 'react-native';
-import {connect} from "react-redux";
-import {storeUserForgotPass} from '../../reducers/actions/auth';
-import {InputApp, ButtonApp} from '../../components';
+import { connect } from "react-redux";
+import { storeUserForgotPass } from '../../reducers/actions/auth';
+import { loadingApi } from '../../reducers/actions/loading';
+import { InputApp, ButtonApp } from '../../components';
 import { COLOR} from '../../constant/color';
 import { SQLiteContext } from '../../config/sqlite';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
-import Spinner from 'react-native-loading-spinner-overlay';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import userApi from '../../api/user';
 
@@ -33,7 +31,6 @@ class SendEmail extends Component{
             validUsername:true,
             visible:false,
             foundUsername:false,
-            forgotPassLoading:false
          }
     }
 
@@ -72,9 +69,7 @@ class SendEmail extends Component{
         if(!this.state.username){
             return Alert.alert('Alert','Please Enter Username')
         }
-        this.setState({
-            forgotPassLoading:true
-        })
+        this.props.loadingApi({status:true})
         try{
             let res = await fetch(userApi+'/forgotPassword/send',{
                 method: 'POST',
@@ -90,9 +85,7 @@ class SendEmail extends Component{
             let json = await res.json()
           
             if(json){
-                this.setState({
-                    forgotPassLoading:false
-                })
+                this.props.loadingApi({status:false})
     
                 if(json.errorMessage==='Username Is Not Found'){
                     return this.setState({
@@ -122,11 +115,6 @@ class SendEmail extends Component{
         const {navigation} = this.props
         return(
             <SafeAreaView style={{flex:1, backgroundColor:COLOR.main}}>
-            <Spinner //LOADING FORGOT PASS API 
-                visible={this.state.forgotPassLoading}
-                textContent={'Loading...'}
-                textStyle={{color:'#fff'}}
-            />
             <ScrollView
             showsVerticalScrollIndicator={false}
             style={{
@@ -134,11 +122,6 @@ class SendEmail extends Component{
                 flex:1,
                 borderTopLeftRadius:25,
                 borderTopRightRadius:25}}>
-                <Spinner //LOADING LOGIN API 
-                    visible={this.state.forgotPassLoading}
-                    textContent={'Loading...'}
-                    textStyle={{color:'#fff'}}
-                />
                 <View>
                 <View style={{justifyContent:'center',alignItems:'center'}}>
                     <View 
@@ -209,7 +192,8 @@ class SendEmail extends Component{
 
 
 const mapDispatchToProps = dispatch => ({
-    storeUserForgotPass: data => dispatch(storeUserForgotPass(data))
+    storeUserForgotPass: data => dispatch(storeUserForgotPass(data)),
+    loadingApi: data => dispatch(loadingApi(data)),
 })
 
 export default connect(null, mapDispatchToProps)(SendEmail);

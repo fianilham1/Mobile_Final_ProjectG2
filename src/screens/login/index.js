@@ -11,15 +11,16 @@ import {
     ImageBackground,
     Platform,
     TouchableNativeFeedback} from 'react-native';
-import {connect} from "react-redux";
-import {signIn} from '../../reducers/actions/auth';
-import {InputApp, ButtonApp} from '../../components';
+import { connect } from "react-redux";
+import { signIn } from '../../reducers/actions/auth';
+import { loadingApi } from '../../reducers/actions/loading';
+import { InputApp, ButtonApp } from '../../components';
+import { Rectangle, TriangleCorner } from '../../components/shape';
 import { COLOR} from '../../constant/color';
 import { SocialIcon } from 'react-native-elements'
 import { SQLiteContext } from '../../config/sqlite';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Spinner from 'react-native-loading-spinner-overlay';
 import { 
     AccessToken,
     Profile,
@@ -68,9 +69,6 @@ class Login extends Component{
             animationWidth:new Animated.Value(0),
             animationBorderRadius:new Animated.Value(0),
             loginStatus:this.props.loginStatus,
-            apiLoading:false,
-            //>>> Google Sign In :
-            userInfo:{},
          }
     }
 
@@ -97,85 +95,6 @@ class Login extends Component{
         validPassword:true
         })
     }
-
-
-    // getUserlistApi = async () => {
-    // try{
-    //     let res = await fetch(userApi+'/getAll')
-    //     let json = await res.json()
-    //     console.log(json)
-    // }catch(error){
-    //     console.log('error: ',error)
-    // }
-    // }
-
-    componentDidMount(){
-        // this.getUserlistApi()
-        // GoogleSignin.configure({
-        //     // scopes: ['https://www.googleapis.com/auth/drive.readonly'], // what API you want to access on behalf of the user, default is email and profile
-        //     webClientId: '104201280531-gecrklau2t5upbqav03ainb9a6k3hpqb.apps.googleusercontent.com', 
-        //     offlineAccess: true, 
-        //   });
-    }
-
-    // //Sign In Google
-    // signInGoogle = async () => {
-    //     try {
-    //       await GoogleSignin.hasPlayServices();
-    //       const userInfo = await GoogleSignin.signIn();
-    //       //this.setState({ userInfo });
-        
-    //     //   setTimeout(() => {
-    //     //     this.props.doSignIn(
-    //     //       userInfo
-    //     //     )
-    //     //   },700)
-    //     //   this.animatedLogin()
-    //     } catch (error) {
-    //       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-    //           console.log('error',error.code)
-    //         // user cancelled the login flow
-    //       } else if (error.code === statusCodes.IN_PROGRESS) {
-    //         console.log('error',error.code)
-    //         // operation (e.g. sign in) is in progress already
-    //       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-    //         console.log('error',error.code)
-    //         // play services not available or outdated
-    //       } else {
-    //         console.log('error',error)
-    //         // some other error happened
-    //       }
-    //     }
-    //   };
-
-    //   isSignedIn = async () => {
-    //     const isSignedIn = await GoogleSignin.isSignedIn();
-    //     this.setState({ isLoginScreenPresented: !isSignedIn });
-    //   };
-
-    // signOut = async () => {
-    //     try {
-    //       await GoogleSignin.revokeAccess();
-    //       await GoogleSignin.signOut();
-    //       this.setState({ user: null }); // Remember to remove the user from your app's state as well
-    //     } catch (error) {
-    //       console.error(error);
-    //     }
-    //   };
-
-    //   //Get User Info Login Google
-    //   getCurrentUserInfoGoogle = async () => {
-    //     try {
-    //       const userInfo = await GoogleSignin.signInSilently();
-    //       this.setState({ userInfo });
-    //     } catch (error) {
-    //       if (error.code === statusCodes.SIGN_IN_REQUIRED) {
-    //         // user has not signed in yet
-    //       } else {
-    //         // some other error
-    //       }
-    //     }
-    //   };
 
 //LOGIN FACEBOOK >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     loginFacebook = async () => {
@@ -261,9 +180,7 @@ class Login extends Component{
     if(!this.state.username || !this.state.password){
         return Alert.alert('Alert','Please Input Username And Password')
     }
-    this.setState({
-        apiLoading:true
-    })
+    this.props.loadingApi({status:true})
     try{
         let res = await fetch(userApi+'/signIn',{
             method: 'POST',
@@ -279,9 +196,7 @@ class Login extends Component{
         })
         let json = await res.json()
         if(json){
-            this.setState({
-                apiLoading:false
-            })
+            this.props.loadingApi({status:false})
 
             if(json.errorMessage==='Username Is Not Found'){
                 return this.setState({
@@ -366,7 +281,6 @@ class Login extends Component{
     }
 
     render(){
-        console.log('loadingLOGIN? ',this.state.apiLoading)
         const {navigation} = this.props
         const width = Animated.interpolateNode(this.state.animationWidth,{
             inputRange: [0, 1],
@@ -377,13 +291,28 @@ class Login extends Component{
             outputRange: [5, 30]
         })
         return(
-            <SafeAreaView style={{flex:1}}>
-            <Spinner //LOADING LOGIN API 
-                visible={this.state.apiLoading}
-                textContent={'Loading...'}
-                textStyle={{color:'#fff'}}
-            />
-            <ScrollView showsVerticalScrollIndicator={false} style={{bottom:20}}>
+            <View style={{flex:1}}>
+            <View>
+                <Rectangle 
+                style={{
+                    color:COLOR.main
+                    }}/>
+                <TriangleCorner 
+                style={{
+                    color:COLOR.main
+                    }}/>
+            </View>
+            <Animatable.View
+                    animation='fadeInRight'
+                    duration={2000}
+                    style={styles.textContainer}
+                    >
+                        <Text style={styles.text}>Welcome</Text>
+                        <Text style={styles.text2}>Back</Text>
+            </Animatable.View>
+         
+            <ScrollView showsVerticalScrollIndicator={false} style={{
+                marginTop:80}}>
             <View style={{
                  backgroundColor:"#fff",
                  flex:1,
@@ -486,12 +415,14 @@ class Login extends Component{
                 <Text>  </Text>
                 <TouchableOpacity
                 onPress={()=>{
-                    this.props.changeScreen()
-                    this.props.navigation.setParams({
-                        authStatus:'auth',
-                        screen:'Register'
+                    this.props.doExit('exitLogin')
+                    this.props.navigationRoot.setParams({
+                        screen:null
                     })
-                    navigation.replace('Register')
+                    setTimeout(() => {
+                        this.props.changeScreen('Register')
+                        navigation.replace('Register')
+                    },1000)
                 }}>
                     <Text 
                     style={{
@@ -506,7 +437,7 @@ class Login extends Component{
                     Now
                 </Text>
                 </ScrollView>
-            </SafeAreaView>
+            </View>
         )
     }
 }
@@ -516,13 +447,33 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    doSignIn: data => dispatch(signIn(data))
+    doSignIn: data => dispatch(signIn(data)),
+    loadingApi: data => dispatch(loadingApi(data)),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
 
 
 const styles = StyleSheet.create({
+    textContainer:{
+        flex:1,
+        position:'absolute',
+        top:120,
+        right:40,
+        marginLeft:0,
+        justifyContent:'center',
+        alignItems:'flex-start',
+        height:100,
+    },
+    text:{
+        color:COLOR.main,
+        fontSize:30,
+        fontWeight:'bold',
+      },
+     text2:{
+        color:COLOR.main,
+        fontSize:25,
+    },
     connect:{
         marginTop:15,
         marginBottom:5,
@@ -567,7 +518,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.30,
         shadowRadius: 4.65,
         elevation: 8,
-      }
+      },
 
-    //shape
 })

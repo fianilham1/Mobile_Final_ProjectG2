@@ -6,6 +6,7 @@ import flightsChosenReducer from './reducers/flightsChosenReducers';
 import travelerReducer from './reducers/travelerReducers';
 import priceBookingReducer from './reducers/priceReducers';
 import paymentMethodListReducer from './reducers/paymentMethodListReducers';
+import loadingApiReducer from './reducers/loadingApiReducers';
 
 const rootReducer = combineReducers(
     { 
@@ -14,7 +15,8 @@ const rootReducer = combineReducers(
     flightsChosen: flightsChosenReducer,
     traveler: travelerReducer,
     price: priceBookingReducer,
-    payment: paymentMethodListReducer
+    payment: paymentMethodListReducer,
+    loading: loadingApiReducer
     }
 );
 const configureStore = () => {

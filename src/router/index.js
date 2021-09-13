@@ -5,11 +5,9 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React, { Component } from 'react';
 import userApi from '../api/user';
 import {
-  Splash, 
   OnBoard,
   Login,
   Register, 
-  ProfileView,
   SendEmail,
   VerifyEmail,
   ResetPassword,
@@ -40,7 +38,7 @@ import {
 import {connect} from "react-redux";
 import {signIn} from '../reducers/actions/auth';
 import FontawesomeIcon from 'react-native-vector-icons/FontAwesome5';
-import {ForgotPassHeader, ForgotPassPagination, AuthHeader} from '../components';
+import {ForgotPassHeader, ForgotPassPagination, AuthFrontScreen} from '../components';
 import { SQLiteContext } from '../config/sqlite';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -57,6 +55,7 @@ const AuthStack = createNativeStackNavigator();
 const AuthForgetPassStack = createNativeStackNavigator();
 const BottomTab = createBottomTabNavigator();
 const FlightsStack = createNativeStackNavigator();
+const BookStack = createNativeStackNavigator();
 // const Tab = createMaterialTopTabNavigator();
 
 class AuthForgetPassStackScreen extends Component {
@@ -113,26 +112,34 @@ class AuthStackScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        eventScreen:false,
-        title:[false,'Sign In'],
+       authScreen:this.props.route?.params?.screen,
+       exit:''
       }
   }
 
-  changeScreen = () => {
+  changeScreen = (screen) => {
     this.setState({
-      eventScreen:!this.state.eventScreen,
-      title:!this.state.title[0] ? [!this.state.title[0],'Sign Up'] : [!this.state.title[0],'Sign In']
+      authScreen:screen
+    })
+  }
+
+  doExit = (exit) => {
+    this.setState({
+      exit
     })
   }
 
   render() { 
     return ( 
       <View style={{flex:1 }}>
-      <AuthHeader 
-          title={this.state.title} 
-          eventScreen={this.state.eventScreen}
-          changeScreen={this.changeScreen}
-          {...this.props}/>
+      <AuthFrontScreen 
+        {...this.props}  
+        authScreen={this.state.authScreen}
+        exit={this.state.exit}
+        changeScreen={this.changeScreen}
+        doExit={this.doExit}
+      />
+      <StatusBar translucent backgroundColor='rgba(0,0,0,0)' />
       <AuthStack.Navigator 
       initialRouteName="Login"
       screenOptions={{
@@ -141,22 +148,24 @@ class AuthStackScreen extends Component {
         <AuthStack.Screen 
           name="Login" 
           options={{
-            animation:'slide_from_left'
+            animation:'none'
           }}
           children={(props) => <Login 
             {...props} 
-            {...this.props}  
+            navigationRoot={this.props.navigation}
             changeScreen={this.changeScreen}
+            doExit={this.doExit}
           />} />
         <AuthStack.Screen 
           name="Register" 
           options={{
-            animation:'slide_from_right'
+            animation:'none'
           }}
           children={(props) => <Register 
             {...props} 
-            {...this.props} 
+            navigationRoot={this.props.navigation}
             changeScreen={this.changeScreen}
+            doExit={this.doExit}
           />} />
       </AuthStack.Navigator>
       </View>
@@ -203,6 +212,43 @@ class FlightsStackScreen extends Component {
   }
 }
 
+class BookStackScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {  }
+  }
+  render() { 
+    return ( 
+      <View style={{flex:1}}>
+      <StatusBar translucent barStyle="light-content" backgroundColor={COLOR.main} />
+      <BookStack.Navigator 
+      initialRouteName="FlightsSearch"
+      screenOptions={{
+        headerShown: false,
+      }}>
+        <BookStack.Screen 
+            name="Book1FillDetails"
+            options={{
+              animation:'slide_from_bottom'
+            }} 
+            children={(props) => <Book1FillDetails {...props} />}/>
+        <BookStack.Screen 
+            name="Book2FillDetails2"
+            options={{
+              animation:'slide_from_bottom'
+            }} 
+            children={(props) => <Book2FillDetails2 {...props} />}/>
+        <BookStack.Screen 
+            name="Book3Pay"
+            options={{
+              animation:'slide_from_bottom'
+            }} 
+            children={(props) => <Book3Pay {...props} />}/>
+      </BookStack.Navigator>
+      </View>
+     );
+  }
+}
 
 class BottomTabScreen extends Component {
   constructor(props) {
@@ -502,99 +548,81 @@ class RootStackScreen extends Component {
             headerShown: false,
             animation:'none'
           }}>
-  
-          { this.state.loading ?
-              <RootStack.Screen 
-              name="Splash" 
-              component={Splash} />
-              :
-          
-            !this.props.loginStatus ? 
-            <>
-            <RootStack.Screen 
-            name="OnBoard" 
-            component={OnBoard} />
-            <RootStack.Screen 
-              name="Auth" 
-              component={AuthStackScreen} />
-            <RootStack.Screen 
-              name="AuthForgetPassStackScreen" 
-              component={AuthForgetPassStackScreen} 
-              options={{
-                animation:'slide_from_bottom'
-              }}/>
-            </>
-          :
-            <>
-           <RootStack.Screen 
-              name="BottomTabScreen" 
-              children={(props) => <BottomTabScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
-            <RootStack.Screen 
-              name="Detail" 
-              options={{
-                animation:'slide_from_right'
-              }}
-              children={(props) => <Detail {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
-            <RootStack.Screen 
-              name="FlightsStackScreen"
-              options={{
-                animation:'flip'
-              }} 
-              children={(props) => <FlightsStackScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
-            <RootStack.Screen 
-              name="AirportsSearch"
-              options={{
-                animation:'slide_from_bottom'
-              }} 
-              children={(props) => <AirportsSearch {...props} />}/>
-            <RootStack.Screen 
-              name="FlightsDetail"
-              options={{
-                animation:'fade_from_bottom'
-              }} 
-              children={(props) => <FlightsDetail {...props} />}/>
-            <RootStack.Screen 
-              name="Book1FillDetails"
-              options={{
-                animation:'slide_from_bottom'
-              }} 
-              children={(props) => <Book1FillDetails {...props} />}/>
-            <RootStack.Screen 
-              name="Book2FillDetails2"
-              options={{
-                animation:'slide_from_bottom'
-              }} 
-              children={(props) => <Book2FillDetails2 {...props} />}/>
+            {
+               !this.props.loginStatus ? 
+               <>
                <RootStack.Screen 
-              name="Book3Pay"
-              options={{
-                animation:'slide_from_bottom'
-              }} 
-              children={(props) => <Book3Pay {...props} />}/>
-            <RootStack.Screen 
-              name="TravelerDetail"
-              options={{
-                animation:'fade_from_bottom'
-              }} 
-              children={(props) => <TravelerDetail {...props} />}/>
-             
+                 name="OnBoard" 
+                 children={(props) => <OnBoard loading={this.state.loading} {...props}/>}
+                />
+               <RootStack.Screen 
+                 name="Auth" 
+                 component={AuthStackScreen} />
+               <RootStack.Screen 
+                 name="AuthForgetPassStackScreen" 
+                 component={AuthForgetPassStackScreen} 
+                 options={{
+                   animation:'slide_from_bottom'
+                 }}/>
+               </>
+             :
+              <>
               <RootStack.Screen 
-              name="BookSeatReservation"
-              options={{
-                animation:'slide_from_bottom'
-              }} 
-              children={(props) => <BookSeatReservation {...props} />}/>
-
-              <RootStack.Screen 
-              name="SelectPayment"
-              options={{
-                animation:'slide_from_bottom'
-              }} 
-              children={(props) => <SelectPayment {...props} />}/>
-          
-            </>
-          }       
-        
+                 name="BottomTabScreen" 
+                 children={(props) => <BottomTabScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
+               <RootStack.Screen 
+                 name="Detail" 
+                 options={{
+                   animation:'slide_from_right'
+                 }}
+                 children={(props) => <Detail {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
+               <RootStack.Screen 
+                 name="FlightsStackScreen"
+                 options={{
+                   animation:'flip'
+                 }} 
+                 children={(props) => <FlightsStackScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
+               <RootStack.Screen 
+                 name="AirportsSearch"
+                 options={{
+                   animation:'slide_from_bottom'
+                 }} 
+                 children={(props) => <AirportsSearch {...props} />}/>
+               <RootStack.Screen 
+                 name="BookStackScreen"
+                 options={{
+                   animation:'flip'
+                 }} 
+                 children={(props) => <BookStackScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
+               <RootStack.Screen 
+                 name="FlightsDetail"
+                 options={{
+                   animation:'fade_from_bottom'
+                 }} 
+                 children={(props) => <FlightsDetail {...props} />}/>
+               <RootStack.Screen 
+                 name="TravelerDetail"
+                 options={{
+                   animation:'fade_from_bottom'
+                 }} 
+                 children={(props) => <TravelerDetail {...props} />}/>
+                
+                 <RootStack.Screen 
+                 name="BookSeatReservation"
+                 options={{
+                   animation:'slide_from_bottom'
+                 }} 
+                 children={(props) => <BookSeatReservation {...props} />}/>
+   
+                 <RootStack.Screen 
+                 name="SelectPayment"
+                 options={{
+                   animation:'slide_from_bottom'
+                 }} 
+                 children={(props) => <SelectPayment {...props} />}/>
+              </>
+            }
+  
           </RootStack.Navigator>
         </NavigationContainer>
          );

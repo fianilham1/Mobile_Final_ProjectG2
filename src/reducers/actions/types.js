@@ -24,3 +24,6 @@ export const SELECT_PAYMENT_METHOD = "SELECT_PAYMENT_METHOD";
 
 //PAYMENT ----------------------------
 export const PAYMENT_METHOD_LIST = "PAYMENT_METHOD_LIST";
+
+//LOADING API
+export const LOADING_API = "LOADING_API";

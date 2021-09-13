@@ -97,7 +97,7 @@ class FlightsSearch extends Component {
 
     setValueDate = (event, selectedDate, typeFlight) => {
       console.log('event',event)
-      console.log('datepick',selectedDate)
+      console.log('typeFlight',typeFlight)
       if(event.type==='set'){
         this.setState({
           [typeFlight]:selectedDate,
@@ -105,8 +105,8 @@ class FlightsSearch extends Component {
         })
         if(typeFlight==='departureDate'){
           const { minimumReturnDate } = this.state
-          if(minimumReturnDate.getFullYear() <= selectedDate.getFullYear() ||
-          minimumReturnDate.getMonth() <= selectedDate.getMonth() ||
+          if(minimumReturnDate.getFullYear() < selectedDate.getFullYear() ||
+          minimumReturnDate.getMonth() < selectedDate.getMonth() ||
           minimumReturnDate.getDate() <= selectedDate.getDate()){
             console.log('change return date')
             const newDate = new Date(selectedDate.getFullYear(),selectedDate.getMonth(),selectedDate.getDate()+1)
@@ -127,6 +127,8 @@ class FlightsSearch extends Component {
 
     renderDatePicker = () => {
       const { departureDateVisible, departureDate, returnDateVisible, returnDate, minimumReturnDate } = this.state
+      console.log('departureDateVisible ',departureDateVisible)
+      console.log('returnDateVisible ',returnDateVisible)
       if (departureDateVisible) {
         return (
           <DateTimePicker

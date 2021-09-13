@@ -1,10 +1,23 @@
 import React from 'react'
 import AppNavigator from './router'
+import { connect } from "react-redux";
+import Spinner from 'react-native-loading-spinner-overlay';
 
-function App() {
+function App({loadingStatus}) {
   return (
+    <>
     <AppNavigator/>
+    <Spinner //LOADING API 
+        visible={loadingStatus}
+        textContent={'Loading...'}
+        textStyle={{color:'#fff'}}
+    />
+    </>
   );
 }
 
-export default App
+const mapStateToProps = state => ({
+  loadingStatus: state.loading.status,
+})
+
+export default connect(mapStateToProps)(App);

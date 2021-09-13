@@ -1,4 +1,3 @@
-import Splash from './splash'
 import Login from './login'
 import Register from './register'
 import OnBoard from './onBoard'
@@ -24,7 +23,7 @@ import BookingList from './bookingList'
 import Account from './account'
 
 
-export {Splash, 
+export { 
     Login, 
     Register, 
     OnBoard, 

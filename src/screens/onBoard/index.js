@@ -1,10 +1,21 @@
 import React, { Component } from 'react';
+import { COLOR } from '../../constant/color';
+import { 
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  StatusBar,
+  ImageBackground,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity} from 'react-native';
+import * as Animatable from 'react-native-animatable';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
+import LinearGradient from 'react-native-linear-gradient';
 
-import {
-    Text,
-    View,
-    StyleSheet} from 'react-native';
-import {AuthHeader} from '../../components';
+const WIDTH = Dimensions.get('window').width;
+const HEIGHT = Dimensions.get('window').height;
 
 class OnBoard extends Component {
     constructor(props) {
@@ -12,45 +23,67 @@ class OnBoard extends Component {
         this.state = {  }
     }
     render() { 
-        return ( 
-        <AuthHeader 
-          onBoard
-          {...this.props}/>
-        // <View style={{flex: 1}}>
-        // <StatusBar translucent backgroundColor="rgba(0,0,0,0)" />
-        // <ImageBackground
-        //     style={{flex: 1}}
-        //     source={require('../../assets/images/location5.jpg')}>
-        //     <View style={styles.dark}></View>
-        //     <Animatable.View
-        //     animation="fadeInDown"
-        //     duration={1500} 
-        //     style={styles.onBoardBox}>
-               
-        //     <Text style={{color: 'white', fontSize: 35, fontWeight: 'bold'}}>
-        //         Discover
-        //     </Text>
-        //     <Text style={{color: 'white', fontSize: 35, fontWeight: 'bold'}}>
-        //         world with us
-        //     </Text>
-        //     <Text style={{color: 'white', lineHeight: 25, marginTop: 15,marginBottom:25}}>
-        //        Take Time To Do What Makes Your Soul Happy..
-        //     </Text>
-        //     <TouchableOpacity
-        //         activeOpacity={0.8}
-        //         onPress={() => this.props.navigation.navigate('Auth')}>
-        //         <View style={styles.btn}>
-        //         <Text style={{fontWeight: 'bold'}}>Get Started</Text>
-        //         <Icon
-        //             style={{marginLeft:10}}
-        //             name='chevron-right'
-        //             size={20}
-        //         />
-        //         </View>
-        //     </TouchableOpacity>
-        //     </Animatable.View>
-        // </ImageBackground>
-        // </View>
+      const { navigation, loading } = this.props
+        return (
+          <>
+          <StatusBar translucent backgroundColor='rgba(0,0,0,0)' />
+          <LinearGradient
+            colors={[COLOR.lightmain2, COLOR.lightmain ,COLOR.main]}
+            locations={[0.1,0.2,0.7]}
+            style={styles.onBoardBox}>
+          <View style={styles.onBoardTLogoContainer}>
+          <Image 
+              style={{
+                  width:130, 
+                  height:145
+              }}
+              source ={require('../../assets/images/logoWhite.png')} 
+              tintColor='#fff'/>
+          <Text style={{color: 'white', fontSize:22,marginTop:20}}>Your Trusted Travel App</Text>
+          </View>
+          { loading ?
+            <View style={styles.onBoardButtonContainer}>
+                <ActivityIndicator size='large' color="#fff"/>
+            </View>
+          :
+          <Animatable.View style={[styles.onBoardButtonContainer,styles.shadow]}
+          animation="fadeInDown"
+          duration={1000} > 
+              <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    navigation.navigate('Auth',{
+                      screen:'Register'
+                    })
+                  }}
+                  style={styles.onBoardButton}>
+                  <FontAwesomeIcon
+                      style={{color:COLOR.main,marginRight:10}}
+                      name='chevron-left'
+                      size={20}
+                  />
+                  <Text style={{fontSize:18,fontWeight: 'bold',color:COLOR.main}}>Sign Up</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    navigation.navigate('Auth',{
+                      screen:'Login'
+                    })
+                  }}
+                  style={styles.onBoardButton}>
+              <Text style={{fontSize:18,fontWeight: 'bold',color:COLOR.main}}>Sign In</Text>
+                  <FontAwesomeIcon
+                      style={{color:COLOR.main,marginLeft:10}}
+                      name='chevron-right'
+                      size={20}
+                  />
+              </TouchableOpacity>
+          </Animatable.View>
+          }
+        
+          </LinearGradient>
+        </>
          );
     }
 }
@@ -59,23 +92,70 @@ export default OnBoard;
 
 const styles = StyleSheet.create({
     onBoardBox: {
-      height: '100%',
-      position:'absolute',
-      top:350,
-      paddingHorizontal: 40,
+      flex:1,
+      width:WIDTH,
+      height:HEIGHT,
+      left:'50%',
+      marginLeft:-WIDTH/2,
+      flexDirection:'column',
+      justifyContent:'space-between',
     },
-    btn: {
-      height: 50,
-      width: 120,
+  onBoardTLogoContainer:{
+      justifyContent: 'center',
+      alignItems:'center',
+      top:100
+  },
+  onBoardTextContainer:{
+      justifyContent: 'center',
+      alignItems:'center',
+  },
+
+    onBoardButtonContainer:{
+      flexDirection:'row',
+      justifyContent:'center',
+      alignItems:'center',
+      bottom:150
+    },
+    onBoardButton: {
+      height: 55,
+      width: 150,
+      marginHorizontal:10,
       backgroundColor: 'white',
       marginTop: 20,
-      borderRadius: 7,
+      borderRadius: 10,
       justifyContent: 'center',
       alignItems: 'center',
-      flexDirection:'row'
+      flexDirection:'row',
     },
-    dark: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.2)',
-      },
+  text:{
+    color:COLOR.main,
+    fontSize:30,
+    fontWeight:'bold',
+  },
+  text2:{
+      color:COLOR.main,
+      fontSize:25,
+      left:10
+    },
+  box1:{
+      left:-10,
+      width:WIDTH*1.1,
+      height:HEIGHT*1.1,
+  },
+  box2:{
+      left: -WIDTH,
+      borderBottomWidth:80,
+      borderLeftWidth:WIDTH,
+      borderRightWidth:WIDTH,
+  },
+  shadow:{
+    shadowColor: "#000",
+    shadowOffset: {
+        width: 0,
+        height: 4,
+    },
+    shadowOpacity: 0.30,
+    shadowRadius: 4.65,
+    elevation: 48,
+  }
   });

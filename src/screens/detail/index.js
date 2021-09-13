@@ -56,21 +56,10 @@ class Detail extends Component {
                 }}>
                 {place.name}
             </Text>
-            <View style={{flexDirection: 'row'}}>
-                <Icon name="star" size={30} color={COLOR.orange} />
-                <Text
-                style={{color: 'white', fontWeight: 'bold', fontSize: 20}}>
-                5.0
-                </Text>
-            </View>
             </View>
         </ImageBackground>
         <View style={styles.detailsContainer}>
-            <View style={styles.iconContainer}>
-            <Icon name="favorite" color={COLOR.red} size={30} />
-            </View>
             <View style={{flexDirection: 'row', marginTop: 10}}>
-            <Icon name="place" size={28} color={COLOR.main} />
             <Text
                 style={{
                 marginLeft: 5,
@@ -82,37 +71,19 @@ class Detail extends Component {
             </Text>
             </View>
             <Text style={{marginTop: 20, fontWeight: 'bold', fontSize: 20}}>
-            About the trip
+            Promos
             </Text>
             <Text style={{marginTop: 20, lineHeight: 22}}>{place.details}</Text>
         </View>
         <View style={styles.footer}>
             <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-            <Text
-                style={{
-                fontSize: 18,
-                fontWeight: 'bold',
-                color: 'white',
-                }}>
-                $100
-            </Text>
-            <Text
-                style={{
-                fontSize: 12,
-                fontWeight: 'bold',
-                color: COLOR.gray,
-                marginLeft: 2,
-                }}>
-                /PER DAY
-            </Text>
             </View>
-           
             <TouchableHighlight 
             underlayColor="#000"
-            style={styles.bookNowBtn}>
+            style={styles.btn}>
             <Text
                 style={{color: COLOR.main, fontSize: 16, fontWeight: 'bold'}}>
-                Book Now
+               Check in Details Here
             </Text>
             </TouchableHighlight>
             
@@ -126,9 +97,9 @@ class Detail extends Component {
 export default Detail;
 
 const styles = StyleSheet.create({
-    bookNowBtn: {
+    btn: {
       height: 50,
-      width: 150,
+      width: 180,
       backgroundColor: 'white',
       borderRadius: 10,
       justifyContent: 'center',

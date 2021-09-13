@@ -11,12 +11,12 @@ import {
     TouchableNativeFeedback} from 'react-native';
 import { COLOR } from '../../constant/color';
 import {connect} from "react-redux";
+import { loadingApi } from '../../reducers/actions/loading';
 import flightsApi from '../../api/flights';
 import { FlightsHeader } from '../../components';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { ListItem } from 'react-native-elements';
 import { Button } from 'react-native-elements';
-import Spinner from 'react-native-loading-spinner-overlay';
 import { AIRPORT_LITS } from '../../constant/airport';
 
 
@@ -32,7 +32,6 @@ class FlightsList extends Component {
           returnFlightList:[],
           flightChosen:[],
           isRoundTrip:false,
-          apiLoading:false,
           finishGetApiResponse:false,
           isFlightsAvailable:false
         }
@@ -80,7 +79,12 @@ class FlightsList extends Component {
         return dateInput.getFullYear()+'-'+month+'-'+date
     }
 
+    resetState = () => {
+        this.setState(this.baseState)
+    }
+
     componentDidMount(){
+        this.resetState()
         const { flightsSearchInfo } = this.props
         if(flightsSearchInfo.returnDate){
             this.setState({
@@ -103,9 +107,7 @@ class FlightsList extends Component {
     }
 
     getFlightsListBasedRequest = async (flightsRequest) => {
-        this.setState({
-            apiLoading:true
-        })
+        this.props.loadingApi({status:true})
         try{
             let res = await fetch(flightsApi+'/find',{
                 method: 'POST',
@@ -119,8 +121,8 @@ class FlightsList extends Component {
             })
             let json = await res.json()
             if(json){
+                this.props.loadingApi({status:false})
                 this.setState({
-                    apiLoading:false,
                     finishGetApiResponse:true,
                 })
     
@@ -173,19 +175,8 @@ class FlightsList extends Component {
         }
     }
 
-    resetState = () => {
-        this.setState(this.baseState)
-        const { flightsSearchInfo } = this.props
-        if(flightsSearchInfo.returnDate){
-            this.setState({
-                isRoundTrip:true
-            })
-        }
-    }
-
     chooseFlightHandler = (item) => {
         const { flightChosen, isRoundTrip } = this.state
-        console.log('choose',flightChosen)
         if(isRoundTrip){
             if(flightChosen.length===0) { //departure flight
                 flightChosen.push(item)
@@ -201,8 +192,10 @@ class FlightsList extends Component {
                 //navigate to book summary
             }    
         }else{
-            flightChosen.push(item)
-            this.props.navigation.navigate('BookSummary',{flightChosen})  
+            if(flightChosen.length===0) { //departure flight
+                flightChosen.push(item)
+                this.props.navigation.navigate('BookSummary',{flightChosen})  
+            }
         }
      
     }
@@ -400,11 +393,6 @@ class FlightsList extends Component {
         return (
             <>
              <FlightsHeader screenChooseFlight={1} flightsSearchInfo={flightsSearchInfo} header='FlightsList' {...this.props}/>
-             <Spinner //LOADING GET/POST API 
-                visible={this.state.apiLoading}
-                textContent={'Loading...'}
-                textStyle={{color:'#fff'}}
-            />
              <View style={styles.flightListContainer}>
                 <FlatList 
                 showsVerticalScrollIndicator={false}
@@ -424,8 +412,12 @@ const mapStateToProps = state => ({
     flightsSearchInfo: state.flightsSearch,
     token:state.auth.token
 })
+
+const mapDispatchToProps = dispatch => ({
+    loadingApi: data => dispatch(loadingApi(data)),
+})
  
-export default connect(mapStateToProps, null)(FlightsList);
+export default connect(mapStateToProps, mapDispatchToProps)(FlightsList);
 
 const styles = StyleSheet.create({
   noFoundContainer:{
@@ -547,117 +539,3 @@ const styles = StyleSheet.create({
   }
 
 })
-
-
-//backup hardcode
-// flightsList:{
-//     departureFlight:[
-//         {
-//           airlineName:'Garada',
-//           code:'AAA',
-//           aircraftType:'Boeing 700',
-//           departureDate:['Tue','7 Sept','2021'],
-//           arrivalDate:['Wed','8 Sept','2021'],
-//           departureTime:'04:00',
-//           arrivalTime:'05:30',
-//           fromAirportCity:'Surabaya',
-//           toAirportCity:'Jakarta',
-//           fromAirportCode:'SUB',
-//           toAirportCode:'JKTA',
-//           fromAirportName:'Juanda',
-//           toAirportName:'Soekarno Hatta',
-//           duration:'1h 30m',
-//           price:565000,
-//           numberTransit:0,
-//           regularZone : ['A-1','A-2','B-1','C-2'],
-//           greenZone : ['B-2','C-1'],
-//           sold : ['D-1','D-2']
-//         },
-//         {
-//           airlineName:'Citilank',
-//           code:'BBB',
-//           aircraftType:'Boeing 700',
-//           departureDate:['Tue','7 Sept','2021'],
-//           arrivalDate:['Wed','8 Sept','2021'],
-//           departureTime:'08:00',
-//           arrivalTime:'10:30',
-//           fromAirportCity:'Surabaya',
-//           toAirportCity:'Jakarta',
-//           fromAirportCode:'SUB',
-//           toAirportCode:'JKTA',
-//           fromAirportName:'Juanda',
-//           toAirportName:'Soekarno Hatta',
-//           duration:'1h 30m',
-//           price:350000,
-//           numberTransit:1,
-//           regularZone : ['A-1','A-2','B-1','C-2'],
-//           greenZone : ['B-2','C-1'],
-//           sold : ['D-1','D-2']
-//         },
-//         {
-//           airlineName:'Srijaya',
-//           code:'CCC',
-//           aircraftType:'Boeing 700',
-//           departureDate:['Tue','7 Sept','2021'],
-//           arrivalDate:['Wed','8 Sept','2021'],
-//           departureTime:'15:20',
-//           arrivalTime:'16:50',
-//           fromAirportCity:'Surabaya',
-//           toAirportCity:'Jakarta',
-//           fromAirportCode:'SUB',
-//           toAirportCode:'JKTA',
-//           fromAirportName:'Juanda',
-//           toAirportName:'Soekarno Hatta',
-//           duration:'1h 30m',
-//           price:400000,
-//           numberTransit:1,
-//           regularZone : ['A-1','A-2','B-1','C-2'],
-//           greenZone : ['B-2','C-1'],
-//           sold : ['D-1','D-2']
-//         }
-//     ],
-//     returnFlight:[
-//         {
-//           airlineName:'Srijaya',
-//           code:'AAA',
-//           aircraftType:'Boeing 700',
-//           departureDate:['Wed','8 Sept','2021'],
-//           arrivalDate:['Thu','9 Sept','2021'],
-//           departureTime:'04:00',
-//           arrivalTime:'05:30',
-//           fromAirportCity:'Surabaya',
-//           toAirportCity:'Jakarta',
-//           fromAirportCode:'SUB',
-//           toAirportCode:'JKTA',
-//           fromAirportName:'Juanda',
-//           toAirportName:'Soekarno Hatta',
-//           duration:'1h 30m',
-//           price:565000,
-//           numberTransit:0,
-//           regularZone : ['A-1','A-2','B-1','C-2'],
-//           greenZone : ['B-2','C-1'],
-//           sold : ['D-1','D-2']
-//         },
-//         {
-//           airlineName:'Garada',
-//           code:'BBB',
-//           aircraftType:'Boeing 700',
-//           departureDate:['Wed','8 Sept','2021'],
-//           arrivalDate:['Thu','9 Sept','2021'],
-//           departureTime:'08:00',
-//           arrivalTime:'10:30',
-//           fromAirportCity:'Surabaya',
-//           toAirportCity:'Jakarta',
-//           fromAirportCode:'SUB',
-//           toAirportCode:'JKTA',
-//           fromAirportName:'Juanda',
-//           toAirportName:'Soekarno Hatta',
-//           duration:'1h 30m',
-//           price:350000,
-//           numberTransit:1,
-//           regularZone : ['A-1','A-2','B-1','C-2'],
-//           greenZone : ['B-2','C-1'],
-//           sold : ['D-1','D-2']
-//         },
-//     ]
-// },

@@ -170,7 +170,7 @@ class BookSummary extends Component {
                <View style={styles.priceSelectColumn}>
                <TouchableOpacity
                 onPress={() => {
-                  this.props.navigation.navigate('Book1FillDetails')
+                  this.props.navigation.navigate('BookStackScreen')
                   this.props.storeFlightChosen(flightChosen) //** STORE FLIGHT CHOSEN
                 }}  
                 activeOpacity={0.5}

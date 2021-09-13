@@ -10,16 +10,16 @@ import {
     Dimensions,
     Image,
     BackHandler} from 'react-native';
-import {connect} from "react-redux";
-import {storeUserForgotPass} from '../../reducers/actions/auth';
-import {InputApp, ButtonApp} from '../../components';
+import { connect } from "react-redux";
+import { storeUserForgotPass } from '../../reducers/actions/auth';
+import { loadingApi } from '../../reducers/actions/loading';
+import { InputApp, ButtonApp } from '../../components';
 import { COLOR} from '../../constant/color';
 import { SQLiteContext } from '../../config/sqlite';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
-import Spinner from 'react-native-loading-spinner-overlay';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import userApi from '../../api/user';
-import {ValidateRegexEmail, ValidateRegexPassword} from '../../util/method/regex'
+import { ValidateRegexPassword } from '../../util/method/regex'
 
 const WIDTH = Dimensions.get('window').width
 
@@ -105,9 +105,7 @@ class ResetPass extends Component{
                     validConfirm:false,
                     })
             }
-            this.setState({
-                forgotPassLoading:true
-            })
+            this.props.loadingApi({status:true})
             try{
                 let res = await fetch(userApi+'/forgotPassword/reset',{
                     method: 'POST',
@@ -124,9 +122,7 @@ class ResetPass extends Component{
                 })
                 let json = await res.json()
                 if(json){
-                    this.setState({
-                        forgotPassLoading:false
-                    })
+                    this.props.loadingApi({status:false})
         
                     //Reset Password SUCCESS
                     this.props.navigation.navigate('Login')
@@ -138,19 +134,12 @@ class ResetPass extends Component{
     }
 
     render(){
-        const {navigation} = this.props
         return(
             <SafeAreaView style={{flex:1, backgroundColor:COLOR.main}}>
-            <Spinner //LOADING FORGOT PASS API 
-                visible={this.state.forgotPassLoading}
-                textContent={'Loading...'}
-                textStyle={{color:'#fff'}}
-            />
             <ScrollView 
             showsVerticalScrollIndicator={false}
             style={{backgroundColor:"#FFF",height:"100%"}}>
                 <View>
-
                 <View style={{justifyContent:'center',alignItems:'center'}}>
                     <View 
                     style={styles.imageBox}>
@@ -230,7 +219,8 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    storeUserForgotPass: data => dispatch(storeUserForgotPass(data))
+    storeUserForgotPass: data => dispatch(storeUserForgotPass(data)),
+    loadingApi: data => dispatch(loadingApi(data)),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(ResetPass);

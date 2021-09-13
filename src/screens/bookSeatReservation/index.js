@@ -70,7 +70,10 @@ class BookSeatReservation extends Component {
     const { travelerDetailList, flightsChosen } = this.props
         // console.log(travelerDetailList)
     let typeFlight = ''
-    return flightsChosen.map((flight,indexFlight) => { //index=0 -> deparute || index=1 -> return
+    console.log('screenFlight ',screenFlight)
+    console.log('screenPassengers ',screenPassengers)
+    return flightsChosen.map((flight,indexFlight) => { 
+    //index=0 -> departure flight || index=1 -> return flight
         if(indexFlight===0){
             typeFlight='departureFlight'
         }else if(indexFlight===1){
@@ -99,12 +102,8 @@ class BookSeatReservation extends Component {
             <View style={styles.chosenSeatRowContainer}>
                 {
                      travelerDetailList.map((traveler,index) => {
-                        //  if()
-                        const color = COLOR.secondary
                         if(traveler.personClass !== 'infant') return (
-                            <View key={index} style={
-                                indexFlight===screenFlight-1 && index===screenPassengers-1 ?
-                                 styles.activeChosenBox : null}>
+                            <View key={index}>
                                 <View style={styles.chosenSeatBox}>
                                     <View style={{
                                         backgroundColor:COLOR.secondary,
@@ -120,15 +119,10 @@ class BookSeatReservation extends Component {
                                 </View>
                                 {
                                     indexFlight===screenFlight-1 && index===screenPassengers-1 ?
-                                    <Text style={{
-                                        color:COLOR.red,
-                                        position:'absolute',
-                                        fontSize:12,
-                                        fontWeight:'bold',
-                                        transform:[ {rotate:'270deg'} ],
-                                        left:-29,
-                                        top:11
-                                    }}>Choose</Text>
+                                    <View style={styles.activeChosenBox}>
+                                        <Text style={styles.activeText}>Choose</Text>
+                                    </View>
+                                   
                                     :
                                     null
                                 }
@@ -174,7 +168,7 @@ class BookSeatReservation extends Component {
             this.props.addBaggageSeatType(newDataTraveler) //update price
         
             this.setState({
-                screenPassengers: screenPassengers+1
+                screenPassengers: screenPassengers<totalPassengersForFacilities ?  screenPassengers+1 : screenPassengers
             })
             if(!isRoundTrip && screenPassengers===totalPassengersForFacilities){
                //FINISH
@@ -186,7 +180,7 @@ class BookSeatReservation extends Component {
                 },1000)
             }else if(isRoundTrip && screenPassengers===totalPassengersForFacilities){
                 this.setState({
-                    screenPassengers:1,
+                    // screenPassengers:1,
                     greenZone : flightsChosen[1].seatGreenZone,
                     regularZone : flightsChosen[1].seatRegularZone,
                     sold : flightsChosen[1].seatSold
@@ -194,8 +188,12 @@ class BookSeatReservation extends Component {
                 setTimeout(() => {
                     this.setState({
                         screenFlight: screenFlight+1, //change for return flight
+                        screenPassengers:1,
                     })
                 },1000)
+                // this.setState({
+                //     screenFlight: screenFlight+1, //change for return flight
+                // })
             }
         }else if(screenFlight===2){ //roundtrip
             pricePerPassengers =  travelerDetailList[index].returnFlight.price
@@ -222,14 +220,13 @@ class BookSeatReservation extends Component {
             this.props.addBaggageSeatType(newDataTraveler) //update price
 
             this.setState({
-                screenPassengers: screenPassengers+1
+                screenPassengers: screenPassengers<totalPassengersForFacilities ?  screenPassengers+1 : screenPassengers
             })
             
             if(screenPassengers===totalPassengersForFacilities){
              //FINISH
              this.setState({
                 finishChoosingStatus:true,
-                screenPassengers:1
                })
             setTimeout(() => {
                 this.props.navigation.goBack()
@@ -445,16 +442,25 @@ const styles = StyleSheet.create({
       borderRadius:5,
       justifyContent:'center',
       alignItems:'center',
-      marginHorizontal:5
+      marginHorizontal:10
   },
   activeChosenBox:{
     height:60,
     width:60,
     borderColor:COLOR.red,
     borderWidth:1.5,
-    justifyContent:'center',
-    alignItems:'center'
+    left:5,
+    top:-5,
+    position:'absolute',
   },
+  activeText:{
+    color:COLOR.red,
+    fontSize:12,
+    fontWeight:'bold',
+    transform:[ {rotate:'270deg'} ],
+    left:-37,
+    top:3
+},
   headerAirline:{
     backgroundColor:COLOR.main,
     width:'80%',
