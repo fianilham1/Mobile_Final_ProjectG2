@@ -1,0 +1,77 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "User">
+
+    <insert id="createNewTableIfNotExists" parameterType="String" >
+        CREATE TABLE IF NOT EXISTS USER
+        (
+        ID INT(10) NOT NULL AUTO_INCREMENT,
+        Username VARCHAR(100) NOT NULL,
+        Password VARCHAR(255) NOT NULL,
+        Name VARCHAR(255) NOT NULL,
+        Role VARCHAR(255) NOT NULL,
+        Image VARCHAR(255) NOT NULL,
+        Phone VARCHAR(255) NOT NULL,
+        Points INT(20) NOT NULL,
+        TravelsayPay INT(20) NOT NULL,
+        PRIMARY KEY ( ID )
+        )
+        ENGINE=InnoDB
+    </insert>
+
+    <insert id = "insert" parameterType = "main.java.backend.model.User">
+        INSERT INTO USER (Username, Password, Name, Role, Image, Phone, Points, Travelsay) VALUES (#{username}, #{password}, #{name}, #{role}, #{image}, #{phone});
+        <selectKey keyProperty = "id" resultType = "int" order = "AFTER">
+            select last_insert_id() as id
+        </selectKey>
+    </insert>
+
+    <resultMap id = "result" type = "main.java.backend.model.User">
+        <result property = "id" column = "ID"/>
+        <result property = "username" column = "Username"/>
+        <result property = "password" column = "Password"/>
+        <result property = "name" column = "Name"/>
+        <result property = "role" column = "Role"/>
+        <result property = "image" column = "Image"/>
+        <result property = "phone" column = "Phone"/>
+        <result property = "points" column = "Points"/>
+        <result property = "travelsayPay" column = "TravelsayPay"/>
+    </resultMap>
+
+    <select id = "login" resultMap = "result" parameterType="map">
+        SELECT * FROM USER WHERE Username = #{usernameIn} AND Password = #{passwordIn};
+    </select>
+
+    <select id = "username" resultMap = "result" parameterType="map">
+        SELECT * FROM USER WHERE Username = #{username};
+    </select>
+
+    <update id = "update" parameterType = "main.java.backend.model.User">
+        UPDATE USER SET NAME = #{name},
+        Username = #{username},
+        Password = #{password},
+        Role = #{role},
+        Image = #{image},
+        Phone = #{phone},
+        Points = #{points},
+        TravelsayPay = #{travelsayPay},
+        WHERE ID = #{id};
+    </update>
+
+    <update id = "updatePass" parameterType = "map">
+        UPDATE USER SET Password = #{password}
+        WHERE Username = #{username};
+    </update>
+
+    <select id = "getAll" resultMap = "result">
+        SELECT * FROM USER;
+    </select>
+
+    <select id = "getById" parameterType = "int" resultMap = "result">
+        SELECT * FROM USER WHERE ID = #{id};
+    </select>
+
+    <delete id = "deleteById" parameterType = "int">
+        DELETE from USER WHERE ID = #{id};
+    </delete>
+</mapper>
