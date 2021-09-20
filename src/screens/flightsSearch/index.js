@@ -96,8 +96,8 @@ class FlightsSearch extends Component {
     //Date >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
     setValueDate = (event, selectedDate, typeFlight) => {
-      console.log('event',event)
-      console.log('typeFlight',typeFlight)
+      // console.log('event',event)
+      // console.log('typeFlight',typeFlight)
       if(event.type==='set'){
         this.setState({
           [typeFlight]:selectedDate,
@@ -127,8 +127,8 @@ class FlightsSearch extends Component {
 
     renderDatePicker = () => {
       const { departureDateVisible, departureDate, returnDateVisible, returnDate, minimumReturnDate } = this.state
-      console.log('departureDateVisible ',departureDateVisible)
-      console.log('returnDateVisible ',returnDateVisible)
+      // console.log('departureDateVisible ',departureDateVisible)
+      // console.log('returnDateVisible ',returnDateVisible)
       if (departureDateVisible) {
         return (
           <DateTimePicker
@@ -176,27 +176,59 @@ class FlightsSearch extends Component {
     
     spinnerHandler = (value, index) => {
       const { passengers } = this.state
-      const newValue = passengers.map((data, i) => {
-       if (i === index) {
-         const item = {
-           ...data,
-           amount: value,
-         }
-         return item
-       }
-      return data
-    })
-    this.setState({
-      passengers:newValue
-    })
+      console.log('value',value)
+      if(value >= 0 && value <= 10){
+        const newValue = passengers.map((data, i) => {
+          if (i === index) {
+            const item = {
+              ...data,
+              amount: data.value==='adult' ? value === 0 ? 1 : value : value,
+            }
+            return item
+          }
+         return data
+       })
+       this.setState({
+         passengers:newValue
+       })
+      }
     }
 
     renderItemPassengers = ({item,index}) => {
+      const passengersNum = this.state.passengers[index].amount
         return (
           <ListItem >
             <View style={styles.passengersRow}>
               <Text>{item.label}</Text>
-              <InputSpinner
+              <TouchableOpacity 
+              activeOpacity={0.7}
+              onPress={() => this.spinnerHandler(passengersNum-1,index)}
+              style={styles.addMinusButton}>
+                   <MaterialIcon 
+                      name='remove'
+                      size={22}
+                      color='#fff'
+                      style={{fontWeight:'bold'}}
+                    />
+              </TouchableOpacity>
+              <View>
+                <Text style={{
+                  fontSize:25,
+                  color:COLOR.lightblue
+                }}>{passengersNum}</Text>
+              </View>
+              <TouchableOpacity 
+              activeOpacity={0.7}
+              onPress={() => this.spinnerHandler(passengersNum+1,index)}
+              style={styles.addMinusButton}>
+                   <MaterialIcon 
+                      name='add'
+                      size={22}
+                      color='#fff'
+                      style={{fontWeight:'bold'}}
+                    />
+              </TouchableOpacity>
+              {/* <InputSpinner
                 max={10}
                 min={item.label==='Adult' ? 1 : 0}
                 step={1}
@@ -208,7 +240,7 @@ class FlightsSearch extends Component {
                 }}
                 skin='square'
                 style={styles.inputSpinner}
-              />
+              /> */}
             </View>
           </ListItem>
         );
@@ -661,17 +693,25 @@ textStyle: {
 },
 modalText: {
     marginBottom: 15,
-
 },
 passengersRow:{
   flexDirection:'row',
+  flex:1,
   marginVertical:10,
+  marginHorizontal:20,
+  justifyContent:'space-around',
+  alignItems:'center',
+},
+addMinusButton:{
+  height:50,
+  width:50,
   justifyContent:'center',
-  alignItems:'center'
+  alignItems:'center',
+  backgroundColor:COLOR.main
 },
 inputSpinner:{
   width:170,
-  marginHorizontal:20,
+  // marginHorizontal:20,
   marginVertical:-10
 }
 })

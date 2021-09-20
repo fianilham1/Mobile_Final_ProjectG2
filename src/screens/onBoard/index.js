@@ -34,16 +34,30 @@ class OnBoard extends Component {
           <View style={styles.onBoardTLogoContainer}>
           <Image 
               style={{
-                  width:130, 
-                  height:145
+                  width:85, 
+                  height:95
               }}
               source ={require('../../assets/images/logoWhite.png')} 
               tintColor='#fff'/>
-          <Text style={{color: 'white', fontSize:22,marginTop:20}}>Your Trusted Travel App</Text>
+          <Text style={{
+            color: 'white',
+            fontSize:25,
+            marginTop:13,
+            fontFamily:'HamsterlyDemoRegular'}}>Travelsay App</Text>
           </View>
+          <Image 
+              style={{
+                  width:'100%', 
+                  height:'100%',
+                  opacity:0.2,
+                  bottom:155,
+                  // zIndex:-1
+              }}
+              source ={require('../../assets/images/paris.jpg')} />
           { loading ?
             <View style={styles.onBoardButtonContainer}>
-                <ActivityIndicator size='large' color="#fff"/>
+                <ActivityIndicator
+                  size='large' color="#fff"/>
             </View>
           :
           <Animatable.View style={[styles.onBoardButtonContainer,styles.shadow]}
@@ -103,7 +117,7 @@ const styles = StyleSheet.create({
   onBoardTLogoContainer:{
       justifyContent: 'center',
       alignItems:'center',
-      top:100
+      top:180
   },
   onBoardTextContainer:{
       justifyContent: 'center',
@@ -114,7 +128,7 @@ const styles = StyleSheet.create({
       flexDirection:'row',
       justifyContent:'center',
       alignItems:'center',
-      bottom:150
+      bottom:400
     },
     onBoardButton: {
       height: 55,

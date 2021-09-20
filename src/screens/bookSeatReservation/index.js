@@ -19,70 +19,25 @@ import { updateTraveler } from '../../reducers/actions/traveler';
 import { FlightsHeader } from '../../components';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { Button } from 'react-native-elements';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
+const Tab = createMaterialTopTabNavigator();
 
-class BookSeatReservation extends Component {
+
+class ScreenFlight extends Component {
     constructor(props) {
         super(props);
-        this.state = { 
-            travelerDetailList:[],
-            flightsChosen:[],
-            seatRowGroup:['A','B','MID','C','D'],
-            seatColumnGroup:[1,2,3,4,5,6],
-            screenFlight:1, //display for round trip -> each flight
-            screenPassengers:1, //display for each passengers
-            travelerList:[], //store passengers temp
-            isRoundTrip:false,
-            totalPassengersForFacilities:0,
-            finishChoosingStatus:false,
-            greenZone:[],
-            regularZone:[],
-            sold:[]
-        }
-    }
-
-    componentDidMount(){
-        const { flightsChosen, travelerDetailList } = this.props
-        console.log('flightsChosen in seat',flightsChosen)
-        let totalPassengersForFacilities = 0
-        travelerDetailList.map((data,index) => {
-            if(data.personClass !== 'infant'){
-                totalPassengersForFacilities += 1 //infant passengers IS NOT INCLUDE !!!!!!!!!!!!
-            }
-        })
-        this.setState({
-            totalPassengersForFacilities,
-            greenZone : flightsChosen[0].seatGreenZone,
-            regularZone : flightsChosen[0].seatRegularZone,
-            sold : flightsChosen[0].seatSold
-        })
-        if (flightsChosen.length>1){ //round trip
-            this.setState({
-                isRoundTrip:true,
-            })
-        }
+        this.state = {  }
     }
 
     renderChosenSeat = () => {
-    const { screenPassengers, screenFlight } = this.state
-    const { travelerDetailList, flightsChosen } = this.props
-        // console.log(travelerDetailList)
-    let typeFlight = ''
-    console.log('screenFlight ',screenFlight)
-    console.log('screenPassengers ',screenPassengers)
-    return flightsChosen.map((flight,indexFlight) => { 
-    //index=0 -> departure flight || index=1 -> return flight
-        if(indexFlight===0){
-            typeFlight='departureFlight'
-        }else if(indexFlight===1){
-            typeFlight='returnFlight'
-        }
+        const { travelerDetailList,  screenPassengers, screenFlight, flight, typeFlight, title } = this.props
         return (
-        <View key={indexFlight}  style={styles.chosenSeatContainer}>
+        <View style={styles.chosenSeatContainer}>
             <View style={styles.chosenSeatRowContainer}> 
-                <Text style={styles.miniText}>{indexFlight===0 ? 'departure' : 'return'}</Text>
+                <Text style={styles.miniText}>{title}</Text>
                 <MaterialIcon 
                     name='flight'
                     size={18}
@@ -90,13 +45,13 @@ class BookSeatReservation extends Component {
                     style={{left:-5}}
                 />
                 <Text style={styles.headerTitle}>{flight.airlineName+'   '}</Text>
-                <Text style={styles.miniText}>{indexFlight===0 ? flight.fromAirportCode : flight.toAirportCode}</Text>
+                <Text style={styles.miniText}>{flight.fromAirportCode}</Text>
                 <MaterialIcon
                     name="arrow-forward"  
                     size={15}
                     style={{left:-5}}
                   />
-                <Text style={styles.miniText}>{indexFlight===0 ? flight.toAirportCode : flight.fromAirportCode}</Text>
+                <Text style={styles.miniText}>{flight.toAirportCode}</Text>
             </View>
            
             <View style={styles.chosenSeatRowContainer}>
@@ -133,8 +88,221 @@ class BookSeatReservation extends Component {
             </View>
         </View>
         )
-    })
     }
+
+    renderRowItem = ({item,index}) => {
+        const {  finishChoosingStatus, screenFlight, flightsListSeatDetail } = this.state
+        let seatList = []
+        try{
+            seatList = flightsListSeatDetail[screenFlight-1][index]
+        }catch(e){
+
+        }
+      
+        return ( //column
+        <View style={styles.flightSeatRow}> 
+        {
+           seatList.map((seatData,rowIndex) => {
+            if (seatData.seatNumber==='MID') return <View key={rowIndex} style={{width:50}}></View>
+            return <Button
+                key={rowIndex}
+                title={seatData.seatNumber}
+                containerStyle={{
+                    margin:5,
+                    borderRadius:10
+                }}
+                buttonStyle={{
+                    backgroundColor:seatData.seatColor,
+                    width:50,
+                    height:50
+                }}
+                onPress={() => {
+                    console.log('finishChoosingStatus',finishChoosingStatus)
+                    if(seatNumberType!=='sold' && !finishChoosingStatus){
+                        // console.log('type',seatNumberType)
+                        this.chooseSeatHandler(seatData.seatNumber,seatData.seatNumberType)
+                    }
+                }}
+                background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
+            /> 
+           })
+        }
+        </View>
+        ) 
+    }
+
+    render() { 
+        return ( 
+            <>
+              {this.renderChosenSeat()}
+                <View style={styles.headerAirline}>
+                        <Text style={{color:'#fff',fontSize:20}}>{flightsChosen[screenFlight-1].airlineName}</Text>
+                        <Text style={{color:'#fff'}}> Seat Layout</Text>
+                    </View>
+                <FlatList 
+                    style={{marginTop:10,flex:3}}
+                    showsVerticalScrollIndicator={false}
+                    data={this.state.seatRowGroup}
+                    keyExtractor = {(item,index) => {
+                        return index;
+                    }}
+                    renderItem={this.renderRowItem}
+                />
+            </>
+         );
+    }
+}
+
+
+class BookSeatReservation extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { 
+            travelerDetailList:[],
+            flightsChosen:[],
+            seatColumnGroup:['A','B','MID','C','D'],
+            seatRowGroup:[1,2,3,4,5,6],
+            screenFlight:1, //display for round trip -> each flight
+            screenPassengers:1, //display for each passengers
+            travelerList:[], //store passengers temp
+            isRoundTrip:false,
+            totalPassengersForFacilities:0,
+            finishChoosingStatus:false,
+            greenZone:[],
+            regularZone:[],
+            sold:[],
+            flightsListSeatDetail:[]
+        }
+    }
+
+    create2DArraySeat = () => {
+        const { flightsChosen } = this.props
+        const { seatColumnGroup, seatRowGroup } = this.state
+        let flightsListSeatDetail = []
+
+        flightsChosen.map((flight,index) => {
+            let arraySeat = new Array(seatRowGroup.length).fill().map(() => Array(seatColumnGroup.length))
+            for(let i=0; i<seatRowGroup.length; i++){
+                for(let j=0; j<seatColumnGroup.length; j++){
+                    let seatNumber = seatColumnGroup[j]==='MID' ? seatColumnGroup[j] : seatColumnGroup[j]+'-'+seatRowGroup[i]
+                
+                    if(flight.seatGreenZone.includes(seatNumber)){
+                        seatColor=COLOR.green
+                        seatNumberType='greenZone'
+                    }else if(flight.seatRegularZone.includes(seatNumber)){
+                        seatColor=COLOR.lightblue
+                        seatNumberType='regularZone'
+                    }else{
+                        seatColor=COLOR.gray
+                        seatNumberType='sold'
+                    }
+
+                    arraySeat[i][j]={
+                        seatNumber,
+                        seatColor,
+                        seatNumberType
+                    }
+                }   
+            }
+            flightsListSeatDetail.push(arraySeat)
+        })
+        this.setState({
+            flightsListSeatDetail
+        })
+    }
+
+
+
+    componentDidMount(){
+        this.create2DArraySeat()
+        const { flightsChosen, travelerDetailList } = this.props
+        console.log('flightsChosen in seat',flightsChosen)
+        let totalPassengersForFacilities = 0
+        travelerDetailList.map((data,index) => {
+            if(data.personClass !== 'infant'){
+                totalPassengersForFacilities += 1 //infant passengers IS NOT INCLUDE
+            }
+        })
+        this.setState({
+            totalPassengersForFacilities,
+        })
+        if (flightsChosen.length>1){ //round trip
+            this.setState({
+                isRoundTrip:true,
+            })
+        }
+    }
+
+    // renderChosenSeat = () => {
+    // const { screenPassengers, screenFlight } = this.state
+    // const { travelerDetailList, flightsChosen } = this.props
+    // // console.log(travelerDetailList)
+    // let typeFlight = ''
+    // console.log('screenFlight ',screenFlight)
+    // console.log('screenPassengers ',screenPassengers)
+    // return flightsChosen.map((flight,indexFlight) => { 
+    // //index=0 -> departure flight || index=1 -> return flight
+    //     if(indexFlight===0){
+    //         typeFlight='departureFlight'
+    //     }else if(indexFlight===1){
+    //         typeFlight='returnFlight'
+    //     }
+    //     return (
+    //     <View key={indexFlight}  style={styles.chosenSeatContainer}>
+    //         <View style={styles.chosenSeatRowContainer}> 
+    //             <Text style={styles.miniText}>{indexFlight===0 ? 'departure' : 'return'}</Text>
+    //             <MaterialIcon 
+    //                 name='flight'
+    //                 size={18}
+    //                 color={COLOR.main}
+    //                 style={{left:-5}}
+    //             />
+    //             <Text style={styles.headerTitle}>{flight.airlineName+'   '}</Text>
+    //             <Text style={styles.miniText}>{indexFlight===0 ? flight.fromAirportCode : flight.toAirportCode}</Text>
+    //             <MaterialIcon
+    //                 name="arrow-forward"  
+    //                 size={15}
+    //                 style={{left:-5}}
+    //               />
+    //             <Text style={styles.miniText}>{indexFlight===0 ? flight.toAirportCode : flight.fromAirportCode}</Text>
+    //         </View>
+           
+    //         <View style={styles.chosenSeatRowContainer}>
+    //             {
+    //                  travelerDetailList.map((traveler,index) => {
+    //                     if(traveler.personClass !== 'infant') return (
+    //                         <View key={index}>
+    //                             <View style={styles.chosenSeatBox}>
+    //                                 <View style={{
+    //                                     backgroundColor:COLOR.secondary,
+    //                                     flex:1,
+    //                                     width:'100%',
+    //                                     justifyContent:'center',
+    //                                     alignItems:'center'}}>
+    //                                     <Text style={{color:'#fff'}} >{traveler.name}</Text>
+    //                                 </View>
+    //                                 <View style={{flex:1}}>
+    //                                     <Text>{traveler[typeFlight].seatNumber}</Text>
+    //                                 </View>
+    //                             </View>
+    //                             {
+    //                                 indexFlight===screenFlight-1 && index===screenPassengers-1 ?
+    //                                 <View style={styles.activeChosenBox}>
+    //                                     <Text style={styles.activeText}>Choose</Text>
+    //                                 </View>
+                                   
+    //                                 :
+    //                                 null
+    //                             }
+    //                         </View>
+    //                     )
+    //                     })
+    //             }
+    //         </View>
+    //     </View>
+    //     )
+    // })
+    // }
 
     chooseSeatHandler = (seatNumber,seatNumberType) => {
         const { totalPassengersForFacilities, screenFlight, screenPassengers, isRoundTrip } = this.state
@@ -236,76 +404,51 @@ class BookSeatReservation extends Component {
         
     }
 
-    renderRowItem = ({item,index}) => {
-        const { travelerDetailList, flightsChosen } = this.props
-        const { seatRowGroup, finishChoosingStatus, screenFlight, greenZone, regularZone, sold } = this.state
+    // renderRowItem = ({item,index}) => {
+    //     const {  finishChoosingStatus, screenFlight, flightsListSeatDetail } = this.state
+    //     let seatList = []
+    //     try{
+    //         seatList = flightsListSeatDetail[screenFlight-1][index]
+    //     }catch(e){
+
+    //     }
       
-        return ( //column
-        <View style={styles.flightSeatRow}> 
-        {
-            seatRowGroup.map((data,index)=> {
-                const seatNumber = data+'-'+item
-                let seatColor = ''
-                let seatNumberType = ''
-                if(greenZone.includes(seatNumber)){
-                    seatColor=COLOR.green
-                    seatNumberType='greenZone'
-                }else if(regularZone.includes(seatNumber)){
-                    seatColor=COLOR.lightblue
-                    seatNumberType='regularZone'
-                }else{
-                    seatColor=COLOR.gray
-                    seatNumberType='sold'
-                }
-
-                if(screenFlight===1){ //departure
-                    travelerDetailList.map((data,index) => {
-                        if(data['departureFlight']['seatNumber']===seatNumber){
-                            seatColor=COLOR.red
-                        }
-                    })
-                }else if(screenFlight===2){ //return
-                    travelerDetailList.map((data,index) => {
-                        if(data['returnFlight']['seatNumber']===seatNumber){
-                            seatColor=COLOR.red
-                        }
-                    })
-                } 
-
-               
-                if (data==='MID') return <View key={index} style={{width:50}}></View>
-                return <Button
-                    key={index}
-                    title={seatNumber}
-                    containerStyle={{
-                        margin:5,
-                        borderRadius:10
-                    }}
-                    buttonStyle={{
-                        backgroundColor:seatColor,
-                        width:50,
-                        height:50
-                    }}
-                    onPress={() => {
-                        console.log('finishChoosingStatus',finishChoosingStatus)
-                        if(seatNumberType!=='sold' && !finishChoosingStatus){
-                            // console.log('type',seatNumberType)
-                            this.chooseSeatHandler(seatNumber,seatNumberType)
-                        }
-                    }}
-                    background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
-                /> 
-            })
-        }
-        </View>
-        ) 
-    }
+    //     return ( //column
+    //     <View style={styles.flightSeatRow}> 
+    //     {
+    //        seatList.map((seatData,rowIndex) => {
+    //         if (seatData.seatNumber==='MID') return <View key={rowIndex} style={{width:50}}></View>
+    //         return <Button
+    //             key={rowIndex}
+    //             title={seatData.seatNumber}
+    //             containerStyle={{
+    //                 margin:5,
+    //                 borderRadius:10
+    //             }}
+    //             buttonStyle={{
+    //                 backgroundColor:seatData.seatColor,
+    //                 width:50,
+    //                 height:50
+    //             }}
+    //             onPress={() => {
+    //                 console.log('finishChoosingStatus',finishChoosingStatus)
+    //                 if(seatNumberType!=='sold' && !finishChoosingStatus){
+    //                     // console.log('type',seatNumberType)
+    //                     this.chooseSeatHandler(seatData.seatNumber,seatData.seatNumberType)
+    //                 }
+    //             }}
+    //             background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
+    //         /> 
+    //        })
+    //     }
+    //     </View>
+    //     ) 
+    // }
 
     render() { 
-        const { totalPassengersForFacilities, addSeatDataTravelerList, screenFlight } = this.state
+        const { totalPassengersForFacilities, screenFlight, screenPassengers } = this.state
         const { flightsSearchInfo, flightsChosen } = this.props 
 
-        console.log(addSeatDataTravelerList)
         return (
             <SafeAreaView style={{flex: 1}}>
             <FlightsHeader flightsSearchInfo={flightsSearchInfo} header='BookSeatReservation' {...this.props}/>
@@ -335,21 +478,36 @@ class BookSeatReservation extends Component {
                     </View>
                 </View>
                 <Text style={styles.mediumText}>{'Total Passengers (exclude infant) : '+totalPassengersForFacilities+' passengers'}</Text>
-                {this.renderChosenSeat()}
-                <View style={styles.headerAirline}>
-                        <Text style={{color:'#fff',fontSize:20}}>{flightsChosen[screenFlight-1].airlineName}</Text>
-                        <Text style={{color:'#fff'}}> Seat Layout</Text>
-                    </View>
                 <FlatList 
-                style={{marginTop:10,flex:3}}
-                showsVerticalScrollIndicator={false}
-                data={this.state.seatColumnGroup}
-                keyExtractor = {(item,index) => {
-                    return index;
-                }}
-                renderItem={this.renderRowItem}
+                    style={{marginTop:10,flex:3}}
+                    showsVerticalScrollIndicator={false}
+                    data={flightsChosen}
+                    keyExtractor = {(item,index) => {
+                        return index;
+                    }}
+                    renderItem={
+                        ({item,index}) => <ScreenFlight 
+                        screenPassengers = {screenPassengers} 
+                        screenFlight = {screenFlight}
+                        flight = {item} 
+                        typeFlight = {index===0 ? 'departureFlight' : 'returnFlight'} 
+                        title = {index===0 ? 'departure' : 'return'}
+                    />
+                    }
                 />
-                
+                {
+
+                    flightsChosen.map((flight, flightIndex) => {
+                        return <ScreenFlight 
+                            key = {flightIndex}
+                            screenPassengers = {screenPassengers} 
+                            screenFlight = {screenFlight}
+                            flight = {flight} 
+                            typeFlight = {flightIndex===0 ? 'departureFlight' : 'returnFlight'} 
+                            title = {flightIndex===0 ? 'departure' : 'return'}
+                        />
+                    })
+                }
             </View>
             </SafeAreaView>
         );
@@ -472,3 +630,57 @@ const styles = StyleSheet.create({
   
   
 })
+
+
+// seatColumnGroup.map((data,index)=> {
+//     const seatNumber = data+'-'+item
+//     let seatColor = ''
+//     let seatNumberType = ''
+//     if(greenZone.includes(seatNumber)){
+//         seatColor=COLOR.green
+//         seatNumberType='greenZone'
+//     }else if(regularZone.includes(seatNumber)){
+//         seatColor=COLOR.lightblue
+//         seatNumberType='regularZone'
+//     }else{
+//         seatColor=COLOR.gray
+//         seatNumberType='sold'
+//     }
+
+//     if(screenFlight===1){ //departure
+//         travelerDetailList.map((data,index) => {
+//             if(data['departureFlight']['seatNumber']===seatNumber){
+//                 seatColor=COLOR.red
+//             }
+//         })
+//     }else if(screenFlight===2){ //return
+//         travelerDetailList.map((data,index) => {
+//             if(data['returnFlight']['seatNumber']===seatNumber){
+//                 seatColor=COLOR.red
+//             }
+//         })
+//     } 
+
+    // if (data==='MID') return <View key={index} style={{width:50}}></View>
+    // return <Button
+    //     key={index}
+    //     title={seatNumber}
+    //     containerStyle={{
+    //         margin:5,
+    //         borderRadius:10
+    //     }}
+    //     buttonStyle={{
+    //         backgroundColor:seatColor,
+    //         width:50,
+    //         height:50
+    //     }}
+    //     onPress={() => {
+    //         console.log('finishChoosingStatus',finishChoosingStatus)
+    //         if(seatNumberType!=='sold' && !finishChoosingStatus){
+    //             // console.log('type',seatNumberType)
+    //             this.chooseSeatHandler(seatNumber,seatNumberType)
+    //         }
+    //     }}
+    //     background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
+    // /> 
+// })

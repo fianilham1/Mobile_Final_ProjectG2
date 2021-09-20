@@ -400,13 +400,11 @@ class RootStackScreen extends Component {
     }
 
     getToken = async () => {
-      let token = null
       let loggedUserProfile = null
       const {loginStatus} = this.props
 
       console.log('loginstatus redux: ',loginStatus)
        //check Facebook sign in STATUS
-
         this.getCurrentProfileFacebook().then((userFacebook)=>{
           loggedUserProfile = userFacebook
           if (Platform.OS === 'ios') {
