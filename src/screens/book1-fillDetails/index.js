@@ -195,7 +195,7 @@ class FillDetails extends Component {
         const { travelerDetailList, loggedUserProfile, flightsChosen, tokenType } = this.props
 
         return (
-            <SafeAreaView style={{flex: 1}}>
+            <>
             <FlightsHeader header='Book1FillDetails' {...this.props}/>
             <View style={styles.background}></View>
             <View style={styles.flightListContainer}>
@@ -210,7 +210,6 @@ class FillDetails extends Component {
                 }}
                 renderItem={this.renderItemFlights}
                 />
-
             </View>  
             <ScrollView 
                 style={{
@@ -283,7 +282,7 @@ class FillDetails extends Component {
                     background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
                 /> 
             </ScrollView>   
-            </SafeAreaView>
+            </>
         );
     }
 }
@@ -313,7 +312,7 @@ const styles = StyleSheet.create({
   flightListContainer:{
     justifyContent:'center',
     position:'absolute',
-    top:90,
+    top:70,
     left:15
     // top:50
   },

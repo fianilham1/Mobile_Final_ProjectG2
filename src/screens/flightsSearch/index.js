@@ -116,6 +116,10 @@ class FlightsSearch extends Component {
             })
           }
         }
+      }else{
+        this.setState({
+          [`${typeFlight}Visible`]:false
+        })
       }
     }
 
@@ -127,13 +131,14 @@ class FlightsSearch extends Component {
 
     renderDatePicker = () => {
       const { departureDateVisible, departureDate, returnDateVisible, returnDate, minimumReturnDate } = this.state
-      // console.log('departureDateVisible ',departureDateVisible)
-      // console.log('returnDateVisible ',returnDateVisible)
+      console.log('departureDateVisible ',departureDateVisible)
+      console.log('returnDateVisible ',returnDateVisible)
       if (departureDateVisible) {
         return (
           <DateTimePicker
             testID="dateTimePicker"
             value={departureDate}
+            minimumDate={new Date()}
             mode='date'
             is24Hour={true}
             display="default"

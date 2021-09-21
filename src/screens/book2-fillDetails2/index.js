@@ -264,7 +264,7 @@ class FillDetails2 extends Component {
         const { isRoundTrip } = this.state
 
         return (
-            <SafeAreaView style={{flex: 1}}>
+            <>
             <FlightsHeader header='Book2FillDetails2' {...this.props}/>
             
             <ScrollView 
@@ -488,7 +488,7 @@ class FillDetails2 extends Component {
                     background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
                 /> 
             </ScrollView>   
-            </SafeAreaView>
+            </>
         );
     }
 }

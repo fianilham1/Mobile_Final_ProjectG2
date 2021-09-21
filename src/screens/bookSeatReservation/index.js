@@ -20,20 +20,28 @@ import { FlightsHeader } from '../../components';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { Button } from 'react-native-elements';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import Coba from './coba';
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
 const Tab = createMaterialTopTabNavigator();
 
-
-class ScreenFlight extends Component {
+class Flight extends Component {
     constructor(props) {
         super(props);
         this.state = {  }
     }
 
     renderChosenSeat = () => {
-        const { travelerDetailList,  screenPassengers, screenFlight, flight, typeFlight, title } = this.props
+        const { 
+            travelerDetailList,  
+            screenPassengers, 
+            screenFlight, 
+            flight, 
+            typeFlight, 
+            title, 
+            indexFlight, 
+            changeScreen } = this.props
         return (
         <View style={styles.chosenSeatContainer}>
             <View style={styles.chosenSeatRowContainer}> 
@@ -44,7 +52,7 @@ class ScreenFlight extends Component {
                     color={COLOR.main}
                     style={{left:-5}}
                 />
-                <Text style={styles.headerTitle}>{flight.airlineName+'   '}</Text>
+                <Text style={styles.headerTitle}>{flight.airlineName+' ('+flight.code+')  '}</Text>
                 <Text style={styles.miniText}>{flight.fromAirportCode}</Text>
                 <MaterialIcon
                     name="arrow-forward"  
@@ -56,10 +64,16 @@ class ScreenFlight extends Component {
            
             <View style={styles.chosenSeatRowContainer}>
                 {
-                     travelerDetailList.map((traveler,index) => {
+                     travelerDetailList.map((traveler,indexPassenger) => {
+                        const seatBoxIndex = [indexFlight+1,indexPassenger+1] //column,row
                         if(traveler.personClass !== 'infant') return (
-                            <View key={index}>
-                                <View style={styles.chosenSeatBox}>
+                            <View key={indexFlight+'-'+indexPassenger}>
+                                <TouchableOpacity 
+                                activeOpacity={0.7}
+                                onPress={() => {
+                                    changeScreen(seatBoxIndex[0],seatBoxIndex[1])
+                                }}
+                                style={styles.chosenSeatBox}>
                                     <View style={{
                                         backgroundColor:COLOR.secondary,
                                         flex:1,
@@ -71,9 +85,9 @@ class ScreenFlight extends Component {
                                     <View style={{flex:1}}>
                                         <Text>{traveler[typeFlight].seatNumber}</Text>
                                     </View>
-                                </View>
+                                </TouchableOpacity>
                                 {
-                                    indexFlight===screenFlight-1 && index===screenPassengers-1 ?
+                                    seatBoxIndex[0]===screenFlight && seatBoxIndex[1]===screenPassengers ?
                                     <View style={styles.activeChosenBox}>
                                         <Text style={styles.activeText}>Choose</Text>
                                     </View>
@@ -91,14 +105,19 @@ class ScreenFlight extends Component {
     }
 
     renderRowItem = ({item,index}) => {
-        const {  finishChoosingStatus, screenFlight, flightsListSeatDetail } = this.state
+        const { 
+            finishChoosingStatus, 
+            screenFlight,
+            screenPassengers, 
+            flightsListSeatDetail, 
+            chooseSeatHandler,
+            totalPassengersForFacilities,
+            navigation } = this.props
         let seatList = []
         try{
             seatList = flightsListSeatDetail[screenFlight-1][index]
-        }catch(e){
-
-        }
-      
+        }catch(e){}
+    
         return ( //column
         <View style={styles.flightSeatRow}> 
         {
@@ -119,8 +138,14 @@ class ScreenFlight extends Component {
                 onPress={() => {
                     console.log('finishChoosingStatus',finishChoosingStatus)
                     if(seatNumberType!=='sold' && !finishChoosingStatus){
-                        // console.log('type',seatNumberType)
-                        this.chooseSeatHandler(seatData.seatNumber,seatData.seatNumberType)
+                        chooseSeatHandler(seatData.seatNumber,seatData.seatNumberType)
+                        if(screenPassengers===totalPassengersForFacilities-1){
+                            const flightIdxNext = screenFlight+1
+                            setTimeout(() => {
+                                //go to next screen FLIGHT
+                                navigation.navigate('Flight'+flightIdxNext) 
+                            },1000)
+                        }
                     }
                 }}
                 background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
@@ -132,24 +157,40 @@ class ScreenFlight extends Component {
     }
 
     render() { 
-        return ( 
-            <>
-              {this.renderChosenSeat()}
-                <View style={styles.headerAirline}>
-                        <Text style={{color:'#fff',fontSize:20}}>{flightsChosen[screenFlight-1].airlineName}</Text>
-                        <Text style={{color:'#fff'}}> Seat Layout</Text>
+        const { seatRowGroup, flight } = this.props
+        try{
+
+            return ( 
+                <View style={styles.flightsScreen}>
+                  {this.renderChosenSeat()}
+                    <View style={styles.flightsSeatContainer}>
+                        <View style={styles.headerAirline}>
+                                <Text style={{
+                                    color:'#fff',
+                                    fontSize:20,
+                                    fontWeight:'bold'}}>{flight.airlineName}</Text>
+                                <Text style={{color:'#fff'}}> Seat Layout</Text>
+                        </View>
+                        <FlatList 
+                            style={{
+                                marginTop:10,
+                                flex:1}}
+                            // showsVerticalScrollIndicator={false}
+                            data={seatRowGroup}
+                            keyExtractor = {(item,index) => {
+                                return index;
+                            }}
+                            renderItem={this.renderRowItem}
+                        />
                     </View>
-                <FlatList 
-                    style={{marginTop:10,flex:3}}
-                    showsVerticalScrollIndicator={false}
-                    data={this.state.seatRowGroup}
-                    keyExtractor = {(item,index) => {
-                        return index;
-                    }}
-                    renderItem={this.renderRowItem}
-                />
-            </>
-         );
+                </View>
+             );
+                      
+        }catch(e){
+            console.log('error seat',e)
+            return null
+        }
+    
     }
 }
 
@@ -168,9 +209,6 @@ class BookSeatReservation extends Component {
             isRoundTrip:false,
             totalPassengersForFacilities:0,
             finishChoosingStatus:false,
-            greenZone:[],
-            regularZone:[],
-            sold:[],
             flightsListSeatDetail:[]
         }
     }
@@ -216,7 +254,6 @@ class BookSeatReservation extends Component {
     componentDidMount(){
         this.create2DArraySeat()
         const { flightsChosen, travelerDetailList } = this.props
-        console.log('flightsChosen in seat',flightsChosen)
         let totalPassengersForFacilities = 0
         travelerDetailList.map((data,index) => {
             if(data.personClass !== 'infant'){
@@ -231,6 +268,13 @@ class BookSeatReservation extends Component {
                 isRoundTrip:true,
             })
         }
+    }
+
+    changeScreen = (screenFlight,screenPassengers) => {
+        this.setState({
+            screenFlight,
+            screenPassengers
+        })
     }
 
     // renderChosenSeat = () => {
@@ -347,21 +391,12 @@ class BookSeatReservation extends Component {
                 this.props.navigation.goBack()
                 },1000)
             }else if(isRoundTrip && screenPassengers===totalPassengersForFacilities){
-                this.setState({
-                    // screenPassengers:1,
-                    greenZone : flightsChosen[1].seatGreenZone,
-                    regularZone : flightsChosen[1].seatRegularZone,
-                    sold : flightsChosen[1].seatSold
-                })
                 setTimeout(() => {
                     this.setState({
                         screenFlight: screenFlight+1, //change for return flight
                         screenPassengers:1,
                     })
                 },1000)
-                // this.setState({
-                //     screenFlight: screenFlight+1, //change for return flight
-                // })
             }
         }else if(screenFlight===2){ //roundtrip
             pricePerPassengers =  travelerDetailList[index].returnFlight.price
@@ -446,11 +481,14 @@ class BookSeatReservation extends Component {
     // }
 
     render() { 
-        const { totalPassengersForFacilities, screenFlight, screenPassengers } = this.state
-        const { flightsSearchInfo, flightsChosen } = this.props 
+        const { totalPassengersForFacilities, screenFlight, screenPassengers, finishChoosingStatus, flightsListSeatDetail, seatRowGroup } = this.state
+        const { flightsSearchInfo, flightsChosen, travelerDetailList } = this.props 
 
+        console.log('travelerDetailList ',travelerDetailList)
+        console.log('screen flight ',screenFlight)
+        console.log('screen passenger ',screenPassengers)
         return (
-            <SafeAreaView style={{flex: 1}}>
+            <>
             <FlightsHeader flightsSearchInfo={flightsSearchInfo} header='BookSeatReservation' {...this.props}/>
             <View style={styles.container}>
                 <Text style={styles.headerTitle}>Seat Layout </Text>
@@ -477,39 +515,67 @@ class BookSeatReservation extends Component {
                     <Text style={styles.miniText}>Not Available</Text>
                     </View>
                 </View>
-                <Text style={styles.mediumText}>{'Total Passengers (exclude infant) : '+totalPassengersForFacilities+' passengers'}</Text>
-                <FlatList 
-                    style={{marginTop:10,flex:3}}
-                    showsVerticalScrollIndicator={false}
-                    data={flightsChosen}
-                    keyExtractor = {(item,index) => {
-                        return index;
-                    }}
-                    renderItem={
-                        ({item,index}) => <ScreenFlight 
-                        screenPassengers = {screenPassengers} 
-                        screenFlight = {screenFlight}
-                        flight = {item} 
-                        typeFlight = {index===0 ? 'departureFlight' : 'returnFlight'} 
-                        title = {index===0 ? 'departure' : 'return'}
-                    />
-                    }
-                />
+                <Text style={styles.mediumText}>{'Total Passengers (exclude infant) : '+totalPassengersForFacilities+' passengers'}</Text>               
+                <Tab.Navigator
+                initialRouteName="Coba"
+                screenOptions={{
+                    tabBarLabelStyle: { 
+                        fontSize: 15,
+                        color:'white',
+                        bottom:5
+                    },
+                    tabBarStyle: { 
+                        backgroundColor: COLOR.main,
+                        height:40,
+                    },
+                    tabBarIndicatorStyle:{
+                        borderBottomColor:'white',
+                        borderBottomWidth: 2.5,
+                    },
+                    tabBarPressColor:'rgba(255,255,255,0.2)',
+                    headerShown: false,
+                }}
+                style={{
+                    height:'100%',
+                    width:'90%',
+                    marginTop:20,
+                }}
+                initialLayout={{width: Dimensions.get('window').width}} 
+                >
                 {
-
-                    flightsChosen.map((flight, flightIndex) => {
-                        return <ScreenFlight 
-                            key = {flightIndex}
-                            screenPassengers = {screenPassengers} 
-                            screenFlight = {screenFlight}
-                            flight = {flight} 
-                            typeFlight = {flightIndex===0 ? 'departureFlight' : 'returnFlight'} 
-                            title = {flightIndex===0 ? 'departure' : 'return'}
-                        />
-                    })
+                 flightsChosen.map((flight, index) => {
+                    const flightIdx = index + 1
+                    return (
+                    <Tab.Screen 
+                        key={index} 
+                        name={"Flight"+flightIdx} 
+                        options={{
+                            title:flight.fromAirportCode+' -> '+flight.toAirportCode
+                            }}
+                        children={(props) => 
+                            <Flight 
+                                screenPassengers = {screenPassengers} 
+                                screenFlight = {screenFlight}
+                                indexFlight = {index}
+                                flight = {flight} 
+                                typeFlight = {index===0 ? 'departureFlight' : 'returnFlight'} 
+                                title = {index===0 ? 'departure' : 'return'}
+                                finishChoosingStatus = {finishChoosingStatus}
+                                flightsListSeatDetail = {flightsListSeatDetail}
+                                travelerDetailList = {travelerDetailList}
+                                seatRowGroup = {seatRowGroup}
+                                chooseSeatHandler = {(seatNumber,seatNumberType) => this.chooseSeatHandler(seatNumber,seatNumberType)}
+                                changeScreen = {(type, value) => this.changeScreen(type, value)}
+                                totalPassengersForFacilities = {totalPassengersForFacilities} 
+                                {...props}
+                            />
+                    }/>
+                    )
+                })   
                 }
+                </Tab.Navigator>
             </View>
-            </SafeAreaView>
+            </>
         );
     }
 }
@@ -566,12 +632,31 @@ const styles = StyleSheet.create({
     fontWeight:'bold',
     fontSize:16
   },
-  flightSeatContainer:{
+  flightsScreen:{
+    justifyContent:'center',
+    alignItems:'center',
+    flex:1
+  },
+  headerAirline:{
+    width:200,
+    justifyContent:'center',
+    alignItems:'center',
+    flexDirection:'row',
+    top:-15,
+    position:'absolute',
+    zIndex:1,
+    backgroundColor:COLOR.main
+ },
+  flightsSeatContainer:{
     paddingHorizontal:10,
-    flexDirection:'column',
-    justifyContent:'flex-start',
-    alignContent:'flex-start',
-    marginTop:25,
+    paddingTop:10,
+    marginTop:20,
+    flex:1,
+    borderWidth:3,
+    borderColor:COLOR.main,
+    backgroundColor:'#fff',
+    justifyContent:'center',
+    alignItems:'center',
   },
   flightSeatRow:{
     flex:1,
@@ -583,14 +668,14 @@ const styles = StyleSheet.create({
     flexDirection:'column',
     // backgroundColor:'red',
     width:'100%',
-    paddingHorizontal:40,
-    marginTop:10
+    paddingHorizontal:10,
+    marginBottom:7
   },
   chosenSeatRowContainer:{
       flexDirection:'row',
       justifyContent:'center',
-      alignItems:'center',
-      marginTop:10
+      alignItems:'flex-start',
+      marginTop:10,
   },
   chosenSeatBox:{
       height:50,
@@ -600,7 +685,8 @@ const styles = StyleSheet.create({
       borderRadius:5,
       justifyContent:'center',
       alignItems:'center',
-      marginHorizontal:10
+      marginHorizontal:10,
+      zIndex:1
   },
   activeChosenBox:{
     height:60,
@@ -619,14 +705,6 @@ const styles = StyleSheet.create({
     left:-37,
     top:3
 },
-  headerAirline:{
-    backgroundColor:COLOR.main,
-    width:'80%',
-    justifyContent:'center',
-    alignItems:'flex-end',
-    flexDirection:'row',
-    marginTop:15
-}
   
   
 })

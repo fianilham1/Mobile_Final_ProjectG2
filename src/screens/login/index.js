@@ -19,7 +19,6 @@ import { Rectangle, TriangleCorner } from '../../components/shape';
 import { COLOR} from '../../constant/color';
 import { SocialIcon } from 'react-native-elements'
 import { SQLiteContext } from '../../config/sqlite';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { 
     AccessToken,

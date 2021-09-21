@@ -79,7 +79,7 @@ class SelectPayment extends Component {
     render() { 
         const { loggedUserProfile } = this.props
         return (
-            <SafeAreaView style={{flex: 1}}>
+            <>
             <FlightsHeader header='SelectPayment' {...this.props}/>
             <ScrollView 
                 style={{
@@ -129,7 +129,7 @@ class SelectPayment extends Component {
                     </TouchableOpacity>
                 </View>
             </ScrollView>   
-            </SafeAreaView>
+            </>
         );
     }
 }

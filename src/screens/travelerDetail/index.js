@@ -126,7 +126,7 @@ class TravelerDetail extends Component {
             birthDate,
             personClass} = this.state
         return (
-          <SafeAreaView style={{flex:1}}>
+          <>
             <FlightsHeader 
                 rightIcon='close' 
                 rightIconHandler={() => this.props.navigation.goBack()} 
@@ -227,7 +227,7 @@ class TravelerDetail extends Component {
                 /> 
 
             </View> 
-            </SafeAreaView>
+            </>
         );
     }
 }

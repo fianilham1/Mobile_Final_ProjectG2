@@ -14,7 +14,6 @@ import { loadingApi } from '../../reducers/actions/loading';
 import { InputApp, ButtonApp } from '../../components';
 import { COLOR } from '../../constant/color';
 import { Rectangle, TriangleCorner } from '../../components/shape';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import userApi from '../../api/user';
 import {ValidateRegexEmail, ValidateRegexPassword} from '../../util/method/regex'

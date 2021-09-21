@@ -180,7 +180,7 @@ class FlightsStackScreen extends Component {
   }
   render() { 
     return ( 
-      <SafeAreaView style={{flex:1}}>
+      <>
       <StatusBar translucent barStyle="light-content" backgroundColor={COLOR.main} />
       <FlightsStack.Navigator 
       initialRouteName="FlightsSearch"
@@ -207,7 +207,7 @@ class FlightsStackScreen extends Component {
         />
 
       </FlightsStack.Navigator>
-      </SafeAreaView>
+      </>
      );
   }
 }
@@ -219,7 +219,7 @@ class BookStackScreen extends Component {
   }
   render() { 
     return ( 
-      <View style={{flex:1}}>
+      <>
       <StatusBar translucent barStyle="light-content" backgroundColor={COLOR.main} />
       <BookStack.Navigator 
       initialRouteName="FlightsSearch"
@@ -245,7 +245,7 @@ class BookStackScreen extends Component {
             }} 
             children={(props) => <Book3Pay {...props} />}/>
       </BookStack.Navigator>
-      </View>
+      </>
      );
   }
 }
@@ -258,7 +258,7 @@ class BottomTabScreen extends Component {
   }
   render() { 
     return ( 
-      <SafeAreaView style={{flex:1,backgroundColor:'white'}}>
+      <>
       <BottomTab.Navigator 
       initialRouteName="Home"
       screenOptions={{
@@ -380,7 +380,7 @@ class BottomTabScreen extends Component {
           }}/>
 
       </BottomTab.Navigator>
-      </SafeAreaView>
+      </>
      );
   }
 }
@@ -540,6 +540,7 @@ class RootStackScreen extends Component {
     render() { 
         return ( 
         <NavigationContainer>
+          <SafeAreaView style={{flex:1}}>
           <RootStack.Navigator 
           initialRouteName="OnBoard"
           screenOptions={{
@@ -622,6 +623,7 @@ class RootStackScreen extends Component {
             }
   
           </RootStack.Navigator>
+          </SafeAreaView>
         </NavigationContainer>
          );
     }
