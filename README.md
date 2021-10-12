@@ -1,8 +1,29 @@
 # Note
 
-in register page, must upload photo that located in ./register-page
+1. First Run Web Server for Travelsay App:
+-> Open folder Final-Project1-Backend,
+   Open src/main/java/MainApplication.Java and Run,
+   Open src/main/java/BackEndMain.Java and Run,
+   Open src/main/java/BackEndPurchaseFlight.Java and Run,
 
-if not, photo will not be displayed in profile page of mahasiswa
+2. Second Run Web Server for Third Party => airline Backend :
+-> Open folder AirlineBackEnd,
+   Open src/main/java/AirlineBackEndApplication.Java and Run,
+
+3. Install node modules with command in cmd : npm install
+
+4. Connect laptop to mobile devices with usb/wifi OR using android simulator in laptop.
+
+5. Run first time to install apk in mobile devices/simulator with command in cmd : react-native run-android
+
+6. Run metro server with command in cmd : react-native start
+
+7. Open App in mobile devices/android simulator and Enjoy
+
+8. This App using 3 database which put in this root folder :
+    -> travelsayAppDB.sql
+    -> airlineDB.sql
+    -> bankDB.sql
 
 # Getting Started with Create React App
 
