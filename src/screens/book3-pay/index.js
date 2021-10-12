@@ -10,15 +10,21 @@ import {
     FlatList,
     ScrollView,
     Image,
-    Alert} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+    Alert,
+    BackHandler} from 'react-native';
 import { COLOR } from '../../constant/color';
-import {connect} from "react-redux";
+import { connect } from "react-redux";
 import { FlightsHeader } from '../../components';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
 import { ListItem, Button } from 'react-native-elements';
-import CountDown from 'react-native-countdown-component'
+import CountDown from 'react-native-countdown-component';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import addSeconds from 'date-fns/addSeconds';
+import { CommonActions } from '@react-navigation/native';
+import Clipboard from '@react-native-community/clipboard';
+import * as Animatable from 'react-native-animatable';
+import { selectPaymentMethod } from '../../reducers/actions/price';
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
@@ -42,11 +48,99 @@ class Book3Pay extends Component {
         super(props);
         this.state = { 
             expand:false,
+            timeInSecond:0,
+            showCopyToClipboard: false,
         }
     }
 
+    copyToClipboard = (String) => {
+        Clipboard.setString(String);
+        this.setState({
+            showCopyToClipboard:true
+        })
+        setTimeout(() => {
+            this.setState({
+                showCopyToClipboard:false,
+            })
+        },1000)
+      };
+
+    reset = () => {
+        this.props.navigation.dispatch(
+            CommonActions.reset(
+                {
+                    index:0,
+                    routes:[
+                        {name:'BottomTabScreen'}
+                    ]
+                }
+            )
+        )
+    }
+
+    backAction = async () => {
+        Alert.alert("Alert!", "Back To Home?", [
+          {
+            text: "Cancel",
+            onPress: () => null,
+            style: "cancel"
+          },
+          { text: "YES", onPress: () => {
+            console.log('yes back')
+            this.reset()
+            } 
+          }
+        ]);
+        return true;
+      };
+
     componentDidMount(){
-     
+        this.backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            this.backAction
+          );
+        this.props.selectPaymentMethod('') //reset payment method
+    }
+
+    checkPayment = async () => { 
+        try{
+            let res = await fetch(flightsApi+'/checkPayment',{
+                method: 'GET',
+                mode:'no-cors',
+                headers:{
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: this.props.token
+                },
+            })
+            let json = await res.json()
+            if(json){
+                
+                //STATUS PAYMENT -------------------------------->>>>>>>>>>>>
+                if(json.errorMessage==='No Payment'){
+                    return console.log('No Payment >>>')
+                }
+
+                console.log('success response: ',json)
+            }
+        }catch(error){
+            console.log('error: ',error)
+        }
+    }
+
+    componentWillUnmount(){
+        const { loggedUserProfile } = this.props
+        this.storeData('@timer-'+loggedUserProfile.username,new Date())
+        this.backHandler.remove();
+    }
+
+    storeData = async (key,value) => {
+        try {
+          const jsonValue = JSON.stringify(value)
+          await AsyncStorage.setItem(key, jsonValue)
+        } catch (e) {
+            console.log('error storing value async storage')
+        }
     }
 
     expandHandler = () => {
@@ -116,17 +210,17 @@ class Book3Pay extends Component {
                   </View>
                 </View>
 
-                <View style={{flexDirection:'row',marginBottom:-25, bottom:20}}>
-                  <MaterialIcon 
+                <View style={styles.logoFlight}>
+                    <MaterialIcon 
                       name='flight'
                       size={35}
                       color={COLOR.lightblue}
                       style={{
                           transform: [ {rotate:'45deg'} ]
                       }}
-                      />
-                  </View>
-              
+                    />
+                    <Text>{item.airlineName}</Text>
+                </View>
               </View>
             </ListItem>
         );
@@ -155,18 +249,20 @@ class Book3Pay extends Component {
     }
 
     render() {
-        const { flightsSearchInfo, loggedUserProfile, travelerDetailList, flightsChosen, price, thirdPartyPaymentList } = this.props     
+        const { flightsSearchInfo, loggedUserProfile, travelerDetailList, flightsChosen, price, thirdPartyPaymentList } = this.props   
         const { passengers } = flightsSearchInfo
         const index = thirdPartyPaymentList.findIndex(item => item.name === price.paymentMethod.name);
         const va = thirdPartyPaymentList[index]?.virtualAccountNumber ? thirdPartyPaymentList[index]?.virtualAccountNumber : '123456789' 
+        const { showCopyToClipboard } = this.state
 
         return (
-            <SafeAreaView style={{flex: 1}}>
+            <>
             <FlightsHeader header='Book3Pay' {...this.props}/>
             <View style={styles.background}></View>
             <View style={styles.flightListContainer}>
                 <Text style={{color:'#fff'}}>Tab to See The Product's Detail</Text>
                 <FlatList 
+                contentContainerStyle={{paddingRight: 20}}
                 showsHorizontalScrollIndicator={false}
                 horizontal
                 data={flightsChosen}
@@ -182,15 +278,28 @@ class Book3Pay extends Component {
                     flex:1}}
                 showsVerticalScrollIndicator={false}>
                 <View style={styles.timerContainer}>
-                <Text style={styles.headerTitle}>Please Pay Within Time Limit</Text>
-                <CountDown 
-                    until={60*4}
-                    onFinish={() => {}}
-                    size={20}
-                    style={{
-                        marginTop:15
-                    }}
-                />
+                    <View style={styles.timer}>
+                        <Text style={[styles.text,{color:'red'}]}>Please Pay Within Time Limit</Text>
+                        <CountDown 
+                            until={price.paymentDurationLimit}
+                            onFinish={() => {}}
+                            size={20}
+                            digitStyle={{
+                                backgroundColor:COLOR.main
+                              }}
+                              digitTxtStyle={{
+                                color:"#fff"
+                              }}
+                            style={{
+                                marginTop:15
+                            }}
+                            onChange={(timeInSecond) => {
+                                this.setState({
+                                    timeInSecond
+                                })
+                            }}
+                        />
+                    </View>
                 </View>
               
                 <View style={styles.paymentContainer}>
@@ -226,7 +335,27 @@ class Book3Pay extends Component {
                     {
                         price.paymentMethod ?
                         <View style={styles.payment}>
-                            <Text>{'Virtual Account Number : '+va}</Text>
+                            <View>
+                                <Text>{'Virtual Account Number : '}</Text>
+                                <Text selectable={true}>{va}</Text>
+                            </View>
+                            <TouchableOpacity
+                            style={{
+                                backgroundColor:COLOR.main,
+                                width:40,
+                                height:40,
+                                borderRadius:10,
+                                justifyContent:'center',
+                                alignItems:'center'
+                            }}
+                            activeOpacity={0.8}
+                            onPress={() => this.copyToClipboard(va)}>
+                            <FontAwesomeIcon 
+                                name='clipboard'
+                                size={22}
+                                color='#fff'
+                             />
+                            </TouchableOpacity>
                         </View>
                         :
                         null
@@ -292,20 +421,52 @@ class Book3Pay extends Component {
                     <Text style={{fontSize:19, fontWeight:'bold'}}>{'Rp '+price.totalPrice}</Text>
                     </View>
                     <View style={styles.priceSubDetailContainer}>
-                            {
+                    {
                                 flightsChosen.map((flight,indexFlight) => {
+                                    let totalGreenZone = 0
                                     return (
                                         Object.keys(passengers).map((key,index)=> {
                                             if (passengers[key]!==0) return (
                                                 <View key={indexFlight+'-'+index} 
                                                 style={styles.priceSubDetail}>
-                                                     <Text>{flight.airlineName+' ('+this.setFirstLetterToUppercase(key)+') x'+passengers[key]}</Text>
-                                                     <Text>{'Rp '+this.getPriceBasedPersonClass(
+                                                     <Text style={{width:140}}>
+                                                         {flight.airlineName+' ('+this.setFirstLetterToUppercase(key)+') x'+passengers[key]}
+                                                    </Text>
+                                                    {
+                                                         travelerDetailList.map((passengerData, index) => {
+                                                            //departure
+                                                            if(indexFlight===0 && passengerData.personClass===key &&
+                                                            passengerData.departureFlight.seatNumberType==='greenZone'){
+                                                                totalGreenZone++
+                                                            //return
+                                                            }else if(indexFlight===1 && passengerData.personClass===key &&
+                                                            passengerData.returnFlight.seatNumberType==='greenZone'){
+                                                                totalGreenZone++
+                                                            }
+                                                         })
+                                                     }
+                                                     {
+                                                        totalGreenZone > 0 ? 
+                                                        <View style={styles.greenZoneShowIcon}>
+                                                        <MaterialIcon 
+                                                        name='airline-seat-recline-normal'
+                                                        size={15}
+                                                        color={COLOR.green}
+                                                        style={{marginHorizontal:5}}
+                                                        />
+                                                        <Text>{totalGreenZone}</Text>
+                                                        </View>
+                                                        :
+                                                        null
+                                                     }
+                                                     <Text>
+                                                         {'Rp '+this.getPriceBasedPersonClass(
                                                          indexFlight,
                                                          travelerDetailList, //list all passengers
                                                          key, //person class
                                                          passengers[key] //amount of person class
-                                                     )}</Text>
+                                                        )}
+                                                     </Text>
                                                 </View>
                                             )
                                         })
@@ -326,7 +487,7 @@ class Book3Pay extends Component {
                             <Text></Text>
                         </View>
                 </View>
-                {/* <Button
+                <Button
                     title="Go To Booking List"
                     containerStyle={{
                         marginHorizontal:50,
@@ -338,12 +499,44 @@ class Book3Pay extends Component {
                         height:50
                     }}
                     onPress={() => {
-                        this.props.navigation.navigate('BookingList')
+                        this.reset()
                     }}
                     background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
-                />  */}
-            </ScrollView>   
-            </SafeAreaView>
+                />
+            </ScrollView>  
+            {
+                showCopyToClipboard ?
+                <Animatable.View
+                animation='fadeInDown'
+                duration={500}
+                style={{
+                    width:250,
+                    height:50,
+                    backgroundColor:'rgba(0,0,0,0.7)',
+                    position:'absolute',
+                    justifyContent:'space-around',
+                    alignItems:'center',
+                    flexDirection:'row',
+                    bottom:40,
+                    marginLeft:-125,
+                    left:'50%',
+                    opacity:0.5,
+                    // elevation:5
+                }}>
+                     <FontAwesomeIcon 
+                        name='copy'
+                        size={27}
+                        color='#fff'
+                   />
+                    <Text style={{
+                        fontSize:15,
+                        color:'#fff'
+                    }}>VA Num copied to Clipboard</Text>
+                </Animatable.View> 
+                :
+                null
+            } 
+            </>
         );
     }
 }
@@ -357,8 +550,11 @@ const mapStateToProps = state => ({
     thirdPartyPaymentList: state.payment.thirdPartyPaymentList
 })
 
+const mapDispatchToProps = dispatch => ({
+    selectPaymentMethod: data => dispatch(selectPaymentMethod(data)),
+})
  
-export default connect(mapStateToProps)(Book3Pay);
+export default connect(mapStateToProps, mapDispatchToProps)(Book3Pay);
 
 const styles = StyleSheet.create({
     background:{
@@ -366,14 +562,13 @@ const styles = StyleSheet.create({
         width:'100%',
         borderBottomLeftRadius:10,
         borderBottomRightRadius:10,
-        backgroundColor:COLOR.main
+        backgroundColor:COLOR.main,
       },
   flightListContainer:{
     justifyContent:'center',
     position:'absolute',
-    top:90,
+    top:70,
     left:15
-    // top:50
   },
   flightListBox:{
     width:WIDTH*0.9,
@@ -430,11 +625,16 @@ const styles = StyleSheet.create({
     color:'gray',
     fontSize:12,
   },
-
   flightInfoRight:{
     marginRight:15,
     marginTop:-20,
     marginBottom:25,
+  },
+  logoFlight:{
+      flexDirection:'row',
+      marginBottom:-25, 
+      bottom:20,
+      alignItems:'center'
   },
   priceBox:{
     flexDirection:'row'
@@ -450,16 +650,6 @@ const styles = StyleSheet.create({
   pointsText:{
     color:'gray',
     marginTop:10
-  },
-  buttonBox:{
-    width:110,
-    height:40,
-    backgroundColor:COLOR.main,
-    justifyContent:'center',
-    alignItems:'center',
-    elevation:5,
-    flexDirection:'row',
-    left:140
   },
   detailBox:{
     width:110,
@@ -485,11 +675,18 @@ const styles = StyleSheet.create({
     flexDirection:'column',
     justifyContent:'flex-start',
     alignContent:'flex-start',
-    marginTop:25
+    marginTop:25,
   },
   timerContainer:{
     justifyContent:'center',
-    alignContent:'center',
+    paddingHorizontal:10,
+    marginTop:20
+  },
+  timer:{
+    backgroundColor:'#fff',
+    justifyContent:'center',
+    alignItems:'center',
+    elevation:5
   },
   payment:{
       backgroundColor:'#fff',
@@ -500,7 +697,8 @@ const styles = StyleSheet.create({
       width:'100%',
       paddingVertical:10,
       paddingHorizontal:15,
-      borderRadius:5
+      borderRadius:5,
+      elevation:5
   },
 
   text:{
@@ -511,7 +709,6 @@ const styles = StyleSheet.create({
     color:'gray',
     marginRight:10
   },
-
 
   addtionalContainer:{
     paddingHorizontal:10,
@@ -530,7 +727,8 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     borderRadius:5,
-    marginBottom:10
+    marginBottom:10,
+    elevation:5
   },
 
   flightDetailContainer:{
@@ -572,6 +770,12 @@ priceSubDetail:{
     alignItems:'center',
     backgroundColor:'#fff',
     paddingTop:5
+},
+greenZoneShowIcon:{
+    flexDirection:'row',
+    justifyContent:'center',
+    alignItems:'center',
+    marginLeft:-55
 }
   
 })

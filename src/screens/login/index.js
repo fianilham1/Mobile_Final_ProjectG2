@@ -229,7 +229,7 @@ class Login extends Component{
                           tokenType:'username-password'
                         }
                     )
-                },800)
+                },1000)
                 this.animatedButton()
                 this.setState({
                     loginStatus:true

@@ -22,8 +22,9 @@ public class BackEndMain {
 
          //Flight
          DBReceiveFlight.findFlight();
-         DBReceiveFlight.purchaseFlight();
-//         DBReceiveFlight.proceedPay();
+         DBReceiveFlight.pay();
+         DBReceiveFlight.checkPayment();
+         DBReceiveFlight.bookingList();
 
     }
 }

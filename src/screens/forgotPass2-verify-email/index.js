@@ -19,7 +19,6 @@ import { SQLiteContext } from '../../config/sqlite';
 import CodeInput from 'react-native-confirmation-code-input';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import userApi from '../../api/user';
 
 const WIDTH = Dimensions.get('window').width
@@ -89,7 +88,7 @@ class VerifyEmail extends Component{
     render(){
         const {navigation} = this.props
         return(
-            <SafeAreaView style={{flex:1, backgroundColor:COLOR.main}}>
+            <View style={{flex:1}}>
             <Spinner //LOADING FORGOT PASS API 
                 visible={this.state.forgotPassLoading}
                 textContent={'Loading...'}
@@ -199,7 +198,7 @@ class VerifyEmail extends Component{
                
                 </View>               
             </ScrollView>
-            </SafeAreaView>
+            </View>
         )
     }
 }

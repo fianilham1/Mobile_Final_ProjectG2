@@ -7,14 +7,13 @@ import {
     TouchableOpacity,
     TouchableNativeFeedback,
     Dimensions,
-    FlatList,
     ScrollView,
     Image,
     Alert} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLOR } from '../../constant/color';
 import { connect } from "react-redux";
 import { loadingApi } from '../../reducers/actions/loading';
+import { purchaseDetail } from '../../reducers/actions/purchase';
 import flightsApi from '../../api/flights';
 import { paymentMethodList } from '../../reducers/actions/payment';
 import { priceBooking, addInsurances } from '../../reducers/actions/price';
@@ -50,6 +49,20 @@ class FillDetails2 extends Component {
             expand:false,
             isRoundTrip:false
         }
+    }
+
+    getDateFormat = () => {
+        const currentDate = new Date()
+        // 2021-10-03T06:00:00
+        let month = currentDate.getMonth()+1
+        let day = currentDate.getDay()
+        if(month<10){
+            month = '0' + month
+        }
+        if(day<10){
+            day = '0' + day
+        }
+        return currentDate.getFullYear()+'-'+month+'-'+day+'T'+currentDate.getHours()+':'+currentDate.getMinutes()+':'+currentDate.getSeconds()
     }
 
     confirmBooking = () => {
@@ -164,11 +177,12 @@ class FillDetails2 extends Component {
             }
         },
         statusPayment: "Waiting Payment",
-        virtualAccountOfPayment: ""
+        virtualAccountOfPayment: "",
+        dateBooking:this.getDateFormat()
     }
     console.log('CHECK PRUCHASE ???? ',purchaseDetail)
     this.sendFlightsDetails(purchaseDetail)
-        // this.props.navigation.navigate('Book3Pay')
+    // this.props.storePurchaseDetail(purchaseDetail)// store to redux
     }
 
     sendFlightsDetails = async (purchaseDetail) => {
@@ -176,7 +190,7 @@ class FillDetails2 extends Component {
         this.props.loadingApi({
             status:true, 
             text:'Please Wait... We Are Processing Your Booking',
-            textStyle:{color:'#fff',fontSize:15}
+            textStyle:{fontSize:12, marginTop:10}
         })
         try{
             let res = await fetch(flightsApi+'/details',{
@@ -276,7 +290,9 @@ class FillDetails2 extends Component {
                     <Text style={styles.headerDetailTitle}>Flight Facilities </Text>
                     <TouchableOpacity 
                           activeOpacity={0.7}
-                          onPress={() => {}}
+                          onPress={() => {
+                              this.props.navigation.navigate('BookBaggageReservation')
+                          }}
                           style={styles.detail}>
                             <View>
                                 <MaterialIcon 
@@ -417,18 +433,50 @@ class FillDetails2 extends Component {
                     <View style={styles.priceSubDetailContainer}>
                             {
                                 flightsChosen.map((flight,indexFlight) => {
+                                    let totalGreenZone = 0
                                     return (
                                         Object.keys(passengers).map((key,index)=> {
                                             if (passengers[key]!==0) return (
                                                 <View key={indexFlight+'-'+index} 
                                                 style={styles.priceSubDetail}>
-                                                     <Text>{flight.airlineName+' ('+this.setFirstLetterToUppercase(key)+') x'+passengers[key]}</Text>
-                                                     <Text>{'Rp '+this.getPriceBasedPersonClass(
+                                                     <Text style={{width:140}}>
+                                                         {flight.airlineName+' ('+this.setFirstLetterToUppercase(key)+') x'+passengers[key]}
+                                                    </Text>
+                                                    {
+                                                         travelerDetailList.map((passengerData, index) => {
+                                                            //departure
+                                                            if(indexFlight===0 && passengerData.personClass===key &&
+                                                            passengerData.departureFlight.seatNumberType==='greenZone'){
+                                                                totalGreenZone++
+                                                            //return
+                                                            }else if(indexFlight===1 && passengerData.personClass===key &&
+                                                            passengerData.returnFlight.seatNumberType==='greenZone'){
+                                                                totalGreenZone++
+                                                            }
+                                                         })
+                                                     }
+                                                     {
+                                                        totalGreenZone > 0 ? 
+                                                        <View style={styles.greenZoneShowIcon}>
+                                                        <MaterialIcon 
+                                                        name='airline-seat-recline-normal'
+                                                        size={15}
+                                                        color={COLOR.green}
+                                                        style={{marginHorizontal:5}}
+                                                        />
+                                                        <Text>{totalGreenZone}</Text>
+                                                        </View>
+                                                        :
+                                                        null
+                                                     }
+                                                     <Text>
+                                                         {'Rp '+this.getPriceBasedPersonClass(
                                                          indexFlight,
                                                          travelerDetailList, //list all passengers
                                                          key, //person class
                                                          passengers[key] //amount of person class
-                                                     )}</Text>
+                                                        )}
+                                                     </Text>
                                                 </View>
                                             )
                                         })
@@ -481,6 +529,7 @@ class FillDetails2 extends Component {
                                 style: "cancel"
                               },
                               { text: "Yes, Continue", onPress: () => this.confirmBooking() }
+                            // { text: "Yes, Continue", onPress: () =>  this.props.navigation.navigate('Book3Pay') }
                             ]
                           );
                         
@@ -506,6 +555,7 @@ const mapDispatchToProps = dispatch => ({
     storePriceBooking: data => dispatch(priceBooking(data)),
     addInsurances: data => dispatch(addInsurances(data)),
     storePaymentMethodList : data => dispatch(paymentMethodList(data)),
+    storePurchaseDetail: data => dispatch(purchaseDetail(data)),
     loadingApi: data => dispatch(loadingApi(data)),
   })
  
@@ -615,6 +665,12 @@ const styles = StyleSheet.create({
         alignItems:'center',
         backgroundColor:'#fff',
         paddingTop:5
+    },
+    greenZoneShowIcon:{
+        flexDirection:'row',
+        justifyContent:'center',
+        alignItems:'center',
+        marginLeft:-55
     }
   
 })

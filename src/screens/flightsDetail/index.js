@@ -282,7 +282,8 @@ const styles = StyleSheet.create({
       detailContainer:{
           flexDirection:'row',
           justifyContent:'center',
-          alignItems:'center'
+          alignItems:'center',
+          backgroundColor:'#fff'
       },
       detailColumnLeft:{
           flex:1,

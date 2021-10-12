@@ -57,7 +57,7 @@ export default ForgotPassHeader;
 const styles = StyleSheet.create({
     header: {
         paddingBottom:20,
-        paddingTop:45,
+        paddingTop:10,
         paddingHorizontal: 20,
         flexDirection: 'row',
         justifyContent: 'flex-start',

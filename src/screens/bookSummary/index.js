@@ -141,14 +141,23 @@ class BookSummary extends Component {
             </ListItem>
         );
       }
+    
+      getPriceBasedPersonClass = (price,personClass) => {
+        if (personClass==='adult') return price
+        if (personClass==='child') return price*0.8
+        if (personClass==='infant') return price*0.1
+      }
 
     render() { 
         const { flightsSearchInfo } = this.props
         const { flightChosen } = this.props.route.params
         let totalPrice = 0
         flightChosen.map((flight,index) => {
-          totalPrice += flight.price
+          Object.keys(flightsSearchInfo.passengers).map((key,index) => {
+            totalPrice += this.getPriceBasedPersonClass(flight.price,key)*flightsSearchInfo.passengers[key]
+          })
         })
+
         return (
             <>
              <FlightsHeader flightsSearchInfo={flightsSearchInfo} header='BookSummary' {...this.props}/>

@@ -6,6 +6,7 @@ import flightsChosenReducer from './reducers/flightsChosenReducers';
 import travelerReducer from './reducers/travelerReducers';
 import priceBookingReducer from './reducers/priceReducers';
 import paymentMethodListReducer from './reducers/paymentMethodListReducers';
+import purchaseDetailReducer from './reducers/purchaseDetailReducers';
 import loadingApiReducer from './reducers/loadingApiReducers';
 
 const rootReducer = combineReducers(
@@ -16,6 +17,7 @@ const rootReducer = combineReducers(
     traveler: travelerReducer,
     price: priceBookingReducer,
     payment: paymentMethodListReducer,
+    purchaseDetail: purchaseDetailReducer,
     loading: loadingApiReducer
     }
 );

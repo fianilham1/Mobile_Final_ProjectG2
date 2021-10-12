@@ -13,7 +13,21 @@ class InputApp extends Component {
         this.state = {  }
     }
     render() {
-        const {state, label, name, setFocus, setValue, icon, valid, regex, visible, visibleToggle, color, errorMessage} = this.props
+        const {
+            state, 
+            label, 
+            name, 
+            setFocus, 
+            setValue, 
+            icon, 
+            valid, 
+            regex, 
+            visible, 
+            visibleToggle, 
+            color, 
+            errorMessage, 
+            keyboardType
+        } = this.props
 
         return (
             <View style={{
@@ -101,6 +115,7 @@ class InputApp extends Component {
                     style={{
                         paddingHorizontal:2
                     }}
+                    keyboardType={keyboardType ? keyboardType : 'default'}
                 />
         
             </View>

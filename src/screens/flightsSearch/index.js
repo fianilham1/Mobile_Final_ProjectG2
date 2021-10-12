@@ -370,9 +370,9 @@ class FlightsSearch extends Component {
                 <TouchableOpacity style={styles.button} activeOpacity={0.8}>
                   <Text>One-Way / Round-Trip</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.button,{backgroundColor:COLOR.main}]} activeOpacity={0.8}>
+                {/* <TouchableOpacity style={[styles.button,{backgroundColor:COLOR.main}]} activeOpacity={0.8}>
                   <Text style={{color:'#fff'}}>MultiTrip</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
               <View style={styles.flightsContainer}>
               <View style={styles.flightRow}>
@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     justifyContent:'center',
     alignItems:'center',
-    marginRight:110
+    marginRight:192
   },
   flightsContainer:{
     width:WIDTH*0.95,

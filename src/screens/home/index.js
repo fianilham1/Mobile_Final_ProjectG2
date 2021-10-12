@@ -16,7 +16,7 @@ import {
   } from 'react-native';
 
   import {connect} from "react-redux";
-  import Icon from 'react-native-vector-icons/MaterialIcons';
+  import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
   import { COLOR } from '../../constant/color';
   import { FLIGHTNOTE } from '../../constant/flightsNote';
 
@@ -24,85 +24,32 @@ import {
   const WIDTH = Dimensions.get('window').width;
 
   const categoryIcons = [
-    <Icon 
+    {
+      label: 'Book Flights',
+      handlerScreen: 'FlightsStackScreen',
+      color: COLOR.lightblue,
+      icon: <MaterialIcon 
       name="flight" 
       size={40} 
       color={COLOR.lightblue}
       style={{
         transform:[ {rotate:'45deg'} ]
       }} />
+    }
     ,
-    <Icon name="beach-access" size={30} color={COLOR.main} />,
-    <Icon name="near-me" size={30} color={COLOR.main} />,
-    <Icon name="place" size={30} color={COLOR.main} />,
+    {
+      label: 'Pay Booking',
+      handlerScreen: 'MobileBankingDummy',
+      color: COLOR.orange,
+      icon: <MaterialIcon 
+      name='payments'
+      size={40}
+      color={COLOR.orange} />
+    }
   ]
 
-  class RecommendedCard extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {  }
-    }
-    render() { 
-        const {place} = this.props
-        return ( 
-          <ImageBackground style={styles.rmCardImage} source={place.image}>
-          <Text
-            style={{
-              color: 'white',
-              fontSize: 22,
-              fontWeight: 'bold',
-              marginTop: 10,
-            }}>
-            {place.name}
-          </Text>
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'space-between',
-              alignItems: 'flex-end',
-            }}>
-            <View style={{width: '100%', flexDirection: 'row', marginTop: 10}}>
-              <View style={{flexDirection: 'row'}}>
-                <Icon name="place" size={22} color='white' />
-                <Text style={{color: 'white', marginLeft: 5}}>
-                  {place.location}
-                </Text>
-              </View>
-              <View style={{flexDirection: 'row'}}>
-                <Icon name="star" size={22} color='white' />
-                <Text style={{color: 'white', marginLeft: 5}}>5.0</Text>
-              </View>
-            </View>
-            <Text style={{color: 'white', fontSize: 13}}>
-              {place.details}
-            </Text>
-          </View>
-        </ImageBackground>
-         );
-    }
-}
 
-
-class ListCategories extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {  }
-    }
-    render() { 
-        return ( 
-            <View style={styles.categoryContainer}>
-            {categoryIcons.map((icon, index) => (
-              <TouchableOpacity 
-              onPress={() => this.props.navigation.navigate('FlightsStackScreen')}
-              key={index} style={styles.iconContainer}>
-                {icon}
-              </TouchableOpacity>
-            ))}
-          </View>
-         );
-    }
-}
-
+  
 class Card extends Component {
     constructor(props) {
         super(props);
@@ -149,15 +96,14 @@ class Home extends Component {
         const { navigation, token, loggedUserProfile } = this.props
         console.log('token in home: ',token)
         return (  
-            <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
-            <StatusBar translucent barStyle="dark-content" backgroundColor='#fff' />
+            <View style={{flex: 1}}>
             <View
             style={styles.header}>
                 <Image 
                     source={{uri:loggedUserProfile?.image }}
                     style={styles.userImage}
                 />
-              <Icon name="notifications-none" size={28} color={COLOR.main} />
+              <MaterialIcon name="notifications-none" size={28} color='#fff' />
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               <View
@@ -171,12 +117,19 @@ class Home extends Component {
               </View>
               {/* <ListCategories {...this.props}/> */}
               <View style={styles.categoryContainer}>
-                <TouchableOpacity 
-                  onPress={() => this.props.navigation.navigate('FlightsStackScreen')}
-                  style={styles.iconContainer}>
-                  {categoryIcons[0]}
-                  <Text  style={styles.iconText}>Booking Flights Now !</Text>
-                </TouchableOpacity>
+                {
+                  categoryIcons.map((category, index) => {
+                    return(
+                      <TouchableOpacity 
+                      key={index}
+                      onPress={() => this.props.navigation.navigate(category.handlerScreen)}
+                      style={styles.iconContainer}>
+                      {category.icon}
+                      <Text  style={[styles.iconText,{color:category.color}]}>{category.label}</Text>
+                    </TouchableOpacity>
+                    )
+                  })
+                }
               </View>
               <Text style={styles.sectionTitle}>Ongoing Promos</Text>
               <View>
@@ -190,7 +143,7 @@ class Home extends Component {
                
               </View>
             </ScrollView>
-          </SafeAreaView>
+          </View>
         );
     }
 }
@@ -209,15 +162,15 @@ const styles = StyleSheet.create({
       paddingHorizontal: 20,
       flexDirection: 'row',
       justifyContent: 'space-between',
-      backgroundColor: 'white',
+      backgroundColor: COLOR.main,
     },
     headerHome:{
       height: 140,
       paddingHorizontal: 20,
       paddingTop:20,
       backgroundColor:COLOR.main,
-      borderTopLeftRadius:15,
-      borderTopRightRadius:15,
+      borderBottomLeftRadius:15,
+      borderBottomRightRadius:15,
     },
     headerImage:{
       resizeMode: 'cover',
@@ -249,19 +202,17 @@ const styles = StyleSheet.create({
       marginTop: 20,
       marginHorizontal: 10,
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'center',
     },
     iconContainer: {
       height: 60,
-      width: WIDTH,
-      flexDirection:'row',
+      width: 100,
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 10,
     },
     iconText:{
-      fontSize:16,
-      color:COLOR.lightblue,
+      fontSize:14,
     },
     sectionTitle: {
       marginHorizontal: 20,

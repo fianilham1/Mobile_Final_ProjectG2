@@ -1,15 +1,18 @@
 package main.java.backend.service;
 
-import main.java.backend.model.FlightRequest;
-import main.java.backend.model.PurchaseFlight;
+import main.java.backend.model.*;
 
 import java.util.List;
 
 public interface FlightRepository {
-    public String findFlight(FlightRequest flightRequest) throws Exception;
-    public int purchaseFlight(PurchaseFlight purchaseFlight) throws Exception;
-    public void acceptPaymentAndUpdateStatus(String virtualAcc, int purchaseId) throws Exception;
-    public void cancelPayment(int purchaseId) throws Exception;
-    public void updateAirlineDB(int purchaseId) throws Exception;
-
+    String findFlight(FlightRequest flightRequest) throws Exception;
+    int purchaseFlight(PurchaseFlight purchaseFlight) throws Exception;
+    void acceptPaymentAndUpdateStatus(int purchaseId) throws Exception;
+    void cancelPayment(int purchaseId) throws Exception;
+    void updateAirlineDB(int purchaseId) throws Exception;
+    String setVaList(PurchasePayment purchasePayment) throws Exception;
+    String checkPayment(int id) throws Exception;
+    String pay(PaymentSent paymentSent, PaymentReq paymentReq) throws Exception;
+    PaymentReq getPaymentRequirement(int id) throws Exception;
+    List<PurchaseFlight> getBookingList(String username) throws Exception;
 }

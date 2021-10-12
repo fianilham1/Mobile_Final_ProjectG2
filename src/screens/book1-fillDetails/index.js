@@ -174,7 +174,7 @@ class FillDetails extends Component {
                   </View>
                 </View>
 
-                <View style={{flexDirection:'row',alignItems:'center',marginBottom:-25, bottom:20}}>
+                <View style={styles.logoFlight}>
                   <MaterialIcon 
                       name='flight'
                       size={35}
@@ -182,8 +182,8 @@ class FillDetails extends Component {
                       style={{
                           transform: [ {rotate:'45deg'} ]
                       }}
-                      />
-                      <Text>{item.airlineName}</Text>
+                    />
+                    <Text>{item.airlineName}</Text>
                   </View>
               
               </View>
@@ -201,7 +201,7 @@ class FillDetails extends Component {
             <View style={styles.flightListContainer}>
                 <Text style={{color:'#fff'}}>Tab to See The Product's Detail</Text>
                 <FlatList 
-                 contentContainerStyle={{paddingRight: 20}}
+                contentContainerStyle={{paddingRight: 20}}
                 showsHorizontalScrollIndicator={false}
                 horizontal
                 data={flightsChosen}
@@ -247,7 +247,7 @@ class FillDetails extends Component {
                           })}
                           key={index} style={styles.travelerDetail}>
                             <MaterialIcon 
-                            name='person'
+                            name='person-outline'
                             size={35}
                             color='gray'
                             style={{marginRight:15}}
@@ -314,7 +314,6 @@ const styles = StyleSheet.create({
     position:'absolute',
     top:70,
     left:15
-    // top:50
   },
   flightListBox:{
     width:WIDTH*0.9,
@@ -371,11 +370,16 @@ const styles = StyleSheet.create({
     color:'gray',
     fontSize:12,
   },
-
   flightInfoRight:{
     marginRight:15,
     marginTop:-20,
     marginBottom:25,
+  },
+  logoFlight:{
+    flexDirection:'row',
+    marginBottom:-25, 
+    bottom:20,
+    alignItems:'center'
   },
   priceBox:{
     flexDirection:'row'

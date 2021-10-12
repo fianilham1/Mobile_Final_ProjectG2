@@ -1,12 +1,21 @@
 package main.java.backend.model;
 
 public class FlightPassengersDetails {
+    private int passengersId;
     private String name;
     private String birthDate;
     private String nationality;
     private String personClass;
     private FlightPassengersDetailsFacilities departureDetails;
     private FlightPassengersDetailsFacilities returnDetails;
+
+    public int getPassengersId() {
+        return passengersId;
+    }
+
+    public void setPassengersId(int passengersId) {
+        this.passengersId = passengersId;
+    }
 
     public String getName() {
         return name;

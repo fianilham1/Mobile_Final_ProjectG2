@@ -18,7 +18,8 @@ const initialState = {
     totalPrice:0,
     paymentMethod:'',
     coupon:'',
-    points:''
+    points:'',
+    paymentDurationLimit:5*60 //seconds
 }
 
 const calculateTotalPrice_Initial = (travelerDetailList) => {
@@ -44,27 +45,17 @@ const calculateTotalPrice_Traveler = (travelerDetailList_Prev, newDataTraveler) 
     })
     travelerDetailList_Updated.map((data,index) => {
         //price after add baggage and choose seat number type
-        let baggage = data.departureFlight.baggage
         let seatNumberType = data.departureFlight.seatNumberType
         totalPrice += data.departureFlight.price
-        if(baggage===25){
-            totalPrice += 155000  
-        }else if(baggage===30){
-            totalPrice += 290000  
-        }else if(baggage===35){
-            totalPrice += 400000  
-        }
-
-        baggage = data.returnFlight.baggage
+        // if(baggage===25){
+        //     totalPrice += 155000  
+        // }else if(baggage===30){
+        //     totalPrice += 290000  
+        // }else if(baggage===35){
+        //     totalPrice += 400000  
+        // }
         seatNumberType = data.returnFlight.seatNumberType
         totalPrice += data.returnFlight.price
-        if(baggage===25){
-            totalPrice += 155000  
-        }else if(baggage===30){
-            totalPrice += 290000  
-        }else if(baggage===35){
-            totalPrice += 400000  
-        }
         
     })
 

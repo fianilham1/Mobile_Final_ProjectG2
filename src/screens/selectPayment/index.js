@@ -11,14 +11,12 @@ import {
     ScrollView,
     Image,
     Alert} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { COLOR } from '../../constant/color';
 import {connect} from "react-redux";
 import { selectPaymentMethod } from '../../reducers/actions/price';
 import { FlightsHeader } from '../../components';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
-import { ListItem, Button } from 'react-native-elements';
+
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;

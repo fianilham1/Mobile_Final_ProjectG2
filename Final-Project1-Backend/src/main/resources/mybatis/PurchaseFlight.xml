@@ -3,7 +3,7 @@
 <mapper namespace = "PurchaseFlight">
 
     <insert id = "insertPurchase" parameterType = "main.java.backend.model.PurchaseFlight">
-        INSERT INTO PURCHASE (Username, TotalPassengers, TotalPrice, StatusPayment, VirtualAccountOfPayment) VALUES (#{username}, #{totalPassengers}, #{totalPrice}, #{statusPayment}, #{virtualAccountOfPayment});
+        INSERT INTO PURCHASE (Username, TotalPassengers, TotalPrice, StatusPayment, VirtualAccountOfPayment, DateBooking) VALUES (#{username}, #{totalPassengers}, #{totalPrice}, #{statusPayment}, #{virtualAccountOfPayment}, #{dateBooking});
         <selectKey keyProperty = "purchaseId" resultType = "int" order = "AFTER">
             select last_insert_id() as id
         </selectKey>
@@ -62,9 +62,57 @@
         SELECT PurchaseId FROM PURCHASE ORDER BY PurchaseId DESC LIMIT 1;
     </select>
 
+    <select id = "getPurchaseIdByUsername" resultType = "int" parameterType="String">
+        SELECT PurchaseId FROM PURCHASE WHERE username = #{username};
+    </select>
+
+    <insert id = "setVaList" parameterType = "map">
+        UPDATE PURCHASE SET VirtualAccountOfPayment = #{vaList}
+        WHERE PurchaseId = #{purchaseId};
+    </insert>
+
+    <select id = "getVaList" resultType = "String" parameterType="int">
+        SELECT VirtualAccountOfPayment FROM PURCHASE WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getPrice" resultType = "Double" parameterType="int">
+        SELECT TotalPrice FROM PURCHASE WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getDateBooking" resultType = "String" parameterType="int">
+        SELECT DateBooking FROM PURCHASE WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getStatusPayment" resultType = "String" parameterType="int">
+        SELECT StatusPayment FROM PURCHASE WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getPurchaseById" resultMap = "resultPurchase" parameterType = "int">
+        SELECT * FROM purchase WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getContactById" resultMap = "resultContact" parameterType = "int">
+        SELECT * FROM contact WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getFlightListById" resultMap = "resultFlights" parameterType = "int">
+        SELECT * FROM flightlist WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getPassengersById" resultMap = "resultPassengers" parameterType = "int">
+        SELECT * FROM passengers WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getFacilitiesById" resultMap = "resultFacilities" parameterType = "int">
+        SELECT * FROM facilities WHERE PassengersId = #{id};
+    </select>
+
+    <select id = "getInsurancesById" resultMap = "resultInsurances" parameterType = "int">
+        SELECT * FROM insurances WHERE PurchaseId = #{id};
+    </select>
+
     <update id = "updatePaymentStatus" parameterType = "map">
-        UPDATE PURCHASE SET StatusPayment = #{paymentStatus},
-        VirtualAccountOfPayment = #{virtualAccountOfPayment}
+        UPDATE PURCHASE SET StatusPayment = #{paymentStatus}
         WHERE PurchaseId = #{purchaseId};
     </update>
 
@@ -93,11 +141,58 @@
         SELECT DISTINCT Code FROM FACILITIES WHERE PurchaseId = #{id};
     </select>
 
-    <select id = "getPassengersInformation" resultMap = "resultPassengers" parameterType="int">
+    <select id = "getPassengersInformation" resultMap = "resultPassengersInfo" parameterType="int">
         SELECT * FROM PASSENGERS WHERE PurchaseId = #{id};
     </select>
 
-    <resultMap id = "resultPassengers" type = "main.java.backend.model.FlightPassengersInformation">
+    <select id = "getActiveBooking" resultType = "int" parameterType="String">
+        SELECT PurchaseId FROM PURCHASE WHERE Username = #{id};
+    </select>
+
+    <select id = "getFacilitiesByPassengersId" resultMap = "resultFacilities" parameterType="int">
+        SELECT * FROM FACILITIES WHERE PassengersId = #{id};
+    </select>
+
+    <resultMap id = "resultPurchase" type = "main.java.backend.model.PurchaseFlight">
+        <result property = "purchaseId" column = "PurchaseId"/>
+        <result property = "username" column = "Username"/>
+        <result property = "totalPassengers" column = "TotalPassengers"/>
+        <result property = "totalPrice" column = "TotalPrice"/>
+        <result property = "statusPayment" column = "StatusPayment"/>
+        <result property = "virtualAccountOfPayment" column = "VirtualAccountOfPayment"/>
+        <result property = "dateBooking" column = "DateBooking"/>
+    </resultMap>
+
+    <resultMap id = "resultContact" type = "main.java.backend.model.ContactDetails">
+        <result property = "contactDetailsName" column = "ContactDetailsName"/>
+        <result property = "contactDetailsEmail" column = "ContactDetailsEmail"/>
+        <result property = "contactDetailsMobile" column = "ContactDetailsMobile"/>
+    </resultMap>
+
+    <resultMap id = "resultFlights" type = "main.java.backend.model.NewFlightFormat">
+        <result property = "airlineName" column = "AirlineName"/>
+        <result property = "code" column = "Code"/>
+        <result property = "fromAirport" column = "FromAirport"/>
+        <result property = "toAirport" column = "ToAirport"/>
+        <result property = "departureDate" column = "DepartureDate"/>
+        <result property = "departureDateTime" column = "DepartureDateTime"/>
+        <result property = "returnDateTime" column = "ReturnDateTime"/>
+        <result property = "durationFlight" column = "DurationFlight"/>
+        <result property = "seatClass" column = "SeatClass"/>
+        <result property = "price" column = "Price"/>
+        <result property = "entertainment" column = "Entertainment"/>
+        <result property = "wifi" column = "Wifi"/>
+        <result property = "powerOrUSBPort" column = "PowerOrUSBPort"/>
+        <result property = "meals" column = "Meals"/>
+        <result property = "aircraftType" column = "AircraftType"/>
+        <result property = "seatLayout" column = "SeatLayout"/>
+        <result property = "seatPitch" column = "SeatPitch"/>
+        <result property = "numberTransit" column = "NumberTransit"/>
+        <result property = "transitLocation" column = "TransitLocation"/>
+        <result property = "transitDuration" column = "TransitDuration"/>
+    </resultMap>
+
+    <resultMap id = "resultPassengers" type = "main.java.backend.model.FlightPassengersDetails">
         <result property = "passengersId" column = "PassengersId"/>
         <result property = "name" column = "NAME"/>
         <result property = "birthDate" column = "BirthDate"/>
@@ -112,39 +207,19 @@
         <result property = "code" column = "Code"/>
     </resultMap>
 
-    <select id = "getActiveBooking" resultType = "int" parameterType="String">
-        SELECT PurchaseId FROM PURCHASE WHERE Username = #{id};
-    </select>
+    <resultMap id = "resultInsurances" type = "main.java.backend.model.FlightInsurances">
+        <result property = "travelInsurance" column = "TravelInsurance"/>
+        <result property = "covid19Insurance" column = "Covid19Insurance"/>
+        <result property = "flightDelayInsurance" column = "FlightDelayInsurance"/>
+        <result property = "baggageLossProtection" column = "BaggageLossProtection"/>
+    </resultMap>
 
-    <select id = "getFlights" resultMap = "resultFlights" parameterType="int">
-        SELECT * FROM FLIGHTLIST WHERE PurchaseId = #{id};
-    </select>
-
-    <select id = "getFacilitiesByPassengersId" resultMap = "resultFacilities" parameterType="int">
-        SELECT * FROM FACILITIES WHERE PassengersId = #{id};
-    </select>
-
-    <resultMap id = "resultFlights" type = "main.java.backend.model.ETicketFlight">
-        <result property = "airlineName" column = "AirlineName"/>
-        <result property = "code" column = "Code"/>
-        <result property = "fromAirport" column = "FromAirport"/>
-        <result property = "toAirport" column = "ToAirport"/>
-        <result property = "departureDate" column = "DepartureDate"/>
-        <result property = "departureDateTime" column = "DepartureDateTime"/>
-        <result property = "arrivalDateTime" column = "ArrivalDateTime"/>
-        <result property = "durationFlight" column = "DurationFlight"/>
-        <result property = "seatClass" column = "SeatClass"/>
-        <result property = "price" column = "Price"/>
-        <result property = "entertainment" column = "Entertainment"/>
-        <result property = "wifi" column = "Wifi"/>
-        <result property = "powerOrUSBPort" column = "PowerOrUSBPort"/>
-        <result property = "meals" column = "Meals"/>
-        <result property = "aircraftType" column = "AircraftType"/>
-        <result property = "seatLayout" column = "SeatLayout"/>
-        <result property = "seatPitch" column = "SeatPitch"/>
-        <result property = "numberTransit" column = "NumberTransit"/>
-        <result property = "transitLocation" column = "TransitLocation"/>
-        <result property = "transitDuration" column = "TransitDuration"/>
+    <resultMap id = "resultPassengersInfo" type = "main.java.backend.model.FlightPassengersInformation">
+        <result property = "passengersId" column = "PassengersId"/>
+        <result property = "name" column = "NAME"/>
+        <result property = "birthDate" column = "BirthDate"/>
+        <result property = "nationality" column = "Nationality"/>
+        <result property = "personClass" column = "PersonClass"/>
     </resultMap>
 
 </mapper>

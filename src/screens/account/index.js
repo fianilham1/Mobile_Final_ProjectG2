@@ -5,7 +5,7 @@ import { Input } from 'react-native-elements';
 import { COLOR } from '../../constant/color';
 import * as ImagePicker from "react-native-image-picker";
 import Modal from "react-native-modal";
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 import {
     Text,
@@ -15,13 +15,15 @@ import {
     Dimensions,
     TouchableOpacity,
     Image,
-    StatusBar} from 'react-native';
+    StatusBar,
+    TouchableNativeFeedback} from 'react-native';
 
 import { 
     Profile,
     LoginManager} from 'react-native-fbsdk-next';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Button } from 'react-native-elements';
 // import {
 //     GoogleSignin,
 //     statusCodes,
@@ -272,7 +274,7 @@ class Account extends Component {
             <View style={styles.header}>
                 <View style={styles.left} >
                 <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                    <Icon
+                    <MaterialIcon
                     name="arrow-back" color="#fff" size={23}
                     style={{ paddingLeft: 10 }}
                     />
@@ -289,7 +291,7 @@ class Account extends Component {
                     // onPress={() => this.props.navigation.navigate('Camera')}
                     onPress={() => this.clickModalHandler(true,'image')}
                     style={styles.addPhotoButton}>
-                        <Icon
+                        <MaterialIcon
                         name='photo-camera' 
                         size={25} 
                         color="white"
@@ -303,7 +305,7 @@ class Account extends Component {
                 underlayColor={COLOR.gray}
                 onPress={() => this.clickModalHandler(true,'name')}>
                     <View style={styles.profile}>
-                    <Icon
+                    <MaterialIcon
                         name='person' 
                         size={22} 
                         color={COLOR.main}
@@ -314,7 +316,7 @@ class Account extends Component {
                             <Text style={styles.textLabel}>Name</Text>
                             <Text style={styles.text}>{loggedUserProfile.name}</Text>
                         </View>
-                        <Icon
+                        <MaterialIcon
                             name='edit' 
                             size={22} 
                             color={COLOR.gray}
@@ -327,7 +329,7 @@ class Account extends Component {
                 underlayColor={COLOR.gray}
                 onPress={() => this.clickModalHandler(true,'username')}>
                     <View style={styles.profile}>
-                    <Icon
+                    <MaterialIcon
                         name='mail' 
                         size={22} 
                         color={COLOR.main}
@@ -338,7 +340,7 @@ class Account extends Component {
                             <Text style={styles.textLabel}>Email</Text>
                             <Text style={styles.text}>{loggedUserProfile.username}</Text>
                         </View>
-                        <Icon
+                        <MaterialIcon
                             name='edit' 
                             size={22} 
                             color={COLOR.gray}
@@ -351,7 +353,7 @@ class Account extends Component {
                 underlayColor={COLOR.gray}
                 onPress={() => this.clickModalHandler(true,'phone')}>
                     <View style={styles.profile}>
-                    <Icon
+                    <MaterialIcon
                         name='call' 
                         size={22} 
                         color={COLOR.main}
@@ -362,7 +364,7 @@ class Account extends Component {
                             <Text style={styles.textLabel}>Phone</Text>
                             <Text style={styles.text}>{loggedUserProfile.phone}</Text>
                         </View>
-                        <Icon
+                        <MaterialIcon
                             name='edit' 
                             size={22} 
                             color={COLOR.gray}
@@ -373,7 +375,31 @@ class Account extends Component {
                 </TouchableHighlight>
             </View>
             {this.renderEditBox()}
-           
+            <Button
+                icon={
+                  <MaterialIcon 
+                    name='logout'
+                    size={20}
+                    color='#fff'
+                    style={{marginRight:15}}
+                  />
+                }
+                title="Sign Out"
+                containerStyle={{
+                    marginHorizontal:50,
+                    marginTop:10,
+                    borderRadius:10
+                }}
+                buttonStyle={{
+                    backgroundColor:COLOR.main,
+                    height:50
+                }}
+                onPress={() => {
+                  console.log('SIGN OUT >>>')
+                    this.logoutApp
+                }}
+                background={TouchableNativeFeedback.Ripple('rgba(255,255,255,0.3))', false)}
+                /> 
         </View>
          );
     }

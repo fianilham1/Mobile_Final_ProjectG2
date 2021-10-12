@@ -16,7 +16,6 @@ import { loadingApi } from '../../reducers/actions/loading';
 import { InputApp, ButtonApp } from '../../components';
 import { COLOR} from '../../constant/color';
 import { SQLiteContext } from '../../config/sqlite';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import userApi from '../../api/user';
 
 const WIDTH = Dimensions.get('window').width
@@ -114,7 +113,7 @@ class SendEmail extends Component{
     render(){
         const {navigation} = this.props
         return(
-            <SafeAreaView style={{flex:1, backgroundColor:COLOR.main}}>
+            <>
             <ScrollView
             showsVerticalScrollIndicator={false}
             style={{
@@ -185,7 +184,7 @@ class SendEmail extends Component{
                 </TouchableOpacity>
                 </View>               
             </ScrollView>
-            </SafeAreaView>
+            </>
         )
     }
 }

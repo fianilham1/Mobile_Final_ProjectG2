@@ -10,7 +10,7 @@
     </select>
 
     <insert id = "insert" parameterType = "map">
-        INSERT INTO PURCHASE (PurchaseId, Username, TotalPrice, VirtualAccountOfPayment) VALUES (#{1}, #{2}, #{3}, #{4});
+        INSERT INTO PURCHASE (PurchaseId, TotalPrice, VirtualAccountOfPayment) VALUES (#{id}, #{price}, #{va});
     </insert>
 
     <resultMap id = "result" type = "main.java.backend.model.PurchaseFlight">

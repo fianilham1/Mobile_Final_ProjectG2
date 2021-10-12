@@ -17,7 +17,6 @@ import { InputApp, ButtonApp } from '../../components';
 import { COLOR} from '../../constant/color';
 import { SQLiteContext } from '../../config/sqlite';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import userApi from '../../api/user';
 import { ValidateRegexPassword } from '../../util/method/regex'
 
@@ -135,7 +134,7 @@ class ResetPass extends Component{
 
     render(){
         return(
-            <SafeAreaView style={{flex:1, backgroundColor:COLOR.main}}>
+            <View style={{flex:1}}>
             <ScrollView 
             showsVerticalScrollIndicator={false}
             style={{backgroundColor:"#FFF",height:"100%"}}>
@@ -207,7 +206,7 @@ class ResetPass extends Component{
                
                 </View>               
             </ScrollView>
-            </SafeAreaView>
+            </View>
         )
     }
 }

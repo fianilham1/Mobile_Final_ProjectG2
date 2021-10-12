@@ -64,16 +64,7 @@ public class FlightController {
         flightReqDeparture.setDepartureDate(headerData.get("departure-date"));
         flightReqDeparture.setSeatClass(headerData.get("seat-class"));
         List<Flight> flightDB1 = flightRepository.findFlightFromDB(flightReqDeparture,headerData.get("sort-by"));
-        List<Flight> flightDB2 = null;
-
-        if(isReturnDateExist){ // Round Trip -> Request departure and return
-            // >>>>>> RETURN
-            flightReqReturn.setFromAirport(headerData.get("to-airport"));
-            flightReqReturn.setToAirport(headerData.get("from-airport"));
-            flightReqReturn.setDepartureDate(headerData.get("return-date"));
-            flightReqReturn.setSeatClass(headerData.get("seat-class"));
-            flightDB2 = flightRepository.findFlightFromDB(flightReqReturn,headerData.get("sort-by"));
-        }
+        List<Flight> flightDB2 = new ArrayList<>();
 
         Iterator itr = flightDB1.iterator();
         JSONObject obj=new JSONObject();
@@ -87,18 +78,28 @@ public class FlightController {
             System.out.println("DepartureCategory");
             System.out.println(flight.getAirlineName()+" : "+flight.getDepartureDateTime()+" -> "+flight.getArrivalDateTime());
         }
-        itr = flightDB2.iterator();
-        while(itr.hasNext()){
-            Flight flight = (Flight) itr.next();
-            String strFlight = new Gson().toJson(flight);
-            JSONParser parser = new JSONParser();
-            JSONObject json = (JSONObject) parser.parse(strFlight);
-            obj.put("ReturnCategory",json);
-            System.out.println("ReturnCategory");
-            System.out.println(flight.getAirlineName()+" : "+flight.getDepartureDateTime()+" -> "+flight.getArrivalDateTime());
+        if(isReturnDateExist){ // Round Trip -> Request departure and return
+            // >>>>>> RETURN
+            flightReqReturn.setFromAirport(headerData.get("to-airport"));
+            flightReqReturn.setToAirport(headerData.get("from-airport"));
+            flightReqReturn.setDepartureDate(headerData.get("return-date"));
+            flightReqReturn.setSeatClass(headerData.get("seat-class"));
+            flightDB2 = flightRepository.findFlightFromDB(flightReqReturn,headerData.get("sort-by"));
+            itr = flightDB2.iterator();
+            while(itr.hasNext()){
+                Flight flight = (Flight) itr.next();
+                String strFlight = new Gson().toJson(flight);
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(strFlight);
+                obj.put("ReturnCategory",json);
+                System.out.println("ReturnCategory");
+                System.out.println(flight.getAirlineName()+" : "+flight.getDepartureDateTime()+" -> "+flight.getArrivalDateTime());
+            }
         }
+
         System.out.println("flightDB1 "+flightDB1);
         System.out.println("flightDB2 "+flightDB2);
+        System.out.println("isReturnDateExist "+isReturnDateExist);
         if (flightDB1.size() == 0){
             return new ResponseEntity<>("No Flights Available",
                     HttpStatus.NOT_FOUND);

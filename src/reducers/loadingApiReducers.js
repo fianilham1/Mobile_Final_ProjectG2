@@ -4,8 +4,9 @@ const initialState = {
     status:false,
     text:'Loading..',
     textStyle:{
-        color:'#fff'
-    }
+        fontSize:18,
+        marginTop:10
+      }
 }
 
 const loadingApiReducer = (state = initialState,action) => {
@@ -15,7 +16,10 @@ const loadingApiReducer = (state = initialState,action) => {
                 ...state,
                 status:action?.data?.status ? action?.data?.status : false,
                 text:action?.data?.text ? action?.data?.text : 'Loading...',
-                textStyle:action?.data?.textStyle ? action?.data?.textStyle : { color:'#fff' },
+                textStyle:action?.data?.textStyle ? action?.data?.textStyle : {
+                    fontSize:18,
+                    marginTop:10
+                  },
             }
         default:
             return state

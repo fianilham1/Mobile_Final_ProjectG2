@@ -22,9 +22,11 @@ import {
   Book2FillDetails2,
   TravelerDetail,
   BookSeatReservation,
+  BookBaggageReservation,
   Book3Pay,
   SelectPayment,
   BookingList,
+  MobileBankingDummy,
   Account} from '../screens';
 import {
   View,
@@ -75,7 +77,7 @@ class AuthForgetPassStackScreen extends Component {
   render() { 
     return ( 
       <View style={{flex:1}}>
-      <StatusBar translucent backgroundColor={COLOR.main} />
+      <StatusBar translucent barStyle="light-content" backgroundColor={COLOR.main} />
       <ForgotPassHeader 
       currentScreen={this.state.currentScreen} 
       {...this.props}/>
@@ -132,6 +134,7 @@ class AuthStackScreen extends Component {
   render() { 
     return ( 
       <View style={{flex:1 }}>
+      <StatusBar translucent barStyle="light-content" backgroundColor={COLOR.main} />
       <AuthFrontScreen 
         {...this.props}  
         authScreen={this.state.authScreen}
@@ -139,7 +142,6 @@ class AuthStackScreen extends Component {
         changeScreen={this.changeScreen}
         doExit={this.doExit}
       />
-      <StatusBar translucent backgroundColor='rgba(0,0,0,0)' />
       <AuthStack.Navigator 
       initialRouteName="Login"
       screenOptions={{
@@ -178,10 +180,10 @@ class FlightsStackScreen extends Component {
     super(props);
     this.state = {  }
   }
+
   render() { 
     return ( 
       <>
-      <StatusBar translucent barStyle="light-content" backgroundColor={COLOR.main} />
       <FlightsStack.Navigator 
       initialRouteName="FlightsSearch"
       screenOptions={{
@@ -220,9 +222,8 @@ class BookStackScreen extends Component {
   render() { 
     return ( 
       <>
-      <StatusBar translucent barStyle="light-content" backgroundColor={COLOR.main} />
       <BookStack.Navigator 
-      initialRouteName="FlightsSearch"
+      initialRouteName="Book1FillDetails"
       screenOptions={{
         headerShown: false,
       }}>
@@ -396,7 +397,12 @@ class RootStackScreen extends Component {
     }
 
     async componentDidMount(){
-      await this.getToken()
+      setTimeout(() => {
+        this.setState({
+          loading:false
+        })
+      },3000)
+      // await this.getToken()
     }
 
     getToken = async () => {
@@ -540,6 +546,7 @@ class RootStackScreen extends Component {
     render() { 
         return ( 
         <NavigationContainer>
+          <StatusBar translucent barStyle="light-content" backgroundColor={COLOR.main} />
           <SafeAreaView style={{flex:1}}>
           <RootStack.Navigator 
           initialRouteName="OnBoard"
@@ -578,7 +585,7 @@ class RootStackScreen extends Component {
                <RootStack.Screen 
                  name="FlightsStackScreen"
                  options={{
-                   animation:'flip'
+                   animation:'flip',
                  }} 
                  children={(props) => <FlightsStackScreen {...props} loggedUserProfile={this.props.loggedUserProfile}/>}/>
                <RootStack.Screen 
@@ -606,19 +613,33 @@ class RootStackScreen extends Component {
                  }} 
                  children={(props) => <TravelerDetail {...props} />}/>
                 
-                 <RootStack.Screen 
+                <RootStack.Screen 
                  name="BookSeatReservation"
                  options={{
-                   animation:'slide_from_bottom'
+                   animation:'fade_from_bottom'
                  }} 
                  children={(props) => <BookSeatReservation {...props} />}/>
+
+                <RootStack.Screen 
+                 name="BookBaggageReservation"
+                 options={{
+                   animation:'fade_from_bottom'
+                 }} 
+                 children={(props) => <BookBaggageReservation {...props} />}/>
    
-                 <RootStack.Screen 
+                <RootStack.Screen 
                  name="SelectPayment"
                  options={{
                    animation:'slide_from_bottom'
                  }} 
                  children={(props) => <SelectPayment {...props} />}/>
+
+                <RootStack.Screen 
+                 name="MobileBankingDummy"
+                 options={{
+                   animation:'slide_from_bottom'
+                 }} 
+                 children={(props) => <MobileBankingDummy {...props} />}/>
               </>
             }
   

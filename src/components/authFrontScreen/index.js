@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import * as Animatable from 'react-native-animatable';
 import { COLOR } from '../../constant/color';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
-import { TriangleDown, Rectangle } from '../shape';
-import LinearGradient from 'react-native-linear-gradient';
 import FontawesomeIcon from 'react-native-vector-icons/FontAwesome5';
 
 import { 

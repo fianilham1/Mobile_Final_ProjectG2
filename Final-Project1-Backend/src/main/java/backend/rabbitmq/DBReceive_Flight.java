@@ -11,6 +11,7 @@ import main.java.backend.service.PaymentService;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -69,11 +70,12 @@ public class DBReceive_Flight {
             try {
                 PurchaseFlight purchaseFlight = new Gson().fromJson(message, PurchaseFlight.class);
                 FlightRepositoryImpl flightService = new FlightRepositoryImpl();
+                PaymentService paymentService = new PaymentService();
 
                 int id = flightService.purchaseFlight(purchaseFlight);
                 PaymentService pay = new PaymentService();
-                String prefix = Integer.toString(id)+id;
-                String virtualAccountNumber = pay.getVirtualAccountNumber(Integer.parseInt(prefix));
+                String prefix = Integer.toString(id);
+                String virtualAccountNumber = pay.getVirtualAccountNumber(prefix);
 
                 PurchasePayment purchasePayment = new PurchasePayment();
                 purchasePayment.setPurchaseId(id);
@@ -96,10 +98,11 @@ public class DBReceive_Flight {
                 paymentMethodList.add(bank4);
                 purchasePayment.setThirdPartyPaymentList(paymentMethodList);
 
+                flightService.setVaList(purchasePayment);
+
                 DBSend.sendToApi(new Gson().toJson(purchasePayment),"purchaseFlightFromDB");
 
-                String timer = pay.timerPayment(4, paymentMethodList, Integer.toString(id)); //active
-
+                paymentService.timerPayment(5, paymentMethodList, Integer.toString(id)); //active
 
             } catch (Exception e) {
                 System.out.println("Error in receiver DB : "+e);
@@ -109,6 +112,98 @@ public class DBReceive_Flight {
             }
         };
         channel.basicConsume("purchaseFlight", false, deliverCallback, consumerTag -> {
+        });
+    }
+
+    public void checkPayment() throws Exception {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost");
+        final Connection connection = factory.newConnection();
+        final Channel channel = connection.createChannel();
+        channel.queueDeclare("checkPayment", true, false, false, null);
+        System.out.println(" [*] Waiting for messages from rest api");
+        channel.basicQos(1);
+
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+            String message = new String(delivery.getBody(), "UTF-8");
+            System.out.println(" [x] Received '" + message + "'");
+            try {
+                FlightRepositoryImpl flightService = new FlightRepositoryImpl();
+                String statusPayment = flightService.checkPayment(Integer.parseInt(message));
+
+                DBSend.sendToApi(statusPayment,"checkPaymentFromDB");
+
+            } catch (Exception e) {
+                System.out.println("Error in receiver DB : "+e);
+            } finally {
+                System.out.println(" [x] Done");
+                channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+            }
+        };
+        channel.basicConsume("checkPayment", false, deliverCallback, consumerTag -> {
+        });
+    }
+
+    public void pay() throws Exception {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost");
+        final Connection connection = factory.newConnection();
+        final Channel channel = connection.createChannel();
+        channel.queueDeclare("paymentSim", true, false, false, null);
+        System.out.println(" [*] Waiting for messages from rest api");
+        channel.basicQos(1);
+
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+            String message = new String(delivery.getBody(), "UTF-8");
+            System.out.println(" [x] Received '" + message + "'");
+            try {
+                PaymentSent paymentSent = new Gson().fromJson(message, PaymentSent.class);
+                FlightRepositoryImpl flightService = new FlightRepositoryImpl();
+
+                PaymentReq paymentReq = flightService.getPaymentRequirement(paymentSent.getPurchaseId());
+                String paymentStatus = flightService.pay(paymentSent, paymentReq);
+                DBSend.sendToApi(paymentStatus,"paymentSimFromDB");
+
+            } catch (Exception e) {
+                try{
+                    DBSend.sendToApi("Payment Is Invalid","paymentSimFromDB");
+                }catch(Exception err){}
+                System.out.println("Error in receiver DB : "+e);
+            } finally {
+                System.out.println(" [x] Done");
+                channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+            }
+        };
+        channel.basicConsume("paymentSim", false, deliverCallback, consumerTag -> {
+        });
+    }
+
+    public void bookingList() throws Exception {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost");
+        final Connection connection = factory.newConnection();
+        final Channel channel = connection.createChannel();
+        channel.queueDeclare("bookingListByUsername", true, false, false, null);
+        System.out.println(" [*] Waiting for messages from rest api");
+        channel.basicQos(1);
+
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+            String message = new String(delivery.getBody(), "UTF-8");
+            System.out.println(" [x] Received '" + message + "'");
+            try {
+                FlightRepositoryImpl flightService = new FlightRepositoryImpl();
+                List<PurchaseFlight> purchaseFlightList = flightService.getBookingList(message);
+
+                DBSend.sendToApi(new Gson().toJson(purchaseFlightList),"bookingListByUsernameFromDB");
+
+            } catch (Exception e) {
+                System.out.println("Error in receiver DB : "+e);
+            } finally {
+                System.out.println(" [x] Done");
+                channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+            }
+        };
+        channel.basicConsume("bookingListByUsername", false, deliverCallback, consumerTag -> {
         });
     }
 

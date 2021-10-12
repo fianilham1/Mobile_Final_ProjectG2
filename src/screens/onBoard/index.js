@@ -26,7 +26,7 @@ class OnBoard extends Component {
       const { navigation, loading } = this.props
         return (
           <>
-          <StatusBar translucent backgroundColor='rgba(0,0,0,0)' />
+          <StatusBar translucent backgroundColor={COLOR.lightmain2} />
           <LinearGradient
             colors={[COLOR.lightmain2, COLOR.lightmain ,COLOR.main]}
             locations={[0.1,0.2,0.7]}

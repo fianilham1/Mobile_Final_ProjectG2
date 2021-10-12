@@ -20,20 +20,19 @@ public class PaymentService {
     private static RestApiSend restApiSend;
     private static RestApiReceive restApiReceive;
 
-    public String getVirtualAccountNumber(int prefix) {
+    public String getVirtualAccountNumber(String prefix) {//generate 13 digit
         Random rand = new Random();
+        int lengthLeft = 12-prefix.length(); //total va digit is 16
+        long x = (long)(rand.nextDouble()*(Math.pow(10,lengthLeft)));
 
-        long x = (long)(rand.nextDouble()*100000000000000L);
-
-        String s = prefix + String.format("%014d", x);
+        String s = prefix + "0" + String.format("%0"+lengthLeft+"d", x);
         return s;
     }
 
-    public String timerPayment(long max, List<ThirdPartyPayment> bankList, String purchaseId) throws Exception{
-        RestApiSend restApiSend = new RestApiSend();
-        RestApiReceive restApiReceive = new RestApiReceive();
+    public String timerPayment(long max, List<ThirdPartyPayment> vaList, String purchaseId) throws Exception{
 
-        boolean x=true;
+        boolean x = true;
+        String va = null;
         long displayMinutes=0;
         long starttime=System.currentTimeMillis();
         System.out.println("Timer:");
@@ -53,12 +52,12 @@ public class PaymentService {
                 SqlSession session = sqlSessionFactory.openSession();
 
                 Map<Object, Object> params = new HashMap<>();
-                params.put("bank1", bankList.get(0).getVirtualAccountNumber());
-                params.put("bank2", bankList.get(1).getVirtualAccountNumber());
-                params.put("bank3", bankList.get(2).getVirtualAccountNumber());
-                params.put("bank4", bankList.get(3).getVirtualAccountNumber());
+                params.put("bank1", vaList.get(0).getVirtualAccountNumber());
+                params.put("bank2", vaList.get(1).getVirtualAccountNumber());
+                params.put("bank3", vaList.get(2).getVirtualAccountNumber());
+                params.put("bank4", vaList.get(3).getVirtualAccountNumber());
 
-                String va = session.selectOne("Bank.checkPayment", params);
+                va = session.selectOne("Bank.checkPayment", params);
                 System.out.println("....Check");
 
                 session.commit();
@@ -66,10 +65,10 @@ public class PaymentService {
 
                 if(va!=null){
                     FlightRepositoryImpl flightService = new FlightRepositoryImpl();
-                    flightService.acceptPaymentAndUpdateStatus(va, Integer.parseInt(purchaseId));
+                    flightService.acceptPaymentAndUpdateStatus(Integer.parseInt(purchaseId));
                     flightService.updateAirlineDB(Integer.parseInt(purchaseId));
                     System.out.println("SUCCESS PAY");
-                    break;
+                    return va;
                 }
 
             }
@@ -81,11 +80,11 @@ public class PaymentService {
             if(displayMinutes==max){
                 FlightRepositoryImpl flightService = new FlightRepositoryImpl();
                 flightService.cancelPayment(Integer.parseInt(purchaseId));
-                return "Purchase is CANCEL. Time is up";
+                return null;
             }
 
         }
         System.out.println("DONE >>>>>>>>>>>>>>>>>>");
-        return displayMinutes+"Minutes::"+secondspassed+"Seconds";
+        return "";
     }
 }

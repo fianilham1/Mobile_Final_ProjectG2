@@ -27,3 +27,6 @@ export const PAYMENT_METHOD_LIST = "PAYMENT_METHOD_LIST";
 
 //LOADING API
 export const LOADING_API = "LOADING_API";
+
+//PURCHASE DETAIL --------------------
+export const PURCHASE_DETAIL = "PURCHASE_DETAIL";

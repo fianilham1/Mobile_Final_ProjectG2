@@ -148,8 +148,6 @@ public class UserController {
 		return (new ResponseEntity<>(user, HttpStatus.OK));
 	}
 
-	
-
 	@RequestMapping(value = "/signUp", method = RequestMethod.POST)
     public ResponseEntity<?> registerUser(@RequestBody JSONObject jobj) throws Exception {
 
@@ -205,7 +203,6 @@ public class UserController {
     }
 
 	@RequestMapping(value = "/forgotPassword/send", method = RequestMethod.POST)
-	//public User login(@RequestBody JSONObject jobj) throws Exception {
 	public ResponseEntity<?> forgotPasswordSend(@RequestBody JSONObject jobj) throws Exception {
 
 		//SENDING MSG to RabbitMq...........................
@@ -243,7 +240,6 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/forgotPassword/reset", method = RequestMethod.POST)
-	//public User login(@RequestBody JSONObject jobj) throws Exception {
 	public ResponseEntity<?> forgotPasswordReset(@RequestBody JSONObject jobj) throws Exception {
 
 		//SENDING MSG to RabbitMq...........................
@@ -269,7 +265,7 @@ public class UserController {
 								.map(GrantedAuthority::getAuthority)
 								.collect(Collectors.toList()))
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + 7000000))
+				.setExpiration(new Date(System.currentTimeMillis() + 3600000))
 				.signWith(SignatureAlgorithm.HS512,
 						secretKey.getBytes()).compact();
 

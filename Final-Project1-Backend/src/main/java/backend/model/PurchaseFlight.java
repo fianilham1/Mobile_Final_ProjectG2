@@ -14,6 +14,7 @@ public class PurchaseFlight {
     private PurchaseFlightPrice priceDetails;
     private String statusPayment;
     private String virtualAccountOfPayment;
+    private String dateBooking;
 
     public int getPurchaseId() {
         return purchaseId;
@@ -101,6 +102,14 @@ public class PurchaseFlight {
 
     public void setVirtualAccountOfPayment(String virtualAccountOfPayment) {
         this.virtualAccountOfPayment = virtualAccountOfPayment;
+    }
+
+    public String getDateBooking() {
+        return dateBooking;
+    }
+
+    public void setDateBooking(String dateBooking) {
+        this.dateBooking = dateBooking;
     }
 
 }

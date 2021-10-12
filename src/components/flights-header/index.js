@@ -6,10 +6,11 @@ import {
     Text,
     TouchableOpacity,
     StyleSheet,
-    StatusBar
+    StatusBar,
     } from 'react-native';
 import { COLOR } from '../../constant/color';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import { CommonActions } from '@react-navigation/native';
 
 const DAY_NAME = ["Sun", "Mon","Tue","Wed","Thu","Fri","Sat"]
 const MONTH_NAME = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -20,6 +21,19 @@ class FlightsHeader extends Component {
         this.state = { 
         }
     }
+
+    reset = () => {
+      this.props.navigation.dispatch(
+          CommonActions.reset(
+              {
+                  index:0,
+                  routes:[
+                      {name:'BottomTabScreen'}
+                  ]
+              }
+          )
+      )
+  }
 
     getMonthName = (date) => {
       return MONTH_NAME[date.getMonth()]
@@ -92,8 +106,8 @@ class FlightsHeader extends Component {
           return <Text style={[styles.screenTitle,{marginLeft:-60}]}>Seat Reservation</Text>
         }
 
-        if(header==='BookSeatReservation'){
-          return <Text style={[styles.screenTitle,{marginLeft:-60}]}>Seat Reservation</Text>
+        if(header==='BookBaggageReservation'){
+          return <Text style={[styles.screenTitle,{marginLeft:-90}]}>Baggage</Text>
         }
 
         if(header==='SelectPayment'){
@@ -104,11 +118,17 @@ class FlightsHeader extends Component {
     }
 
     render() { 
-      const {leftIcon, rightIcon, rightIconHandler} = this.props
+      const {leftIcon, rightIcon, rightIconHandler, navigation, header} = this.props
         return ( 
             <View style={styles.header}>
                 <View style={styles.left} >
-                <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+                <TouchableOpacity onPress={() => {
+                  if(header==='Book3Pay'){
+                    this.reset()
+                  }else{
+                    navigation.goBack()
+                  }
+                }}>
                   {
                     leftIcon?
                       leftIcon==='empty'?

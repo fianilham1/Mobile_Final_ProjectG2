@@ -16,10 +16,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class FlightRepositoryImpl implements FlightRepository {
@@ -173,11 +170,147 @@ public class FlightRepositoryImpl implements FlightRepository {
         session.close();
 
         return id;
-
     }
 
     @Override
-    public void acceptPaymentAndUpdateStatus(String virtualAcc, int purchaseId) throws Exception{
+    public String setVaList(PurchasePayment purchasePayment) throws Exception{
+        Reader reader = Resources.getResourceAsReader("SqlMapConfigPurchase.xml");
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        SqlSession session = sqlSessionFactory.openSession();
+
+        String vaList = "";
+        for (ThirdPartyPayment bank : purchasePayment.getThirdPartyPaymentList()){
+            vaList += bank.getVirtualAccountNumber()+"/";
+        }
+
+        Map<Object, Object> params = new HashMap<>();
+        params.put("purchaseId",purchasePayment.getPurchaseId());
+        params.put("vaList",vaList);
+        session.insert("PurchaseFlight.setVaList", params);
+
+        session.commit();
+        session.close();
+
+        return vaList;
+    }
+
+    @Override
+    public PaymentReq getPaymentRequirement(int id) throws Exception{
+        Reader reader = Resources.getResourceAsReader("SqlMapConfigPurchase.xml");
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        SqlSession session = sqlSessionFactory.openSession();
+
+        String vaList = session.selectOne("PurchaseFlight.getVaList", id);
+        Double price = session.selectOne("PurchaseFlight.getPrice", id);
+        PaymentReq paymentReq = new PaymentReq();
+        paymentReq.setPrice(price);
+        paymentReq.setVaList(Arrays.asList(vaList.split("/")));
+        System.out.println("list va list "+Arrays.asList(vaList.split("/")).size());
+
+        System.out.println("get VA Number List with "+id+" successfully");
+        session.commit();
+        session.close();
+
+        return paymentReq;
+    }
+
+    @Override
+    public List<PurchaseFlight> getBookingList(String username) throws Exception{
+        Reader reader = Resources.getResourceAsReader("SqlMapConfigPurchase.xml");
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        SqlSession session = sqlSessionFactory.openSession();
+
+        List<Integer> purchaseIdList = session.selectList("PurchaseFlight.getPurchaseIdByUsername", username);
+        List<PurchaseFlight> purchaseFlightList = new ArrayList<>();
+        for(int purchaseId : purchaseIdList){
+            PurchaseFlight purchaseFlight = session.selectOne("PurchaseFlight.getPurchaseById", purchaseId);
+            ContactDetails contactDetails = session.selectOne("PurchaseFlight.getContactById", purchaseId);
+            List<NewFlightFormat> flightsList = session.selectList("PurchaseFlight.getFlightListById", purchaseId);
+            List<FlightPassengersDetails> flightPassengersList = session.selectList("PurchaseFlight.getPassengersById", purchaseId);
+            for (FlightPassengersDetails passenger : flightPassengersList) {
+                List<FlightPassengersDetailsFacilities> flightFacilitiesList = session.selectList("PurchaseFlight.getFacilitiesById", passenger.getPassengersId());
+                FlightPassengersDetailsFacilities departureDetails = flightFacilitiesList.get(0);
+                passenger.setDepartureDetails(departureDetails);
+
+                if (flightsList.size() > 1) { //return flight exist
+                    FlightPassengersDetailsFacilities returnDetails = flightFacilitiesList.get(1);
+                    passenger.setReturnDetails(returnDetails);
+                }
+            }
+            FlightInsurances flightInsurances = session.selectOne("PurchaseFlight.getInsurancesById", purchaseId);
+
+            purchaseFlight.setContactDetails(contactDetails);
+            purchaseFlight.setFlightList(flightsList);
+            purchaseFlight.setFlightPassengersList(flightPassengersList);
+            purchaseFlight.setFlightInsurances(flightInsurances);
+            purchaseFlightList.add(purchaseFlight);
+        }
+
+        System.out.println("get Booking List with "+username+" successfully");
+        session.commit();
+        session.close();
+
+        return purchaseFlightList;
+    }
+
+    @Override
+    public String checkPayment(int id) throws Exception{
+
+        Reader reader = Resources.getResourceAsReader("SqlMapConfigPurchase.xml");
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        SqlSession session = sqlSessionFactory.openSession();
+
+        String statusPayment = session.selectOne("PurchaseFlight.getStatusPayment", id);
+        System.out.println("statusPayment "+statusPayment);
+        session.commit();
+        session.close();
+
+        return statusPayment;
+    }
+
+    @Override
+    public String pay(PaymentSent paymentSent, PaymentReq paymentReq) throws Exception{
+
+        Reader reader = Resources.getResourceAsReader("SqlMapConfigBank.xml");
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        SqlSession session = sqlSessionFactory.openSession();
+        String vaOfPayment = null;
+        System.out.println("paymentReq.getVaList() size : "+paymentReq.getVaList().size());
+        //Check first the virtual account number and total price based on this virtual acc number
+        for ( String va : paymentReq.getVaList() ){
+            System.out.println("check va in list : "+va);
+            System.out.println("check va sent : "+paymentSent.getVa());
+            System.out.println("check price req  : "+paymentReq.getPrice());
+            System.out.println("check price sent : "+paymentSent.getPrice());
+            System.out.println(" ");
+            if(paymentSent.getVa().equals(va) && paymentSent.getPrice().equals(paymentReq.getPrice())){
+                System.out.println("CORRECT >>>>");
+                vaOfPayment = va;
+                break;
+            }
+        }
+
+        if(vaOfPayment != null){
+            Map<Object, Object> params = new HashMap<>();
+            params.put("id",paymentSent.getPurchaseId());
+            params.put("price",paymentSent.getPrice());
+            params.put("va",vaOfPayment);
+            session.insert("Bank.insert", params);
+
+            System.out.println("PAYMENT to Virtual Account : "+paymentSent.getVa()+" is Successful");
+            session.commit();
+            session.close();
+            return "Payment Is Successful";
+        }
+
+        session.commit();
+        session.close();
+        System.out.println("PAYMENT to Virtual Account : "+paymentSent.getVa()+" is FAILED");
+        return "Payment Is Invalid";
+    }
+
+    @Override
+    public void acceptPaymentAndUpdateStatus(int purchaseId) throws Exception{
 
         System.out.println("Pay Successful");
         Reader reader = Resources.getResourceAsReader("SqlMapConfigPurchase.xml");
@@ -187,8 +320,7 @@ public class FlightRepositoryImpl implements FlightRepository {
         //Update payment status
         Map<Object, Object> params = new HashMap<>();
         params.put("purchaseId",purchaseId);
-        params.put("virtualAccountOfPayment",virtualAcc);
-        params.put("paymentStatus","successful");
+        params.put("paymentStatus","Successful");
         session.update("PurchaseFlight.updatePaymentStatus",params);
         //System.out.println("Record updated successfully");
 
@@ -237,7 +369,19 @@ public class FlightRepositoryImpl implements FlightRepository {
     private String sendGet(FlightRequest flightReq) throws Exception {
 
         HttpRequest request = null;
-        if(flightReq.getReturnDate()!=null){ //departure flight and return
+        if(flightReq.getReturnDate().isEmpty()){ //departure flight only
+            System.out.println("ONE WAY");
+            request = HttpRequest.newBuilder()
+                    .GET()
+                    .uri(URI.create("http://localhost:8888/airline/find"))
+                    .header("from-airport",flightReq.getFromAirport())
+                    .header("to-airport", flightReq.getToAirport())
+                    .header("departure-date",flightReq.getDepartureDate())
+                    .header("seat-class",flightReq.getSeatClass())
+                    .header("sort-by",flightReq.getSortBy())
+                    .build();
+        }else{ //departure flight and return flight
+            System.out.println("ROUND TRIP");
             request = HttpRequest.newBuilder()
                     .GET()
                     .uri(URI.create("http://localhost:8888/airline/find"))
@@ -245,16 +389,6 @@ public class FlightRepositoryImpl implements FlightRepository {
                     .header("to-airport", flightReq.getToAirport())
                     .header("departure-date",flightReq.getDepartureDate())
                     .header("return-date",flightReq.getReturnDate())
-                    .header("seat-class",flightReq.getSeatClass())
-                    .header("sort-by",flightReq.getSortBy())
-                    .build();
-        }else{ //departure flight only
-            request = HttpRequest.newBuilder()
-                    .GET()
-                    .uri(URI.create("http://localhost:8888/airline/find"))
-                    .header("from-airport",flightReq.getFromAirport())
-                    .header("to-airport", flightReq.getToAirport())
-                    .header("departure-date",flightReq.getDepartureDate())
                     .header("seat-class",flightReq.getSeatClass())
                     .header("sort-by",flightReq.getSortBy())
                     .build();

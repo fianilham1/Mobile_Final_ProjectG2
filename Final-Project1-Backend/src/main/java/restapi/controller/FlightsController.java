@@ -71,7 +71,7 @@ public class FlightsController {
 		Type listType = new TypeToken<ArrayList<Flight>>(){}.getType();
 		List<Flight> flightList = new Gson().fromJson(msg, listType);
 
-		//store request flight temporarily
+		//store request flight
 		FlightRequest flightRequest = new Gson().fromJson(jobj.toString(), FlightRequest.class);
 
 		//change to new format class and Separate into departure flight and return flight
@@ -116,6 +116,95 @@ public class FlightsController {
 		PurchasePayment payment = new Gson().fromJson(msg, PurchasePayment.class);
 
 		return (new ResponseEntity<>(payment, HttpStatus.CREATED));
+	}
+
+	@RequestMapping(value = "/checkPayment/{id}", method = RequestMethod.GET)
+	public ResponseEntity<?> checkPayment(@PathVariable("id") int id) throws Exception {
+
+		//SENDING MSG to RabbitMq...........................
+		restApiSend.sendToDB(Integer.toString(id),"checkPayment");
+
+		//RECEIVING MSG from RabbitMq.......................
+		restApiReceive.receiveFromDB("checkPaymentFromDB");
+		restApiReceive.setMsg(null);
+		String msg;
+		try {
+			while(restApiReceive.getMsg()==null){
+				System.out.println("delay..");
+				Thread.sleep(2000);
+			}
+
+		} catch (InterruptedException _ignored) {
+			Thread.currentThread().interrupt();
+		}
+		msg = restApiReceive.getMsg();
+		System.out.println("DONE........ "+msg);
+
+		if(msg.equals("Waiting Payment")){
+			return new ResponseEntity<>(new CustomErrorType("Waiting Payment"),
+					HttpStatus.NOT_FOUND);
+		}
+
+		return (new ResponseEntity<>(new MessageType("Payment OK"), HttpStatus.OK));
+	}
+
+	@RequestMapping(value = "/pay", method = RequestMethod.POST)
+	public ResponseEntity<?> pay(@RequestBody JSONObject jobj ) throws Exception {
+
+		//SENDING MSG to RabbitMq...........................
+		restApiSend.sendToDB(jobj.toString(),"paymentSim");
+
+		//RECEIVING MSG from RabbitMq.......................
+		restApiReceive.receiveFromDB("paymentSimFromDB");
+		restApiReceive.setMsg(null);
+		String msg;
+		try {
+			while(restApiReceive.getMsg()==null){
+				System.out.println("delay..");
+				Thread.sleep(2000);
+			}
+
+		} catch (InterruptedException _ignored) {
+			Thread.currentThread().interrupt();
+		}
+		msg = restApiReceive.getMsg();
+		System.out.println("DONE........ "+msg);
+
+		if(msg.equals("Payment Is Invalid")){
+			return new ResponseEntity<>(new CustomErrorType("Payment Is Invalid"),
+					HttpStatus.NOT_FOUND);
+		}
+
+		return (new ResponseEntity<>(new MessageType("Payment Is Successful"), HttpStatus.OK));
+	}
+
+
+	@RequestMapping(value = "/getBookingList/{username}", method = RequestMethod.GET)
+	public ResponseEntity<?> getBookingList(@PathVariable("username") String username) throws Exception {
+
+		//SENDING MSG to RabbitMq...........................
+		restApiSend.sendToDB(username,"bookingListByUsername");
+
+		//RECEIVING MSG from RabbitMq.......................
+		restApiReceive.receiveFromDB("bookingListByUsernameFromDB");
+		restApiReceive.setMsg(null);
+		String msg;
+		try {
+			while(restApiReceive.getMsg()==null){
+				System.out.println("delay..");
+				Thread.sleep(2000);
+			}
+
+		} catch (InterruptedException _ignored) {
+			Thread.currentThread().interrupt();
+		}
+		msg = restApiReceive.getMsg();
+		System.out.println("DONE........ "+msg);
+
+		Type listType = new TypeToken<ArrayList<PurchaseFlight>>(){}.getType();
+		List<PurchaseFlight> purchaseFlightList = new Gson().fromJson(msg, listType);
+
+		return (new ResponseEntity<>(purchaseFlightList, HttpStatus.OK));
 	}
 
 }

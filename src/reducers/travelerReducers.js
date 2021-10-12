@@ -12,7 +12,6 @@ const travelerReducer = (state = initialState,action) => {
                 if (index !== (action?.data.id-1)) {
                   return item
                 }
-
                 return {
                   ...item,
                   ...action.data
