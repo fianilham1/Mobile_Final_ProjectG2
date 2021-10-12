@@ -1,14 +1,14 @@
 # Note
 
 1. First Run Web Server for Travelsay App:
--> Open folder Final-Project1-Backend,
-   Open src/main/java/MainApplication.Java and Run,
-   Open src/main/java/BackEndMain.Java and Run,
-   Open src/main/java/BackEndPurchaseFlight.Java and Run,
+-> Open folder Final-Project1-Backend,.\
+   Open src/main/java/MainApplication.Java and Run,.\
+   Open src/main/java/BackEndMain.Java and Run,.\
+   Open src/main/java/BackEndPurchaseFlight.Java and Run,.\
 
 2. Second Run Web Server for Third Party => airline Backend :
--> Open folder AirlineBackEnd,
-   Open src/main/java/AirlineBackEndApplication.Java and Run,
+-> Open folder AirlineBackEnd,.\
+   Open src/main/java/AirlineBackEndApplication.Java and Run,.\
 
 3. Install node modules with command in cmd : npm install
 
