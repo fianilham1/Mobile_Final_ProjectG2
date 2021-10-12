@@ -8,7 +8,7 @@
 
 2. Second Run Web Server for Third Party => airline Backend : \
 -> Open folder AirlineBackEnd,\
-   Open src/main/java/AirlineBackEndApplication.Java and Run,\
+   Open src/main/java/AirlineBackEndApplication.Java and Run,
 
 3. Install node modules with command in cmd : npm install
 
