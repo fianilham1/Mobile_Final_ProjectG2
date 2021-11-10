@@ -1,0 +1,124 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "Flight">
+
+    <resultMap id = "result" type = "main.java.model.Flight">
+        <result property = "airlineName" column = "AirlineName"/>
+        <result property = "code" column = "Code"/>
+        <result property = "fromAirport" column = "FromAirport"/>
+        <result property = "toAirport" column = "ToAirport"/>
+        <result property = "departureDate" column = "DepartureDate"/>
+        <result property = "departureDateTime" column = "DepartureDateTime"/>
+        <result property = "arrivalDateTime" column = "ArrivalDateTime"/>
+        <result property = "seatClass" column = "SeatClass"/>
+        <result property = "numberBaggageAvailable" column = "NumberBaggageAvailable"/>
+        <result property = "baggageData" column = "BaggageData"/>
+        <result property = "numberSeatAvailable" column = "NumberSeatAvailable"/>
+        <result property = "seatRegularZone" column = "SeatRegularZone"/>
+        <result property = "seatGreenZone" column = "SeatGreenZone"/>
+        <result property = "seatSold" column = "SeatSold"/>
+        <result property = "entertainment" column = "Entertainment"/>
+        <result property = "wifi" column = "Wifi"/>
+        <result property = "powerOrUSBPort" column = "PowerOrUSBPort"/>
+        <result property = "meals" column = "Meals"/>
+        <result property = "aircraftType" column = "AircraftType"/>
+        <result property = "seatLayout" column = "SeatLayout"/>
+        <result property = "seatPitch" column = "SeatPitch"/>
+        <result property = "numberTransit" column = "NumberTransit"/>
+        <result property = "transitLocation" column = "TransitLocation"/>
+        <result property = "transitDuration" column = "TransitDuration"/>
+        <result property = "price" column = "Price"/>
+    </resultMap>
+
+    <select id = "findWithEarliestDeparture" resultMap = "result" parameterType="map">
+        SELECT * FROM GARADA
+        WHERE FromAirport = #{fromAirport} AND
+        ToAirport = #{toAirport} AND
+        DepartureDate = #{departureDate} AND
+        SeatClass = #{seatClass}
+        UNION ALL
+        SELECT * FROM CITILANK
+        WHERE FromAirport = #{fromAirport} AND
+        ToAirport = #{toAirport} AND
+        DepartureDate = #{departureDate} AND
+        SeatClass = #{seatClass}
+        UNION ALL
+        SELECT * FROM SRIJAYA
+        WHERE FromAirport = #{fromAirport} AND
+        ToAirport = #{toAirport} AND
+        DepartureDate = #{departureDate} AND
+        SeatClass = #{seatClass} ORDER BY DepartureDateTime;
+    </select>
+
+    <select id = "order" resultMap = "result" parameterType="String">
+        SELECT * FROM GARADA
+        WHERE Code = #{id}
+        UNION ALL
+        SELECT * FROM CITILANK
+        WHERE Code = #{id}
+        UNION ALL
+        SELECT * FROM SRIJAYA
+        WHERE Code = #{id};
+    </select>
+
+    <update id = "updateGarada" parameterType = "map">
+        UPDATE GARADA SET NumberBaggageAvailable = #{numberBaggage},
+        NumberSeatAvailable = #{numberSeat},
+        SeatRegularZone = #{seatRegularZone},
+        SeatGreenZone = #{seatGreenZone},
+        SeatSold = #{seatSold}
+        WHERE Code = #{code};
+    </update>
+
+    <update id = "updateCitilank" parameterType = "map">
+        UPDATE CITILANK SET NumberBaggageAvailable = #{numberBaggage},
+        NumberSeatAvailable = #{numberSeat},
+        SeatRegularZone = #{seatRegularZone},
+        SeatGreenZone = #{seatGreenZone},
+        SeatSold = #{seatSold}
+        WHERE Code = #{code};
+    </update>
+
+    <update id = "updateSrijaya" parameterType = "map">
+        UPDATE SRIJAYA SET NumberBaggageAvailable = #{numberBaggage},
+        NumberSeatAvailable = #{numberSeat},
+        SeatRegularZone = #{seatRegularZone},
+        SeatGreenZone = #{seatGreenZone},
+        SeatSold = #{seatSold}
+        WHERE Code = #{code};
+    </update>
+
+    <select id = "getSeatRegularZone" resultType = "String" parameterType="String">
+        SELECT SeatRegularZone FROM GARADA
+        WHERE Code = #{id}
+        UNION ALL
+        SELECT SeatRegularZone FROM CITILANK
+        WHERE Code = #{id}
+        UNION ALL
+        SELECT SeatRegularZone FROM SRIJAYA
+        WHERE Code = #{id};
+    </select>
+
+    <select id = "getSeatGreenZone" resultType = "String" parameterType="String">
+        SELECT SeatGreenZone FROM GARADA
+        WHERE Code = #{id}
+        UNION ALL
+        SELECT SeatGreenZone FROM CITILANK
+        WHERE Code = #{id}
+        UNION ALL
+        SELECT SeatGreenZone FROM SRIJAYA
+        WHERE Code = #{id};
+    </select>
+
+    <select id = "getSeatSold" resultType = "String" parameterType="String">
+        SELECT SeatSold FROM GARADA
+        WHERE Code = #{id}
+        UNION ALL
+        SELECT SeatSold FROM CITILANK
+        WHERE Code = #{id}
+        UNION ALL
+        SELECT SeatSold FROM SRIJAYA
+        WHERE Code = #{id};
+    </select>
+
+</mapper>

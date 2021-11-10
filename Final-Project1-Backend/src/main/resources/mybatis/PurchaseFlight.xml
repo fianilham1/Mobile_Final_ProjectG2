@@ -1,0 +1,225 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "PurchaseFlight">
+
+    <insert id = "insertPurchase" parameterType = "main.java.backend.model.PurchaseFlight">
+        INSERT INTO PURCHASE (Username, TotalPassengers, TotalPrice, StatusPayment, VirtualAccountOfPayment, DateBooking) VALUES (#{username}, #{totalPassengers}, #{totalPrice}, #{statusPayment}, #{virtualAccountOfPayment}, #{dateBooking});
+        <selectKey keyProperty = "purchaseId" resultType = "int" order = "AFTER">
+            select last_insert_id() as id
+        </selectKey>
+    </insert>
+
+    <insert id = "insertContact" parameterType = "map">
+        INSERT INTO CONTACT (PurchaseId, ContactDetailsName, ContactDetailsEmail, ContactDetailsMobile) VALUES (#{1}, #{2}, #{3}, #{4});
+    </insert>
+
+    <insert id = "insertPassengers" parameterType = "map">
+        INSERT INTO PASSENGERS (PurchaseId, NAME, BirthDate, Nationality, PersonClass) VALUES (#{1}, #{2}, #{3}, #{4}, #{5});
+        <selectKey keyProperty = "passengersId" resultType = "int" order = "AFTER">
+            select last_insert_id() as id
+        </selectKey>
+    </insert>
+
+    <insert id = "insertFacilities" parameterType = "map">
+        INSERT INTO FACILITIES (PassengersId, PurchaseId, Baggage, SeatNumber, SeatNumberType, Code) VALUES (#{1}, #{2}, #{3}, #{4}, #{5}, #{6});
+    </insert>
+
+    <insert id = "insertFlight" parameterType = "map">
+        INSERT INTO FLIGHTLIST (PurchaseId,
+        AirlineName,
+        CODE,
+        FromAirport,
+        ToAirport,
+        DepartureDate,
+        DepartureDateTime,
+        arrivalDateTime,
+        DurationFlight,
+        SeatClass,
+        Entertainment,
+        Wifi,
+        PowerOrUSBPort,
+        Meals,
+        AircraftType,
+        SeatLayout,
+        SeatPitch,
+        NumberTransit,
+        TransitLocation,
+        TransitDuration,
+        Price,
+        BaggageOrdered,
+        SeatNumberOrdered) VALUES (#{1}, #{2}, #{3}, #{4}, #{5}, #{6}, #{7}, #{8}, #{9}, #{10}, #{11}, #{12}, #{13}, #{14}, #{15}, #{16}, #{17}, #{18}, #{19}, #{20}, #{21}, #{22}, #{23});
+    </insert>
+
+    <insert id = "insertInsurance" parameterType = "map">
+        INSERT INTO INSURANCES (PurchaseId, TravelInsurance, Covid19Insurance, FlightDelayInsurance, BaggageLossProtection) VALUES (#{1}, #{2}, #{3}, #{4}, #{5});
+    </insert>
+
+    <select id = "getIdPassengers" resultType = "int" parameterType="String">
+        SELECT PassengersId FROM PASSENGERS ORDER BY PassengersId DESC LIMIT 1;
+    </select>
+
+    <select id = "getId" resultType = "int" parameterType="String">
+        SELECT PurchaseId FROM PURCHASE ORDER BY PurchaseId DESC LIMIT 1;
+    </select>
+
+    <select id = "getPurchaseIdByUsername" resultType = "int" parameterType="String">
+        SELECT PurchaseId FROM PURCHASE WHERE username = #{username};
+    </select>
+
+    <insert id = "setVaList" parameterType = "map">
+        UPDATE PURCHASE SET VirtualAccountOfPayment = #{vaList}
+        WHERE PurchaseId = #{purchaseId};
+    </insert>
+
+    <select id = "getVaList" resultType = "String" parameterType="int">
+        SELECT VirtualAccountOfPayment FROM PURCHASE WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getPrice" resultType = "Double" parameterType="int">
+        SELECT TotalPrice FROM PURCHASE WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getDateBooking" resultType = "String" parameterType="int">
+        SELECT DateBooking FROM PURCHASE WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getStatusPayment" resultType = "String" parameterType="int">
+        SELECT StatusPayment FROM PURCHASE WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getPurchaseById" resultMap = "resultPurchase" parameterType = "int">
+        SELECT * FROM purchase WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getContactById" resultMap = "resultContact" parameterType = "int">
+        SELECT * FROM contact WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getFlightListById" resultMap = "resultFlights" parameterType = "int">
+        SELECT * FROM flightlist WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getPassengersById" resultMap = "resultPassengers" parameterType = "int">
+        SELECT * FROM passengers WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getFacilitiesById" resultMap = "resultFacilities" parameterType = "int">
+        SELECT * FROM facilities WHERE PassengersId = #{id};
+    </select>
+
+    <select id = "getInsurancesById" resultMap = "resultInsurances" parameterType = "int">
+        SELECT * FROM insurances WHERE PurchaseId = #{id};
+    </select>
+
+    <update id = "updatePaymentStatus" parameterType = "map">
+        UPDATE PURCHASE SET StatusPayment = #{paymentStatus}
+        WHERE PurchaseId = #{purchaseId};
+    </update>
+
+    <delete id = "deletePurchase" parameterType = "int">
+        DELETE
+        FROM purchase, contact, flightlist,  passengers, facilities, insurances
+        USING purchase
+        INNER JOIN contact
+        ON purchase.PurchaseId = contact.PurchaseId
+        INNER JOIN flightlist
+        ON purchase.PurchaseId = flightlist.PurchaseId
+        INNER JOIN passengers
+        ON purchase.PurchaseId = passengers.PurchaseId
+        INNER JOIN facilities
+        ON purchase.PurchaseId = facilities.PurchaseId
+        INNER JOIN insurances
+        ON purchase.PurchaseId = insurances.PurchaseId
+        WHERE purchase.PurchaseId = #{id};
+    </delete>
+
+    <select id = "getFacilities" resultMap = "resultFacilities" parameterType="int">
+        SELECT * FROM FACILITIES WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getCode" resultType = "String" parameterType="int">
+        SELECT DISTINCT Code FROM FACILITIES WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getPassengersInformation" resultMap = "resultPassengersInfo" parameterType="int">
+        SELECT * FROM PASSENGERS WHERE PurchaseId = #{id};
+    </select>
+
+    <select id = "getActiveBooking" resultType = "int" parameterType="String">
+        SELECT PurchaseId FROM PURCHASE WHERE Username = #{id};
+    </select>
+
+    <select id = "getFacilitiesByPassengersId" resultMap = "resultFacilities" parameterType="int">
+        SELECT * FROM FACILITIES WHERE PassengersId = #{id};
+    </select>
+
+    <resultMap id = "resultPurchase" type = "main.java.backend.model.PurchaseFlight">
+        <result property = "purchaseId" column = "PurchaseId"/>
+        <result property = "username" column = "Username"/>
+        <result property = "totalPassengers" column = "TotalPassengers"/>
+        <result property = "totalPrice" column = "TotalPrice"/>
+        <result property = "statusPayment" column = "StatusPayment"/>
+        <result property = "virtualAccountOfPayment" column = "VirtualAccountOfPayment"/>
+        <result property = "dateBooking" column = "DateBooking"/>
+    </resultMap>
+
+    <resultMap id = "resultContact" type = "main.java.backend.model.ContactDetails">
+        <result property = "contactDetailsName" column = "ContactDetailsName"/>
+        <result property = "contactDetailsEmail" column = "ContactDetailsEmail"/>
+        <result property = "contactDetailsMobile" column = "ContactDetailsMobile"/>
+    </resultMap>
+
+    <resultMap id = "resultFlights" type = "main.java.backend.model.NewFlightFormat">
+        <result property = "airlineName" column = "AirlineName"/>
+        <result property = "code" column = "Code"/>
+        <result property = "fromAirport" column = "FromAirport"/>
+        <result property = "toAirport" column = "ToAirport"/>
+        <result property = "departureDate" column = "DepartureDate"/>
+        <result property = "departureDateTime" column = "DepartureDateTime"/>
+        <result property = "returnDateTime" column = "ReturnDateTime"/>
+        <result property = "durationFlight" column = "DurationFlight"/>
+        <result property = "seatClass" column = "SeatClass"/>
+        <result property = "price" column = "Price"/>
+        <result property = "entertainment" column = "Entertainment"/>
+        <result property = "wifi" column = "Wifi"/>
+        <result property = "powerOrUSBPort" column = "PowerOrUSBPort"/>
+        <result property = "meals" column = "Meals"/>
+        <result property = "aircraftType" column = "AircraftType"/>
+        <result property = "seatLayout" column = "SeatLayout"/>
+        <result property = "seatPitch" column = "SeatPitch"/>
+        <result property = "numberTransit" column = "NumberTransit"/>
+        <result property = "transitLocation" column = "TransitLocation"/>
+        <result property = "transitDuration" column = "TransitDuration"/>
+    </resultMap>
+
+    <resultMap id = "resultPassengers" type = "main.java.backend.model.FlightPassengersDetails">
+        <result property = "passengersId" column = "PassengersId"/>
+        <result property = "name" column = "NAME"/>
+        <result property = "birthDate" column = "BirthDate"/>
+        <result property = "nationality" column = "Nationality"/>
+        <result property = "personClass" column = "PersonClass"/>
+    </resultMap>
+
+    <resultMap id = "resultFacilities" type = "main.java.backend.model.FlightPassengersDetailsFacilities">
+        <result property = "baggage" column = "Baggage"/>
+        <result property = "seatNumber" column = "SeatNumber"/>
+        <result property = "seatNumberType" column = "SeatNumberType"/>
+        <result property = "code" column = "Code"/>
+    </resultMap>
+
+    <resultMap id = "resultInsurances" type = "main.java.backend.model.FlightInsurances">
+        <result property = "travelInsurance" column = "TravelInsurance"/>
+        <result property = "covid19Insurance" column = "Covid19Insurance"/>
+        <result property = "flightDelayInsurance" column = "FlightDelayInsurance"/>
+        <result property = "baggageLossProtection" column = "BaggageLossProtection"/>
+    </resultMap>
+
+    <resultMap id = "resultPassengersInfo" type = "main.java.backend.model.FlightPassengersInformation">
+        <result property = "passengersId" column = "PassengersId"/>
+        <result property = "name" column = "NAME"/>
+        <result property = "birthDate" column = "BirthDate"/>
+        <result property = "nationality" column = "Nationality"/>
+        <result property = "personClass" column = "PersonClass"/>
+    </resultMap>
+
+</mapper>
